@@ -69,20 +69,7 @@ func DecodeAddResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody
 		}
 		switch resp.StatusCode {
 		case http.StatusOK:
-			var (
-				body AddResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("account", "add", err)
-			}
-			err = ValidateAddResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("account", "add", err)
-			}
-			res := NewAddAccountOK(&body)
-			return res, nil
+			return nil, nil
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("account", "add", resp.StatusCode, string(body))
@@ -219,7 +206,7 @@ func unmarshalTrackedAccountResponseToAccountviewsTrackedAccountView(v *TrackedA
 	res := &accountviews.TrackedAccountView{
 		Address: v.Address,
 	}
-	res.Assets = make([]int64, len(v.Assets))
+	res.Assets = make([]uint64, len(v.Assets))
 	for i, val := range v.Assets {
 		res.Assets[i] = val
 	}

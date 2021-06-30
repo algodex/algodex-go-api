@@ -28,12 +28,11 @@ var Account = Type(
 			},
 		)
 		Attribute(
-			"assets", ArrayOf(Int64), func() {
+			"assets", ArrayOf(UInt64), func() {
 				Description("Opted-in ASA IDs")
-				Example([]int64{202586210, 205471981})
+				Example([]uint64{202586210, 205471981})
 			},
 		)
-		//Field(2, "assets", ArrayOf(Int64), "List of opted-in Assets")
 		Required("address", "assets")
 	},
 )
@@ -67,47 +66,6 @@ var TrackedAccount = ResultType(
 	},
 )
 
-//var TrackedAccount = ResultType("application/vnd.cellar.stored-bottle", func() {
-//	Description("A StoredBottle describes a bottle retrieved by the storage service.")
-//	Reference(Bottle)
-//	TypeName("StoredBottle")
-//
-//	Attributes(func() {
-//		Attribute("id", String, "ID is the unique id of the bottle.", func() {
-//			Example("123abc")
-//			Meta("rpc:tag", "8")
-//		})
-//		Field(2, "name")
-//		Field(3, "winery")
-//		Field(4, "vintage")
-//		Field(5, "composition")
-//		Field(6, "description")
-//		Field(7, "rating")
-//	})
-//
-//	View("default", func() {
-//		Attribute("id")
-//		Attribute("name")
-//		Attribute("winery", func() {
-//			View("tiny")
-//		})
-//		Attribute("vintage")
-//		Attribute("composition")
-//		Attribute("description")
-//		Attribute("rating")
-//	})
-//
-//	View("tiny", func() {
-//		Attribute("id")
-//		Attribute("name")
-//		Attribute("winery", func() {
-//			View("tiny")
-//		})
-//	})
-//
-//	Required("id", "name", "winery", "vintage")
-//})
-
 var _ = Service(
 	"account", func() {
 		Description("The account service specifies which Algorand accounts to track")
@@ -118,7 +76,7 @@ var _ = Service(
 				Payload(String)
 
 				//Result(String)
-				Result(Account)
+				//Result(Account)
 
 				HTTP(
 					func() {

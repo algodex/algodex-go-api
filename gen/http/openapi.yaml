@@ -42,11 +42,6 @@ paths:
       responses:
         "200":
           description: OK response.
-          schema:
-            $ref: '#/definitions/AccountAddResponseBody'
-            required:
-            - address
-            - assets
       schemes:
       - http
   /{address}:
@@ -87,33 +82,6 @@ paths:
       schemes:
       - http
 definitions:
-  AccountAddResponseBody:
-    title: AccountAddResponseBody
-    type: object
-    properties:
-      address:
-        type: string
-        description: Public Account address
-        example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        maxLength: 58
-      assets:
-        type: array
-        items:
-          type: integer
-          example: 3560429796267468859
-          format: int64
-        description: Opted-in ASA IDs
-        example:
-        - 202586210
-        - 205471981
-    example:
-      address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-      assets:
-      - 202586210
-      - 205471981
-    required:
-    - address
-    - assets
   AccountGetResponseBody:
     title: AccountGetResponseBody
     type: object
@@ -127,7 +95,7 @@ definitions:
         type: array
         items:
           type: integer
-          example: 8676004920719589946
+          example: 12783801833122244667
           format: int64
         description: Opted-in ASA IDs
         example:
@@ -150,6 +118,7 @@ definitions:
     description: ListResponseBody is the result type for an array of TrackedAccountResponse
       (default view)
     example:
+    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
   TrackedAccountResponse:

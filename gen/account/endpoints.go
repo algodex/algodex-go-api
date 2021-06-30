@@ -41,7 +41,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 func NewAddEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(string)
-		return s.Add(ctx, p)
+		return nil, s.Add(ctx, p)
 	}
 }
 

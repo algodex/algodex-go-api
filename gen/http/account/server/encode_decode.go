@@ -23,11 +23,8 @@ import (
 // add endpoint.
 func EncodeAddResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res, _ := v.(*account.Account)
-		enc := encoder(ctx, w)
-		body := NewAddResponseBody(res)
 		w.WriteHeader(http.StatusOK)
-		return enc.Encode(body)
+		return nil
 	}
 }
 
@@ -125,7 +122,7 @@ func marshalAccountviewsTrackedAccountViewToTrackedAccountResponseFull(v *accoun
 		Address: *v.Address,
 	}
 	if v.Assets != nil {
-		res.Assets = make([]int64, len(v.Assets))
+		res.Assets = make([]uint64, len(v.Assets))
 		for i, val := range v.Assets {
 			res.Assets[i] = val
 		}

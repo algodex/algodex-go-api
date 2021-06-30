@@ -50,20 +50,11 @@ paths:
           application/json:
             schema:
               type: string
-              example: Facere suscipit magni molestiae soluta cupiditate totam.
-            example: Id aut.
+              example: Totam facere suscipit.
+            example: Expedita ut illum aperiam.
       responses:
         "200":
           description: OK response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Account'
-              example:
-                address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-                assets:
-                - 202586210
-                - 205471981
   /{address}:
     get:
       tags:
@@ -117,8 +108,7 @@ components:
           type: array
           items:
             type: integer
-            example: 3766177771536463958
-            format: int64
+            example: 14821739316195917627
           description: Opted-in ASA IDs
           example:
           - 202586210
@@ -143,8 +133,7 @@ components:
           type: array
           items:
             type: integer
-            example: 1159294996984114150
-            format: int64
+            example: 14049141813654127403
           description: Opted-in ASA IDs
           example:
           - 202586210
@@ -191,8 +180,7 @@ components:
           type: array
           items:
             type: integer
-            example: 1682742351498988872
-            format: int64
+            example: 388348798129920542
           description: Opted-in ASA IDs
           example:
           - 202586210
@@ -213,6 +201,10 @@ components:
       description: ListResponseBody is the result type for an array of TrackedAccountResponse
         (full view)
       example:
+      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        assets:
+        - 202586210
+        - 205471981
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         assets:
         - 202586210

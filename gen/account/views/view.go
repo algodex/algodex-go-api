@@ -31,7 +31,7 @@ type TrackedAccountView struct {
 	// Public Account address
 	Address *string
 	// Opted-in ASA IDs
-	Assets []int64
+	Assets []uint64
 }
 
 var (

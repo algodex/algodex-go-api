@@ -72,11 +72,12 @@ func getAccountHoldings(ctx context.Context, account string) (holdingsMap, error
 		return nil, fmt.Errorf("get account holdings:%s : %w", account, err)
 	}
 	holdings := make(holdingsMap, len(info.Assets)+1)
-	holdings[ALGO_ID] = Holding{
-		AssetID: ALGO_ID,
-		Amount:  info.Amount,
-	}
+	//holdings[ALGO_ID] = Holding{
+	//	AssetID: ALGO_ID,
+	//	Amount:  info.Amount,
+	//}
 	for _, asset := range info.Assets {
+		log.Printf("Updating holding for:%s, id:%d", account, asset.AssetId)
 		holdings[asset.AssetId] = Holding{
 			AssetID: asset.AssetId,
 			Amount:  asset.Amount,

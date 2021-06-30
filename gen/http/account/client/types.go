@@ -15,22 +15,13 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// AddResponseBody is the type of the "account" service "add" endpoint HTTP
-// response body.
-type AddResponseBody struct {
-	// Public Account address
-	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
-	// Opted-in ASA IDs
-	Assets []int64 `form:"assets,omitempty" json:"assets,omitempty" xml:"assets,omitempty"`
-}
-
 // GetResponseBody is the type of the "account" service "get" endpoint HTTP
 // response body.
 type GetResponseBody struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 	// Opted-in ASA IDs
-	Assets []int64 `form:"assets,omitempty" json:"assets,omitempty" xml:"assets,omitempty"`
+	Assets []uint64 `form:"assets,omitempty" json:"assets,omitempty" xml:"assets,omitempty"`
 }
 
 // ListResponseBody is the type of the "account" service "list" endpoint HTTP
@@ -42,21 +33,7 @@ type TrackedAccountResponse struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 	// Opted-in ASA IDs
-	Assets []int64 `form:"assets,omitempty" json:"assets,omitempty" xml:"assets,omitempty"`
-}
-
-// NewAddAccountOK builds a "account" service "add" endpoint result from a HTTP
-// "OK" response.
-func NewAddAccountOK(body *AddResponseBody) *account.Account {
-	v := &account.Account{
-		Address: *body.Address,
-	}
-	v.Assets = make([]int64, len(body.Assets))
-	for i, val := range body.Assets {
-		v.Assets[i] = val
-	}
-
-	return v
+	Assets []uint64 `form:"assets,omitempty" json:"assets,omitempty" xml:"assets,omitempty"`
 }
 
 // NewGetAccountOK builds a "account" service "get" endpoint result from a HTTP
@@ -65,7 +42,7 @@ func NewGetAccountOK(body *GetResponseBody) *account.Account {
 	v := &account.Account{
 		Address: *body.Address,
 	}
-	v.Assets = make([]int64, len(body.Assets))
+	v.Assets = make([]uint64, len(body.Assets))
 	for i, val := range body.Assets {
 		v.Assets[i] = val
 	}
@@ -82,22 +59,6 @@ func NewListTrackedAccountCollectionOK(body ListResponseBody) accountviews.Track
 	}
 
 	return v
-}
-
-// ValidateAddResponseBody runs the validations defined on AddResponseBody
-func ValidateAddResponseBody(body *AddResponseBody) (err error) {
-	if body.Address == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
-	}
-	if body.Assets == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("assets", "body"))
-	}
-	if body.Address != nil {
-		if utf8.RuneCountInString(*body.Address) > 58 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address", *body.Address, utf8.RuneCountInString(*body.Address), 58, false))
-		}
-	}
-	return
 }
 
 // ValidateGetResponseBody runs the validations defined on GetResponseBody

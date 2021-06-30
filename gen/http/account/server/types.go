@@ -12,22 +12,13 @@ import (
 	accountviews "algodexidx/gen/account/views"
 )
 
-// AddResponseBody is the type of the "account" service "add" endpoint HTTP
-// response body.
-type AddResponseBody struct {
-	// Public Account address
-	Address string `form:"address" json:"address" xml:"address"`
-	// Opted-in ASA IDs
-	Assets []int64 `form:"assets" json:"assets" xml:"assets"`
-}
-
 // GetResponseBody is the type of the "account" service "get" endpoint HTTP
 // response body.
 type GetResponseBody struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
 	// Opted-in ASA IDs
-	Assets []int64 `form:"assets" json:"assets" xml:"assets"`
+	Assets []uint64 `form:"assets" json:"assets" xml:"assets"`
 }
 
 // TrackedAccountResponseCollection is the type of the "account" service "list"
@@ -49,22 +40,7 @@ type TrackedAccountResponseFull struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
 	// Opted-in ASA IDs
-	Assets []int64 `form:"assets" json:"assets" xml:"assets"`
-}
-
-// NewAddResponseBody builds the HTTP response body from the result of the
-// "add" endpoint of the "account" service.
-func NewAddResponseBody(res *account.Account) *AddResponseBody {
-	body := &AddResponseBody{
-		Address: res.Address,
-	}
-	if res.Assets != nil {
-		body.Assets = make([]int64, len(res.Assets))
-		for i, val := range res.Assets {
-			body.Assets[i] = val
-		}
-	}
-	return body
+	Assets []uint64 `form:"assets" json:"assets" xml:"assets"`
 }
 
 // NewGetResponseBody builds the HTTP response body from the result of the
@@ -74,7 +50,7 @@ func NewGetResponseBody(res *account.Account) *GetResponseBody {
 		Address: res.Address,
 	}
 	if res.Assets != nil {
-		body.Assets = make([]int64, len(res.Assets))
+		body.Assets = make([]uint64, len(res.Assets))
 		for i, val := range res.Assets {
 			body.Assets[i] = val
 		}

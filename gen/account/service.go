@@ -15,7 +15,7 @@ import (
 // The account service specifies which Algorand accounts to track
 type Service interface {
 	// Add Algorand account to track
-	Add(context.Context, string) (res *Account, err error)
+	Add(context.Context, string) (err error)
 	// Get specific account
 	Get(context.Context, *GetPayload) (res *Account, err error)
 	// List all tracked accounts
@@ -35,18 +35,18 @@ const ServiceName = "account"
 // MethodKey key.
 var MethodNames = [3]string{"add", "get", "list"}
 
-// Account is the result type of the account service add method.
-type Account struct {
-	// Public Account address
-	Address string
-	// Opted-in ASA IDs
-	Assets []int64
-}
-
 // GetPayload is the payload type of the account service get method.
 type GetPayload struct {
 	// Public Account address
 	Address string
+}
+
+// Account is the result type of the account service get method.
+type Account struct {
+	// Public Account address
+	Address string
+	// Opted-in ASA IDs
+	Assets []uint64
 }
 
 // TrackedAccountCollection is the result type of the account service list
@@ -58,7 +58,7 @@ type TrackedAccount struct {
 	// Public Account address
 	Address string
 	// Opted-in ASA IDs
-	Assets []int64
+	Assets []uint64
 }
 
 // NewTrackedAccountCollection initializes result type TrackedAccountCollection
@@ -150,7 +150,7 @@ func newTrackedAccountFull(vres *accountviews.TrackedAccountView) *TrackedAccoun
 		res.Address = *vres.Address
 	}
 	if vres.Assets != nil {
-		res.Assets = make([]int64, len(vres.Assets))
+		res.Assets = make([]uint64, len(vres.Assets))
 		for i, val := range vres.Assets {
 			res.Assets[i] = val
 		}
@@ -174,7 +174,7 @@ func newTrackedAccountViewFull(res *TrackedAccount) *accountviews.TrackedAccount
 		Address: &res.Address,
 	}
 	if res.Assets != nil {
-		vres.Assets = make([]int64, len(res.Assets))
+		vres.Assets = make([]uint64, len(res.Assets))
 		for i, val := range res.Assets {
 			vres.Assets[i] = val
 		}

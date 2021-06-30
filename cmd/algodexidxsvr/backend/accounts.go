@@ -2,6 +2,7 @@ package backend
 
 import (
 	"context"
+	"fmt"
 	"sync"
 )
 
@@ -24,7 +25,7 @@ func (ta *trackedAccount) UpdateHoldings(ctx context.Context) error {
 	}
 	ta.Lock()
 	defer ta.Unlock()
-	ta.Assets = make([]uint64, len(holdings))
+	ta.Assets = make([]uint64, 0, len(holdings))
 	for id := range holdings {
 		ta.Assets = append(ta.Assets, id)
 	}
@@ -34,6 +35,34 @@ func (ta *trackedAccount) UpdateHoldings(ctx context.Context) error {
 type watchData struct {
 	sync.RWMutex
 	watchedAccounts accountMap
+}
+
+func WatchAccount(ctx context.Context, address string) error {
+	account := &trackedAccount{
+		Address: address,
+	}
+	err := account.UpdateHoldings(ctx)
+	if err != nil {
+		return fmt.Errorf("couldn't add watch on account: %w", err)
+	}
+	watchedData.Lock()
+	defer watchedData.Unlock()
+	watchedData.watchedAccounts[address] = account
+	return nil
+}
+
+func GetAccount(address string) *trackedAccount {
+	return watchedData.GetAccount(address)
+}
+
+func GetAccounts() []*trackedAccount {
+	return watchedData.GetWatchedAccounts()
+}
+
+func (w *watchData) GetAccount(address string) *trackedAccount {
+	w.RLock()
+	defer w.RUnlock()
+	return watchedData.watchedAccounts[address]
 }
 
 func (w *watchData) GetWatchedAccounts() []*trackedAccount {

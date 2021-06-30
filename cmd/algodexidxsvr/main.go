@@ -71,6 +71,8 @@ func main() {
 
 	backend.InitAlgoClient("", logger) // will currently crash hard if can't initialize
 
+	go backend.AccountWatcher(ctx, logger)
+
 	// Start the servers and send errors (if any) to the error channel.
 	switch *hostF {
 	case "localhost":
