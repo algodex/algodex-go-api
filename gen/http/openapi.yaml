@@ -1,0 +1,168 @@
+swagger: "2.0"
+info:
+  title: AlgoDex Indexer Service
+  description: Service for tracking Algorand accounts and currently opted-in Assets
+  version: ""
+host: localhost:8000
+consumes:
+- application/json
+- application/xml
+- application/gob
+produces:
+- application/json
+- application/xml
+- application/gob
+paths:
+  /:
+    get:
+      tags:
+      - account
+      summary: list account
+      description: List all tracked accounts
+      operationId: account#list
+      responses:
+        "200":
+          description: OK response.
+          schema:
+            $ref: '#/definitions/AccountTrackedAccountResponseCollection'
+      schemes:
+      - http
+    post:
+      tags:
+      - account
+      summary: add account
+      description: Add Algorand account to track
+      operationId: account#add
+      parameters:
+      - name: string
+        in: body
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK response.
+          schema:
+            $ref: '#/definitions/AccountAddResponseBody'
+            required:
+            - address
+            - assets
+      schemes:
+      - http
+  /{address}:
+    get:
+      tags:
+      - account
+      summary: get account
+      description: Get specific account
+      operationId: account#get
+      parameters:
+      - name: address
+        in: path
+        description: Public Account address
+        required: true
+        type: string
+        maxLength: 58
+      responses:
+        "200":
+          description: OK response.
+          schema:
+            $ref: '#/definitions/AccountGetResponseBody'
+            required:
+            - address
+            - assets
+      schemes:
+      - http
+  /openapi.json:
+    get:
+      tags:
+      - account
+      summary: Download ./gen/http/openapi.json
+      operationId: account#/openapi.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+definitions:
+  AccountAddResponseBody:
+    title: AccountAddResponseBody
+    type: object
+    properties:
+      address:
+        type: string
+        description: Public Account address
+        example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        maxLength: 58
+      assets:
+        type: array
+        items:
+          type: integer
+          example: 3560429796267468859
+          format: int64
+        description: Opted-in ASA IDs
+        example:
+        - 202586210
+        - 205471981
+    example:
+      address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+      assets:
+      - 202586210
+      - 205471981
+    required:
+    - address
+    - assets
+  AccountGetResponseBody:
+    title: AccountGetResponseBody
+    type: object
+    properties:
+      address:
+        type: string
+        description: Public Account address
+        example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        maxLength: 58
+      assets:
+        type: array
+        items:
+          type: integer
+          example: 8676004920719589946
+          format: int64
+        description: Opted-in ASA IDs
+        example:
+        - 202586210
+        - 205471981
+    example:
+      address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+      assets:
+      - 202586210
+      - 205471981
+    required:
+    - address
+    - assets
+  AccountTrackedAccountResponseCollection:
+    title: 'Mediatype identifier: application/vnd.algodex.account; type=collection;
+      view=default'
+    type: array
+    items:
+      $ref: '#/definitions/TrackedAccountResponse'
+    description: ListResponseBody is the result type for an array of TrackedAccountResponse
+      (default view)
+    example:
+    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+  TrackedAccountResponse:
+    title: 'Mediatype identifier: application/vnd.algodex.account; view=default'
+    type: object
+    properties:
+      address:
+        type: string
+        description: Public Account address
+        example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        maxLength: 58
+    description: A TrackedAccount is an Account returned by the indexer (default view)
+    example:
+      address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+    required:
+    - address
