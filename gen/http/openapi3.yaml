@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: AlgoDex Indexer Service
-  description: Service for tracking Algorand accounts and currently opted-in Assets
+  description: Service for tracking Algorand accounts and currently opted-in Holdings
   version: "1.0"
 servers:
 - url: http://localhost:8000
@@ -25,7 +25,7 @@ paths:
           enum:
           - default
           - full
-        example: default
+        example: full
       responses:
         "200":
           description: OK response.
@@ -36,21 +36,21 @@ paths:
                 $ref: '#/components/schemas/TrackedAccountCollection'
               example:
               - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-                assets:
-                - 202586210
-                - 205471981
+                holdings:
+                  "202586210": 100
+                  "205471981": 200
               - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-                assets:
-                - 202586210
-                - 205471981
+                holdings:
+                  "202586210": 100
+                  "205471981": 200
               - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-                assets:
-                - 202586210
-                - 205471981
+                holdings:
+                  "202586210": 100
+                  "205471981": 200
               - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-                assets:
-                - 202586210
-                - 205471981
+                holdings:
+                  "202586210": 100
+                  "205471981": 200
     post:
       tags:
       - account
@@ -63,8 +63,8 @@ paths:
           application/json:
             schema:
               type: string
-              example: Cupiditate totam eum expedita ut illum.
-            example: Vitae nulla.
+              example: Soluta cupiditate totam eum expedita ut illum.
+            example: Aut similique.
       responses:
         "200":
           description: OK response.
@@ -95,9 +95,9 @@ paths:
                 $ref: '#/components/schemas/Account'
               example:
                 address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-                assets:
-                - 202586210
-                - 205471981
+                holdings:
+                  "202586210": 100
+                  "205471981": 200
   /openapi.json:
     get:
       tags:
@@ -117,23 +117,21 @@ components:
           description: Public Account address
           example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
           maxLength: 58
-        assets:
-          type: array
-          items:
-            type: integer
-            example: 9352604032316809151
+        holdings:
+          type: object
           description: Opted-in ASA IDs
           example:
-          - 202586210
-          - 205471981
+            "202586210": 100
+            "205471981": 200
+          additionalProperties: true
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
       required:
       - address
-      - assets
+      - holdings
     AlgodexAccount:
       type: object
       properties:
@@ -142,37 +140,35 @@ components:
           description: Public Account address
           example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
           maxLength: 58
-        assets:
-          type: array
-          items:
-            type: integer
-            example: 16048254601123198924
+        holdings:
+          type: object
           description: Opted-in ASA IDs
           example:
-          - 202586210
-          - 205471981
+            "202586210": 100
+            "205471981": 200
+          additionalProperties: true
       description: A TrackedAccount is an Account returned by the indexer
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
       required:
       - address
-      - assets
+      - holdings
     TrackedAccountCollection:
       type: array
       items:
         $ref: '#/components/schemas/AlgodexAccount'
       example:
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
     TrackedAccountResponseFull:
       type: object
       properties:
@@ -181,24 +177,22 @@ components:
           description: Public Account address
           example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
           maxLength: 58
-        assets:
-          type: array
-          items:
-            type: integer
-            example: 11449247042763666452
+        holdings:
+          type: object
           description: Opted-in ASA IDs
           example:
-          - 202586210
-          - 205471981
+            "202586210": 100
+            "205471981": 200
+          additionalProperties: true
       description: A TrackedAccount is an Account returned by the indexer (full view)
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
       required:
       - address
-      - assets
+      - holdings
     TrackedAccountResponseFullCollection:
       type: array
       items:
@@ -207,21 +201,21 @@ components:
         (full view)
       example:
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
+        holdings:
+          "202586210": 100
+          "205471981": 200
 tags:
 - name: account
   description: The account service specifies which Algorand accounts to track

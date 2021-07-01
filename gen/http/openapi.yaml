@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   title: AlgoDex Indexer Service
-  description: Service for tracking Algorand accounts and currently opted-in Assets
+  description: Service for tracking Algorand accounts and currently opted-in Holdings
   version: ""
 host: localhost:8000
 consumes:
@@ -74,7 +74,7 @@ paths:
             $ref: '#/definitions/AccountGetResponseBody'
             required:
             - address
-            - assets
+            - holdings
       schemes:
       - http
   /openapi.json:
@@ -100,24 +100,21 @@ definitions:
         description: Public Account address
         example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         maxLength: 58
-      assets:
-        type: array
-        items:
-          type: integer
-          example: 14821739316195917627
-          format: int64
+      holdings:
+        type: object
         description: Opted-in ASA IDs
         example:
-        - 202586210
-        - 205471981
+          "202586210": 100
+          "205471981": 200
+        additionalProperties: true
     example:
       address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-      assets:
-      - 202586210
-      - 205471981
+      holdings:
+        "202586210": 100
+        "205471981": 200
     required:
     - address
-    - assets
+    - holdings
   AccountTrackedAccountResponseCollection:
     title: 'Mediatype identifier: application/vnd.algodex.account; type=collection;
       view=default'

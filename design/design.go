@@ -5,7 +5,7 @@ import . "goa.design/goa/v3/dsl"
 var _ = API(
 	"algodexidx", func() {
 		Title("AlgoDex Indexer Service")
-		Description("Service for tracking Algorand accounts and currently opted-in Assets")
+		Description("Service for tracking Algorand accounts and currently opted-in Holdings")
 		Server(
 			"algodexidxsvr", func() {
 				Host(
@@ -28,12 +28,29 @@ var Account = Type(
 			},
 		)
 		Attribute(
-			"assets", ArrayOf(UInt64), func() {
+			"holdings", MapOf(String, UInt64), func() {
 				Description("Opted-in ASA IDs")
-				Example([]uint64{202586210, 205471981})
+				Example(map[string]uint64{"202586210": 100, "205471981": 200})
 			},
 		)
-		Required("address", "assets")
+		Required("address", "holdings")
+	},
+)
+
+var Holding = Type(
+	"Holding", func() {
+		Description("Holding defines an ASA Asset ID and its balance.  ID 1 represents ALGO")
+		Attribute(
+			"asset", UInt64, func() {
+				Description("ASA ID (1 for ALGO)")
+				Example(uint64(202586210))
+			},
+		)
+		Attribute(
+			"amount", UInt64, func() {
+				Description("Balance in asset base units")
+			},
+		)
 	},
 )
 
@@ -45,7 +62,7 @@ var TrackedAccount = ResultType(
 		Attributes(
 			func() {
 				Attribute("address")
-				Attribute("assets")
+				Attribute("holdings")
 			},
 		)
 		View(
@@ -56,7 +73,7 @@ var TrackedAccount = ResultType(
 		View(
 			"full", func() {
 				Attribute("address")
-				Attribute("assets")
+				Attribute("holdings")
 			},
 		)
 	},
@@ -70,9 +87,6 @@ var _ = Service(
 			"add", func() {
 				Description("Add Algorand account to track")
 				Payload(String)
-
-				//Result(String)
-				//Result(Account)
 
 				HTTP(
 					func() {
@@ -129,9 +143,6 @@ var _ = Service(
 				)
 			},
 		)
-		//var _ = Service("openapi", func() {
-		//	Files("/swagger.json", "./gen/http/openapi.json")
 		Files("/openapi.json", "./gen/http/openapi.json")
-		//})
 	},
 )

@@ -3,6 +3,7 @@ package backend
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"sync"
 )
 
@@ -15,7 +16,7 @@ type trackedAccount struct {
 	// Public Account address
 	Address string
 	// Opted-in ASA IDs
-	Assets []uint64
+	Holdings map[string]uint64
 }
 
 func (ta *trackedAccount) UpdateHoldings(ctx context.Context) error {
@@ -25,9 +26,9 @@ func (ta *trackedAccount) UpdateHoldings(ctx context.Context) error {
 	}
 	ta.Lock()
 	defer ta.Unlock()
-	ta.Assets = make([]uint64, 0, len(holdings))
-	for id := range holdings {
-		ta.Assets = append(ta.Assets, id)
+	ta.Holdings = make(map[string]uint64, len(holdings))
+	for _, holding := range holdings {
+		ta.Holdings[strconv.FormatUint(holding.AssetID, 10)] = holding.Amount
 	}
 	return nil
 }

@@ -223,9 +223,11 @@ func unmarshalTrackedAccountResponseToAccountviewsTrackedAccountView(v *TrackedA
 	res := &accountviews.TrackedAccountView{
 		Address: v.Address,
 	}
-	res.Assets = make([]uint64, len(v.Assets))
-	for i, val := range v.Assets {
-		res.Assets[i] = val
+	res.Holdings = make(map[string]uint64, len(v.Holdings))
+	for key, val := range v.Holdings {
+		tk := key
+		tv := val
+		res.Holdings[tk] = tv
 	}
 
 	return res

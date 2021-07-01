@@ -31,7 +31,7 @@ type TrackedAccountView struct {
 	// Public Account address
 	Address *string
 	// Opted-in ASA IDs
-	Assets []uint64
+	Holdings map[string]uint64
 }
 
 var (
@@ -43,7 +43,7 @@ var (
 		},
 		"full": []string{
 			"address",
-			"assets",
+			"holdings",
 		},
 	}
 	// TrackedAccountMap is a map of attribute names in result type TrackedAccount
@@ -54,7 +54,7 @@ var (
 		},
 		"full": []string{
 			"address",
-			"assets",
+			"holdings",
 		},
 	}
 )
@@ -115,8 +115,8 @@ func ValidateTrackedAccountViewFull(result *TrackedAccountView) (err error) {
 	if result.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "result"))
 	}
-	if result.Assets == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("assets", "result"))
+	if result.Holdings == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "result"))
 	}
 	if result.Address != nil {
 		if utf8.RuneCountInString(*result.Address) > 58 {

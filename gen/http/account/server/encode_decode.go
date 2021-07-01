@@ -147,10 +147,12 @@ func marshalAccountviewsTrackedAccountViewToTrackedAccountResponseFull(v *accoun
 	res := &TrackedAccountResponseFull{
 		Address: *v.Address,
 	}
-	if v.Assets != nil {
-		res.Assets = make([]uint64, len(v.Assets))
-		for i, val := range v.Assets {
-			res.Assets[i] = val
+	if v.Holdings != nil {
+		res.Holdings = make(map[string]uint64, len(v.Holdings))
+		for key, val := range v.Holdings {
+			tk := key
+			tv := val
+			res.Holdings[tk] = tv
 		}
 	}
 

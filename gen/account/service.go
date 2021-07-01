@@ -46,7 +46,7 @@ type Account struct {
 	// Public Account address
 	Address string
 	// Opted-in ASA IDs
-	Assets []uint64
+	Holdings map[string]uint64
 }
 
 // ListPayload is the payload type of the account service list method.
@@ -64,7 +64,7 @@ type TrackedAccount struct {
 	// Public Account address
 	Address string
 	// Opted-in ASA IDs
-	Assets []uint64
+	Holdings map[string]uint64
 }
 
 // NewTrackedAccountCollection initializes result type TrackedAccountCollection
@@ -155,10 +155,12 @@ func newTrackedAccountFull(vres *accountviews.TrackedAccountView) *TrackedAccoun
 	if vres.Address != nil {
 		res.Address = *vres.Address
 	}
-	if vres.Assets != nil {
-		res.Assets = make([]uint64, len(vres.Assets))
-		for i, val := range vres.Assets {
-			res.Assets[i] = val
+	if vres.Holdings != nil {
+		res.Holdings = make(map[string]uint64, len(vres.Holdings))
+		for key, val := range vres.Holdings {
+			tk := key
+			tv := val
+			res.Holdings[tk] = tv
 		}
 	}
 	return res
@@ -179,10 +181,12 @@ func newTrackedAccountViewFull(res *TrackedAccount) *accountviews.TrackedAccount
 	vres := &accountviews.TrackedAccountView{
 		Address: &res.Address,
 	}
-	if res.Assets != nil {
-		vres.Assets = make([]uint64, len(res.Assets))
-		for i, val := range res.Assets {
-			vres.Assets[i] = val
+	if res.Holdings != nil {
+		vres.Holdings = make(map[string]uint64, len(res.Holdings))
+		for key, val := range res.Holdings {
+			tk := key
+			tv := val
+			vres.Holdings[tk] = tv
 		}
 	}
 	return vres

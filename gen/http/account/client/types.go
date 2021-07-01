@@ -21,7 +21,7 @@ type GetResponseBody struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 	// Opted-in ASA IDs
-	Assets []uint64 `form:"assets,omitempty" json:"assets,omitempty" xml:"assets,omitempty"`
+	Holdings map[string]uint64 `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
 }
 
 // ListResponseBody is the type of the "account" service "list" endpoint HTTP
@@ -33,7 +33,7 @@ type TrackedAccountResponse struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 	// Opted-in ASA IDs
-	Assets []uint64 `form:"assets,omitempty" json:"assets,omitempty" xml:"assets,omitempty"`
+	Holdings map[string]uint64 `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
 }
 
 // NewGetAccountOK builds a "account" service "get" endpoint result from a HTTP
@@ -42,9 +42,11 @@ func NewGetAccountOK(body *GetResponseBody) *account.Account {
 	v := &account.Account{
 		Address: *body.Address,
 	}
-	v.Assets = make([]uint64, len(body.Assets))
-	for i, val := range body.Assets {
-		v.Assets[i] = val
+	v.Holdings = make(map[string]uint64, len(body.Holdings))
+	for key, val := range body.Holdings {
+		tk := key
+		tv := val
+		v.Holdings[tk] = tv
 	}
 
 	return v
@@ -66,8 +68,8 @@ func ValidateGetResponseBody(body *GetResponseBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}
-	if body.Assets == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("assets", "body"))
+	if body.Holdings == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "body"))
 	}
 	if body.Address != nil {
 		if utf8.RuneCountInString(*body.Address) > 58 {
@@ -83,8 +85,8 @@ func ValidateTrackedAccountResponse(body *TrackedAccountResponse) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}
-	if body.Assets == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("assets", "body"))
+	if body.Holdings == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "body"))
 	}
 	if body.Address != nil {
 		if utf8.RuneCountInString(*body.Address) > 58 {

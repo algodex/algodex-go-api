@@ -18,7 +18,7 @@ type GetResponseBody struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
 	// Opted-in ASA IDs
-	Assets []uint64 `form:"assets" json:"assets" xml:"assets"`
+	Holdings map[string]uint64 `form:"holdings" json:"holdings" xml:"holdings"`
 }
 
 // TrackedAccountResponseCollection is the type of the "account" service "list"
@@ -40,7 +40,7 @@ type TrackedAccountResponseFull struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
 	// Opted-in ASA IDs
-	Assets []uint64 `form:"assets" json:"assets" xml:"assets"`
+	Holdings map[string]uint64 `form:"holdings" json:"holdings" xml:"holdings"`
 }
 
 // NewGetResponseBody builds the HTTP response body from the result of the
@@ -49,10 +49,12 @@ func NewGetResponseBody(res *account.Account) *GetResponseBody {
 	body := &GetResponseBody{
 		Address: res.Address,
 	}
-	if res.Assets != nil {
-		body.Assets = make([]uint64, len(res.Assets))
-		for i, val := range res.Assets {
-			body.Assets[i] = val
+	if res.Holdings != nil {
+		body.Holdings = make(map[string]uint64, len(res.Holdings))
+		for key, val := range res.Holdings {
+			tk := key
+			tv := val
+			body.Holdings[tk] = tv
 		}
 	}
 	return body
