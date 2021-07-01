@@ -58,7 +58,8 @@ func NewGetEndpoint(s Service) goa.Endpoint {
 // service "account".
 func NewListEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		res, view, err := s.List(ctx)
+		p := req.(*ListPayload)
+		res, view, err := s.List(ctx, p)
 		if err != nil {
 			return nil, err
 		}

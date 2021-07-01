@@ -48,8 +48,11 @@ func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *acco
 }
 
 // List all tracked accounts
-func (s *accountsrvc) List(ctx context.Context) (res account.TrackedAccountCollection, view string, err error) {
-	view = "full"
+func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (res account.TrackedAccountCollection, view string, err error) {
+	view = "default"
+	if p.View != nil {
+		view = *p.View
+	}
 	s.logger.Print("account.list")
 	for _, acct := range backend.GetAccounts() {
 		res = append(res, &account.TrackedAccount{

@@ -85,3 +85,11 @@ func NewGetPayload(address string) *account.GetPayload {
 
 	return v
 }
+
+// NewListPayload builds a account service list endpoint payload.
+func NewListPayload(view *string) *account.ListPayload {
+	v := &account.ListPayload{}
+	v.View = view
+
+	return v
+}

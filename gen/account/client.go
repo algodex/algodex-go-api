@@ -46,9 +46,9 @@ func (c *Client) Get(ctx context.Context, p *GetPayload) (res *Account, err erro
 }
 
 // List calls the "list" endpoint of the "account" service.
-func (c *Client) List(ctx context.Context) (res TrackedAccountCollection, err error) {
+func (c *Client) List(ctx context.Context, p *ListPayload) (res TrackedAccountCollection, err error) {
 	var ires interface{}
-	ires, err = c.ListEndpoint(ctx, nil)
+	ires, err = c.ListEndpoint(ctx, p)
 	if err != nil {
 		return
 	}

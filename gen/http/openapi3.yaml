@@ -13,6 +13,19 @@ paths:
       summary: list account
       description: List all tracked accounts
       operationId: account#list
+      parameters:
+      - name: view
+        in: query
+        description: View to render
+        allowEmptyValue: true
+        schema:
+          type: string
+          description: View to render
+          example: default
+          enum:
+          - default
+          - full
+        example: default
       responses:
         "200":
           description: OK response.
@@ -50,8 +63,8 @@ paths:
           application/json:
             schema:
               type: string
-              example: Totam facere suscipit.
-            example: Expedita ut illum aperiam.
+              example: Cupiditate totam eum expedita ut illum.
+            example: Vitae nulla.
       responses:
         "200":
           description: OK response.
@@ -108,7 +121,7 @@ components:
           type: array
           items:
             type: integer
-            example: 14821739316195917627
+            example: 9352604032316809151
           description: Opted-in ASA IDs
           example:
           - 202586210
@@ -133,7 +146,7 @@ components:
           type: array
           items:
             type: integer
-            example: 14049141813654127403
+            example: 16048254601123198924
           description: Opted-in ASA IDs
           example:
           - 202586210
@@ -160,14 +173,6 @@ components:
         assets:
         - 202586210
         - 205471981
-      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
-      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        assets:
-        - 202586210
-        - 205471981
     TrackedAccountResponseFull:
       type: object
       properties:
@@ -180,7 +185,7 @@ components:
           type: array
           items:
             type: integer
-            example: 388348798129920542
+            example: 11449247042763666452
           description: Opted-in ASA IDs
           example:
           - 202586210
@@ -201,6 +206,10 @@ components:
       description: ListResponseBody is the result type for an array of TrackedAccountResponse
         (full view)
       example:
+      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        assets:
+        - 202586210
+        - 205471981
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         assets:
         - 202586210

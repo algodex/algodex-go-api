@@ -157,6 +157,23 @@ func (c *Client) BuildListRequest(ctx context.Context, v interface{}) (*http.Req
 	return req, nil
 }
 
+// EncodeListRequest returns an encoder for requests sent to the account list
+// server.
+func EncodeListRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*account.ListPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("account", "list", "*account.ListPayload", v)
+		}
+		values := req.URL.Query()
+		if p.View != nil {
+			values.Add("view", *p.View)
+		}
+		req.URL.RawQuery = values.Encode()
+		return nil
+	}
+}
+
 // DecodeListResponse returns a decoder for responses returned by the account
 // list endpoint. restoreBody controls whether the response body should be
 // restored after having been read.

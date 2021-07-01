@@ -33,3 +33,27 @@ func BuildGetPayload(accountGetAddress string) (*account.GetPayload, error) {
 
 	return v, nil
 }
+
+// BuildListPayload builds the payload for the account list endpoint from CLI
+// flags.
+func BuildListPayload(accountListView string) (*account.ListPayload, error) {
+	var err error
+	var view *string
+	{
+		if accountListView != "" {
+			view = &accountListView
+			if view != nil {
+				if !(*view == "default" || *view == "full") {
+					err = goa.MergeErrors(err, goa.InvalidEnumValueError("view", *view, []interface{}{"default", "full"}))
+				}
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	v := &account.ListPayload{}
+	v.View = view
+
+	return v, nil
+}

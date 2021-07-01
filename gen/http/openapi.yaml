@@ -20,6 +20,15 @@ paths:
       summary: list account
       description: List all tracked accounts
       operationId: account#list
+      parameters:
+      - name: view
+        in: query
+        description: View to render
+        required: false
+        type: string
+        enum:
+        - default
+        - full
       responses:
         "200":
           description: OK response.
@@ -95,7 +104,7 @@ definitions:
         type: array
         items:
           type: integer
-          example: 12783801833122244667
+          example: 14821739316195917627
           format: int64
         description: Opted-in ASA IDs
         example:
@@ -118,7 +127,6 @@ definitions:
     description: ListResponseBody is the result type for an array of TrackedAccountResponse
       (default view)
     example:
-    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
   TrackedAccountResponse:

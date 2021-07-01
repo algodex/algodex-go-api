@@ -51,10 +51,6 @@ var TrackedAccount = ResultType(
 		View(
 			"default", func() {
 				Attribute("address")
-				//Attribute("assets")
-				//	Attribute("assets", func() {
-				//		View("full")
-				//	})
 			},
 		)
 		View(
@@ -114,11 +110,20 @@ var _ = Service(
 		Method(
 			"list", func() {
 				Description("List all tracked accounts")
-				//Result(ArrayOf(Account))
+				Payload(
+					func() {
+						Field(
+							1, "view", String, "View to render", func() {
+								Enum("default", "full")
+							},
+						)
+					},
+				)
 				Result(CollectionOf(TrackedAccount))
 				HTTP(
 					func() {
 						GET("/")
+						Param("view")
 						Response(StatusOK)
 					},
 				)

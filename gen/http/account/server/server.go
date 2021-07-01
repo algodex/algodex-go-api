@@ -217,6 +217,7 @@ func NewListHandler(
 	formatter func(err error) goahttp.Statuser,
 ) http.Handler {
 	var (
+		decodeRequest  = DecodeListRequest(mux, decoder)
 		encodeResponse = EncodeListResponse(encoder)
 		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
 	)
@@ -224,8 +225,14 @@ func NewListHandler(
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "list")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "account")
-		var err error
-		res, err := endpoint(ctx, nil)
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
 		if err != nil {
 			if err := encodeError(ctx, w, err); err != nil {
 				errhandler(ctx, w, err)

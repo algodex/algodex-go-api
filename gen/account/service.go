@@ -22,7 +22,7 @@ type Service interface {
 	// The "view" return value must have one of the following views
 	//	- "default"
 	//	- "full"
-	List(context.Context) (res TrackedAccountCollection, view string, err error)
+	List(context.Context, *ListPayload) (res TrackedAccountCollection, view string, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -47,6 +47,12 @@ type Account struct {
 	Address string
 	// Opted-in ASA IDs
 	Assets []uint64
+}
+
+// ListPayload is the payload type of the account service list method.
+type ListPayload struct {
+	// View to render
+	View *string
 }
 
 // TrackedAccountCollection is the result type of the account service list

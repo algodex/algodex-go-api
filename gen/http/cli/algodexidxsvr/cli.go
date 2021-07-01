@@ -51,7 +51,8 @@ func ParseEndpoint(
 		accountGetFlags       = flag.NewFlagSet("get", flag.ExitOnError)
 		accountGetAddressFlag = accountGetFlags.String("address", "REQUIRED", "Public Account address")
 
-		accountListFlags = flag.NewFlagSet("list", flag.ExitOnError)
+		accountListFlags    = flag.NewFlagSet("list", flag.ExitOnError)
+		accountListViewFlag = accountListFlags.String("view", "", "")
 	)
 	accountFlags.Usage = accountUsage
 	accountAddFlags.Usage = accountAddUsage
@@ -134,7 +135,7 @@ func ParseEndpoint(
 				data, err = accountc.BuildGetPayload(*accountGetAddressFlag)
 			case "list":
 				endpoint = c.List()
-				data = nil
+				data, err = accountc.BuildListPayload(*accountListViewFlag)
 			}
 		}
 	}
@@ -183,11 +184,12 @@ Example:
 }
 
 func accountListUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] account list
+	fmt.Fprintf(os.Stderr, `%s [flags] account list -view STRING
 
 List all tracked accounts
+    -view STRING: 
 
 Example:
-    `+os.Args[0]+` account list
+    `+os.Args[0]+` account list --view "default"
 `, os.Args[0])
 }

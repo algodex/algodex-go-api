@@ -103,6 +103,32 @@ func EncodeListResponse(encoder func(context.Context, http.ResponseWriter) goaht
 	}
 }
 
+// DecodeListRequest returns a decoder for requests sent to the account list
+// endpoint.
+func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			view *string
+			err  error
+		)
+		viewRaw := r.URL.Query().Get("view")
+		if viewRaw != "" {
+			view = &viewRaw
+		}
+		if view != nil {
+			if !(*view == "default" || *view == "full") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("view", *view, []interface{}{"default", "full"}))
+			}
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewListPayload(view)
+
+		return payload, nil
+	}
+}
+
 // marshalAccountviewsTrackedAccountViewToTrackedAccountResponse builds a value
 // of type *TrackedAccountResponse from a value of type
 // *accountviews.TrackedAccountView.
