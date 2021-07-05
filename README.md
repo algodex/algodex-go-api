@@ -11,4 +11,10 @@ go build ./cmd/algodexidxsvr-cli
 
 ./algodexidxsvr-cli --url="http://localhost:8000" account list -view full
 
+
 put openapi3.json into that swagger page to get curl exampels et
+
+curl -X 'PUT' 'http://localhost:8000/account/WYWRYK42XADLY3O62N52BOLT27DMPRA3WNBT2OBRT65N6OEZQWD4OSH6PI'
+http://localhost:8000/account?view=full
+http://localhost:8000/account/WYWRYK42XADLY3O62N52BOLT27DMPRA3WNBT2OBRT65N6OEZQWD4OSH6PI
+
