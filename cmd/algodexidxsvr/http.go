@@ -1,8 +1,6 @@
 package main
 
 import (
-	account "algodexidx/gen/account"
-	accountsvr "algodexidx/gen/http/account/server"
 	"context"
 	"log"
 	"net/http"
@@ -11,6 +9,11 @@ import (
 	"sync"
 	"time"
 
+	account "algodexidx/gen/account"
+	accountsvr "algodexidx/gen/http/account/server"
+	inspectsvr "algodexidx/gen/http/inspect/server"
+	inspect "algodexidx/gen/inspect"
+
 	goahttp "goa.design/goa/v3/http"
 	httpmdlwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
@@ -18,7 +21,7 @@ import (
 
 // handleHTTPServer starts configures and starts a HTTP server on the given
 // URL. It shuts down the server if any error is received in the error channel.
-func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
+func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account.Endpoints, inspectEndpoints *inspect.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
 
 	// Setup goa log adapter.
 	var (
@@ -50,19 +53,23 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 	// responses.
 	var (
 		accountServer *accountsvr.Server
+		inspectServer *inspectsvr.Server
 	)
 	{
 		eh := errorHandler(logger)
 		accountServer = accountsvr.New(accountEndpoints, mux, dec, enc, eh, nil, nil)
+		inspectServer = inspectsvr.New(inspectEndpoints, mux, dec, enc, eh, nil)
 		if debug {
 			servers := goahttp.Servers{
 				accountServer,
+				inspectServer,
 			}
 			servers.Use(httpmdlwr.Debug(mux, os.Stdout))
 		}
 	}
 	// Configure the mux.
 	accountsvr.Mount(mux, accountServer)
+	inspectsvr.Mount(mux, inspectServer)
 
 	// Wrap the multiplexer with additional middlewares. Middlewares mounted
 	// here apply to all the service endpoints.
@@ -76,6 +83,9 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 	// configure the server as required by your service.
 	srv := &http.Server{Addr: u.Host, Handler: handler}
 	for _, m := range accountServer.Mounts {
+		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
+	}
+	for _, m := range inspectServer.Mounts {
 		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
 	}
 

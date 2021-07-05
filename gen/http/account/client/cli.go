@@ -14,6 +14,19 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// BuildAddPayload builds the payload for the account add endpoint from CLI
+// flags.
+func BuildAddPayload(accountAddAddress string) (*account.AddPayload, error) {
+	var address string
+	{
+		address = accountAddAddress
+	}
+	v := &account.AddPayload{}
+	v.Address = address
+
+	return v, nil
+}
+
 // BuildGetPayload builds the payload for the account get endpoint from CLI
 // flags.
 func BuildGetPayload(accountGetAddress string) (*account.GetPayload, error) {

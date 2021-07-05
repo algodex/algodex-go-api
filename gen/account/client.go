@@ -30,7 +30,7 @@ func NewClient(add, get, list goa.Endpoint) *Client {
 }
 
 // Add calls the "add" endpoint of the "account" service.
-func (c *Client) Add(ctx context.Context, p string) (err error) {
+func (c *Client) Add(ctx context.Context, p *AddPayload) (err error) {
 	_, err = c.AddEndpoint(ctx, p)
 	return
 }

@@ -86,11 +86,16 @@ var _ = Service(
 		Method(
 			"add", func() {
 				Description("Add Algorand account to track")
-				Payload(String)
+				Payload(
+					func() {
+						Attribute("address", String)
+						Required("address")
+					},
+				)
 
 				HTTP(
 					func() {
-						POST("/")
+						PUT("/account/{address}")
 						Response(StatusOK)
 					},
 				)
@@ -114,7 +119,7 @@ var _ = Service(
 				Result(Account)
 				HTTP(
 					func() {
-						GET("/{address}")
+						GET("/account/{address}")
 						Response(StatusOK)
 					},
 				)
@@ -136,7 +141,7 @@ var _ = Service(
 				Result(CollectionOf(TrackedAccount))
 				HTTP(
 					func() {
-						GET("/")
+						GET("/account")
 						Param("view")
 						Response(StatusOK)
 					},
@@ -144,5 +149,29 @@ var _ = Service(
 			},
 		)
 		Files("/openapi.json", "./gen/http/openapi.json")
+	},
+)
+
+var _ = Service(
+	"inspect", func() {
+		Description("The inspect service provides msgpack decoding services")
+
+		Method(
+			"unpack", func() {
+				Description("Unpack a msgpack body (base64 encoded)")
+				Payload(
+					func() {
+						Attribute("msgpack", String)
+					},
+				)
+
+				HTTP(
+					func() {
+						POST("/inspect")
+						Response(StatusOK)
+					},
+				)
+			},
+		)
 	},
 )

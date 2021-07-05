@@ -15,6 +15,7 @@ import (
 	algodexidx "algodexidx"
 	"algodexidx/cmd/algodexidxsvr/backend"
 	account "algodexidx/gen/account"
+	inspect "algodexidx/gen/inspect"
 )
 
 func main() {
@@ -40,18 +41,22 @@ func main() {
 	// Initialize the services.
 	var (
 		accountSvc account.Service
+		inspectSvc inspect.Service
 	)
 	{
 		accountSvc = algodexidx.NewAccount(logger)
+		inspectSvc = algodexidx.NewInspect(logger)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services
 	// potentially running in different processes.
 	var (
 		accountEndpoints *account.Endpoints
+		inspectEndpoints *inspect.Endpoints
 	)
 	{
 		accountEndpoints = account.NewEndpoints(accountSvc)
+		inspectEndpoints = inspect.NewEndpoints(inspectSvc)
 	}
 
 	// Create channel used by both the signal handler and server goroutines
@@ -70,7 +75,6 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	backend.InitAlgoClient("", logger) // will currently crash hard if can't initialize
-
 	go backend.AccountWatcher(ctx, logger)
 
 	// Start the servers and send errors (if any) to the error channel.
@@ -99,7 +103,7 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host = net.JoinHostPort(u.Host, ":80")
 			}
-			handleHTTPServer(ctx, u, accountEndpoints, &wg, errc, logger, *dbgF)
+			handleHTTPServer(ctx, u, accountEndpoints, inspectEndpoints, &wg, errc, logger, *dbgF)
 		}
 
 	default:

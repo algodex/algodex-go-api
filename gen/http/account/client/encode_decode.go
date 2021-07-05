@@ -22,8 +22,18 @@ import (
 // BuildAddRequest instantiates a HTTP request object with method and path set
 // to call the "account" service "add" endpoint
 func (c *Client) BuildAddRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AddAccountPath()}
-	req, err := http.NewRequest("POST", u.String(), nil)
+	var (
+		address string
+	)
+	{
+		p, ok := v.(*account.AddPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("account", "add", "*account.AddPayload", v)
+		}
+		address = p.Address
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AddAccountPath(address)}
+	req, err := http.NewRequest("PUT", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("account", "add", u.String(), err)
 	}
@@ -32,22 +42,6 @@ func (c *Client) BuildAddRequest(ctx context.Context, v interface{}) (*http.Requ
 	}
 
 	return req, nil
-}
-
-// EncodeAddRequest returns an encoder for requests sent to the account add
-// server.
-func EncodeAddRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
-	return func(req *http.Request, v interface{}) error {
-		p, ok := v.(string)
-		if !ok {
-			return goahttp.ErrInvalidType("account", "add", "string", v)
-		}
-		body := p
-		if err := encoder(req).Encode(&body); err != nil {
-			return goahttp.ErrEncodingError("account", "add", err)
-		}
-		return nil
-	}
 }
 
 // DecodeAddResponse returns a decoder for responses returned by the account

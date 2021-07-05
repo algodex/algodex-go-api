@@ -12,16 +12,16 @@ import (
 )
 
 // AddAccountPath returns the URL path to the account service add HTTP endpoint.
-func AddAccountPath() string {
-	return "/"
+func AddAccountPath(address string) string {
+	return fmt.Sprintf("/account/%v", address)
 }
 
 // GetAccountPath returns the URL path to the account service get HTTP endpoint.
 func GetAccountPath(address string) string {
-	return fmt.Sprintf("/%v", address)
+	return fmt.Sprintf("/account/%v", address)
 }
 
 // ListAccountPath returns the URL path to the account service list HTTP endpoint.
 func ListAccountPath() string {
-	return "/"
+	return "/account"
 }

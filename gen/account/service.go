@@ -15,7 +15,7 @@ import (
 // The account service specifies which Algorand accounts to track
 type Service interface {
 	// Add Algorand account to track
-	Add(context.Context, string) (err error)
+	Add(context.Context, *AddPayload) (err error)
 	// Get specific account
 	Get(context.Context, *GetPayload) (res *Account, err error)
 	// List all tracked accounts
@@ -34,6 +34,11 @@ const ServiceName = "account"
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
 var MethodNames = [3]string{"add", "get", "list"}
+
+// AddPayload is the payload type of the account service add method.
+type AddPayload struct {
+	Address string
+}
 
 // GetPayload is the payload type of the account service get method.
 type GetPayload struct {

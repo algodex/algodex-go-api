@@ -80,6 +80,14 @@ func NewTrackedAccountResponseFullCollection(res accountviews.TrackedAccountColl
 	return body
 }
 
+// NewAddPayload builds a account service add endpoint payload.
+func NewAddPayload(address string) *account.AddPayload {
+	v := &account.AddPayload{}
+	v.Address = address
+
+	return v
+}
+
 // NewGetPayload builds a account service get endpoint payload.
 func NewGetPayload(address string) *account.GetPayload {
 	v := &account.GetPayload{}

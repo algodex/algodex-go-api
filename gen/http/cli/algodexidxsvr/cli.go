@@ -9,6 +9,7 @@ package cli
 
 import (
 	accountc "algodexidx/gen/http/account/client"
+	inspectc "algodexidx/gen/http/inspect/client"
 	"flag"
 	"fmt"
 	"net/http"
@@ -24,12 +25,16 @@ import (
 //
 func UsageCommands() string {
 	return `account (add|get|list)
+inspect unpack
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` account add --p "Natus ut quam aut."` + "\n" +
+	return os.Args[0] + ` account add --address "Facere suscipit magni molestiae soluta cupiditate totam."` + "\n" +
+		os.Args[0] + ` inspect unpack --body '{
+      "msgpack": "Aperiam reiciendis id aut."
+   }'` + "\n" +
 		""
 }
 
@@ -45,19 +50,27 @@ func ParseEndpoint(
 	var (
 		accountFlags = flag.NewFlagSet("account", flag.ContinueOnError)
 
-		accountAddFlags = flag.NewFlagSet("add", flag.ExitOnError)
-		accountAddPFlag = accountAddFlags.String("p", "REQUIRED", "string is the payload type of the account service add method.")
+		accountAddFlags       = flag.NewFlagSet("add", flag.ExitOnError)
+		accountAddAddressFlag = accountAddFlags.String("address", "REQUIRED", "")
 
 		accountGetFlags       = flag.NewFlagSet("get", flag.ExitOnError)
 		accountGetAddressFlag = accountGetFlags.String("address", "REQUIRED", "Public Account address")
 
 		accountListFlags    = flag.NewFlagSet("list", flag.ExitOnError)
 		accountListViewFlag = accountListFlags.String("view", "", "")
+
+		inspectFlags = flag.NewFlagSet("inspect", flag.ContinueOnError)
+
+		inspectUnpackFlags    = flag.NewFlagSet("unpack", flag.ExitOnError)
+		inspectUnpackBodyFlag = inspectUnpackFlags.String("body", "REQUIRED", "")
 	)
 	accountFlags.Usage = accountUsage
 	accountAddFlags.Usage = accountAddUsage
 	accountGetFlags.Usage = accountGetUsage
 	accountListFlags.Usage = accountListUsage
+
+	inspectFlags.Usage = inspectUsage
+	inspectUnpackFlags.Usage = inspectUnpackUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -76,6 +89,8 @@ func ParseEndpoint(
 		switch svcn {
 		case "account":
 			svcf = accountFlags
+		case "inspect":
+			svcf = inspectFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -104,6 +119,13 @@ func ParseEndpoint(
 
 			}
 
+		case "inspect":
+			switch epn {
+			case "unpack":
+				epf = inspectUnpackFlags
+
+			}
+
 		}
 	}
 	if epf == nil {
@@ -129,13 +151,20 @@ func ParseEndpoint(
 			switch epn {
 			case "add":
 				endpoint = c.Add()
-				data = *accountAddPFlag
+				data, err = accountc.BuildAddPayload(*accountAddAddressFlag)
 			case "get":
 				endpoint = c.Get()
 				data, err = accountc.BuildGetPayload(*accountGetAddressFlag)
 			case "list":
 				endpoint = c.List()
 				data, err = accountc.BuildListPayload(*accountListViewFlag)
+			}
+		case "inspect":
+			c := inspectc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "unpack":
+				endpoint = c.Unpack()
+				data, err = inspectc.BuildUnpackPayload(*inspectUnpackBodyFlag)
 			}
 		}
 	}
@@ -162,13 +191,13 @@ Additional help:
 `, os.Args[0], os.Args[0])
 }
 func accountAddUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] account add -p STRING
+	fmt.Fprintf(os.Stderr, `%s [flags] account add -address STRING
 
 Add Algorand account to track
-    -p STRING: string is the payload type of the account service add method.
+    -address STRING: 
 
 Example:
-    `+os.Args[0]+` account add --p "Natus ut quam aut."
+    `+os.Args[0]+` account add --address "Facere suscipit magni molestiae soluta cupiditate totam."
 `, os.Args[0])
 }
 
@@ -191,5 +220,31 @@ List all tracked accounts
 
 Example:
     `+os.Args[0]+` account list --view "default"
+`, os.Args[0])
+}
+
+// inspectUsage displays the usage of the inspect command and its subcommands.
+func inspectUsage() {
+	fmt.Fprintf(os.Stderr, `The inspect service provides msgpack decoding services
+Usage:
+    %s [globalflags] inspect COMMAND [flags]
+
+COMMAND:
+    unpack: Unpack a msgpack body (base64 encoded)
+
+Additional help:
+    %s inspect COMMAND --help
+`, os.Args[0], os.Args[0])
+}
+func inspectUnpackUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] inspect unpack -body JSON
+
+Unpack a msgpack body (base64 encoded)
+    -body JSON: 
+
+Example:
+    `+os.Args[0]+` inspect unpack --body '{
+      "msgpack": "Aperiam reiciendis id aut."
+   }'
 `, os.Args[0])
 }

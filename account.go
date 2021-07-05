@@ -2,6 +2,7 @@ package algodexidx
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -21,9 +22,12 @@ func NewAccount(logger *log.Logger) account.Service {
 }
 
 // Add Algorand account to track
-func (s *accountsrvc) Add(ctx context.Context, p string) (err error) {
-	s.logger.Println("account.add", p)
-	err = backend.WatchAccount(ctx, p)
+func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error) {
+	s.logger.Println("account.add", p.Address)
+	if p == nil || p.Address == "" {
+		return errors.New("must provide address to watch")
+	}
+	err = backend.WatchAccount(ctx, p.Address)
 	if err != nil {
 		return fmt.Errorf("account watch add of address:%s, error:%w", p, err)
 	}

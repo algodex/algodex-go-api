@@ -13,7 +13,7 @@ produces:
 - application/xml
 - application/gob
 paths:
-  /:
+  /account:
     get:
       tags:
       - account
@@ -36,24 +36,7 @@ paths:
             $ref: '#/definitions/AccountTrackedAccountResponseCollection'
       schemes:
       - http
-    post:
-      tags:
-      - account
-      summary: add account
-      description: Add Algorand account to track
-      operationId: account#add
-      parameters:
-      - name: string
-        in: body
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK response.
-      schemes:
-      - http
-  /{address}:
+  /account/{address}:
     get:
       tags:
       - account
@@ -75,6 +58,40 @@ paths:
             required:
             - address
             - holdings
+      schemes:
+      - http
+    put:
+      tags:
+      - account
+      summary: add account
+      description: Add Algorand account to track
+      operationId: account#add
+      parameters:
+      - name: address
+        in: path
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK response.
+      schemes:
+      - http
+  /inspect:
+    post:
+      tags:
+      - inspect
+      summary: unpack inspect
+      description: Unpack a msgpack body (base64 encoded)
+      operationId: inspect#unpack
+      parameters:
+      - name: UnpackRequestBody
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/InspectUnpackRequestBody'
+      responses:
+        "200":
+          description: OK response.
       schemes:
       - http
   /openapi.json:
@@ -126,6 +143,17 @@ definitions:
     example:
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+  InspectUnpackRequestBody:
+    title: InspectUnpackRequestBody
+    type: object
+    properties:
+      msgpack:
+        type: string
+        example: Vitae nulla.
+    example:
+      msgpack: Exercitationem nihil tempora.
   TrackedAccountResponse:
     title: 'Mediatype identifier: application/vnd.algodex.account; view=default'
     type: object
