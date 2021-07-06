@@ -21,11 +21,11 @@ paths:
         schema:
           type: string
           description: View to render
-          example: default
+          example: full
           enum:
           - default
           - full
-        example: full
+        example: default
       responses:
         "200":
           description: OK response.
@@ -114,10 +114,18 @@ paths:
             schema:
               $ref: '#/components/schemas/UnpackRequestBody'
             example:
-              msgpack: Necessitatibus ut unde soluta illo.
+              msgpack: Illo totam facere suscipit magni molestiae.
       responses:
         "200":
           description: OK response.
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: Returns output from goal clerk inspect of passed msgpack-encoded
+                  payload
+                example: Repellendus explicabo.
+              example: Laboriosam natus non et.
   /openapi.json:
     get:
       tags:
@@ -141,8 +149,8 @@ paths:
             application/json:
               schema:
                 type: string
-                example: Reiciendis molestiae labore veniam et.
-              example: Rerum dolores in blanditiis.
+                example: Eaque accusamus maxime accusamus veritatis ipsum.
+              example: Quia error quam tenetur id.
 components:
   schemas:
     Account:
@@ -175,7 +183,7 @@ components:
           type: array
           items:
             type: string
-            example: Sed ut.
+            example: Reiciendis molestiae labore veniam et.
           example:
           - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
           - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
@@ -214,14 +222,6 @@ components:
       items:
         $ref: '#/components/schemas/AlgodexAccount'
       example:
-      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        holdings:
-          "202586210": 100
-          "205471981": 200
-      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        holdings:
-          "202586210": 100
-          "205471981": 200
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
           "202586210": 100
@@ -273,14 +273,18 @@ components:
         holdings:
           "202586210": 100
           "205471981": 200
+      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        holdings:
+          "202586210": 100
+          "205471981": 200
     UnpackRequestBody:
       type: object
       properties:
         msgpack:
           type: string
-          example: Ut repellendus sit sunt facere.
+          example: Rerum dolores in blanditiis.
       example:
-        msgpack: Eaque maiores consectetur.
+        msgpack: Ea est esse ex blanditiis quaerat.
 tags:
 - name: account
   description: The account service specifies which Algorand accounts to track

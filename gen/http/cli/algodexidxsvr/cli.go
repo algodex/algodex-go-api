@@ -40,7 +40,7 @@ func UsageExamples() string {
       ]
    }'` + "\n" +
 		os.Args[0] + ` inspect unpack --body '{
-      "msgpack": "Necessitatibus ut unde soluta illo."
+      "msgpack": "Illo totam facere suscipit magni molestiae."
    }'` + "\n" +
 		os.Args[0] + ` info version` + "\n" +
 		""
@@ -280,7 +280,7 @@ Unpack a msgpack body (base64 encoded)
 
 Example:
     `+os.Args[0]+` inspect unpack --body '{
-      "msgpack": "Necessitatibus ut unde soluta illo."
+      "msgpack": "Illo totam facere suscipit magni molestiae."
    }'
 `, os.Args[0])
 }

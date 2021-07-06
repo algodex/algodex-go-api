@@ -166,11 +166,16 @@ var _ = Service(
 						Attribute("msgpack", String)
 					},
 				)
+				Result(String, func() {
+					Description("Returns output from goal clerk inspect of passed msgpack-encoded payload")
+				})
 
 				HTTP(
 					func() {
 						POST("/inspect")
-						Response(StatusOK)
+						Response(StatusOK, func() {
+							ContentType("text/plain")
+						})
 					},
 				)
 			},

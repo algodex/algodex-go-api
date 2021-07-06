@@ -6,8 +6,7 @@ RUN mkdir -p /go/src/algodexidx
 WORKDIR /go/src/algodexidx
 # Install deps
 RUN go get -u -v github.com/ahmetb/govvv
-#&& \
-#	go get -u -v github.com/gorilla/mux
+
 # Copy all project files
 ADD . .
 # Generate a binary
@@ -15,12 +14,13 @@ RUN env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -ldflags "$(govvv -
 RUN #env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app ./cmd/algodexidxsvr
 
 # Second (final) stage, base image is scratch
-FROM scratch
+FROM centos:latest
 EXPOSE 8000
 
-# Copy statically linked binary
+RUN yum install wget -y
+RUN mkdir -p /node && cd /node && wget https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh && chmod 544 ./update.sh
+RUN cd /node && ./update.sh -i -c stable -p /node -d /node/data -n
+
 COPY --from=builder /go/src/algodexidx/app /app
-# Copy SSL certificates
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-# Notice "CMD", we don't use "Entrypoint" because there is no OS
+
 CMD [ "/app" ]

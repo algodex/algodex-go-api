@@ -14,7 +14,7 @@ import (
 // The inspect service provides msgpack decoding services
 type Service interface {
 	// Unpack a msgpack body (base64 encoded)
-	Unpack(context.Context, *UnpackPayload) (err error)
+	Unpack(context.Context, *UnpackPayload) (res string, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the

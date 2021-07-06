@@ -35,6 +35,6 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 func NewUnpackEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*UnpackPayload)
-		return nil, s.Unpack(ctx, p)
+		return s.Unpack(ctx, p)
 	}
 }

@@ -26,7 +26,11 @@ func NewClient(unpack goa.Endpoint) *Client {
 }
 
 // Unpack calls the "unpack" endpoint of the "inspect" service.
-func (c *Client) Unpack(ctx context.Context, p *UnpackPayload) (err error) {
-	_, err = c.UnpackEndpoint(ctx, p)
-	return
+func (c *Client) Unpack(ctx context.Context, p *UnpackPayload) (res string, err error) {
+	var ires interface{}
+	ires, err = c.UnpackEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(string), nil
 }
