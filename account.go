@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"log"
 
-	"algodexidx/cmd/algodexidxsvr/backend"
 	account "algodexidx/gen/account"
+
+	"algodexidx/cmd/algodexidxsvr/backend"
 )
 
 // account service example implementation.
@@ -24,12 +25,12 @@ func NewAccount(logger *log.Logger) account.Service {
 // Add Algorand account to track
 func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error) {
 	s.logger.Println("account.add", p.Address)
-	if p == nil || p.Address == "" {
-		return errors.New("must provide address to watch")
+	if p == nil || len(p.Address) == 0 {
+		return errors.New("must provide address(es) to watch")
 	}
-	err = backend.WatchAccount(ctx, p.Address)
+	err = backend.WatchAccounts(ctx, p.Address...)
 	if err != nil {
-		return fmt.Errorf("account watch add of address:%s, error:%w", p, err)
+		return fmt.Errorf("account watch add of addresses:%v, error:%w", p.Address, err)
 	}
 	return
 }

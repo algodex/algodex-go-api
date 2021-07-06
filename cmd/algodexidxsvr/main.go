@@ -12,11 +12,15 @@ import (
 	"sync"
 	"syscall"
 
+	info "algodexidx/gen/info"
+
 	algodexidx "algodexidx"
 	"algodexidx/cmd/algodexidxsvr/backend"
 	account "algodexidx/gen/account"
 	inspect "algodexidx/gen/inspect"
 )
+
+var GitSummary string
 
 func main() {
 	// Define command line flags, add any other flag required to configure the
@@ -42,10 +46,12 @@ func main() {
 	var (
 		accountSvc account.Service
 		inspectSvc inspect.Service
+		infoSvc    info.Service
 	)
 	{
 		accountSvc = algodexidx.NewAccount(logger)
 		inspectSvc = algodexidx.NewInspect(logger)
+		infoSvc = algodexidx.NewInfo(logger, GitSummary)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services
@@ -53,10 +59,12 @@ func main() {
 	var (
 		accountEndpoints *account.Endpoints
 		inspectEndpoints *inspect.Endpoints
+		infoEndpoints    *info.Endpoints
 	)
 	{
 		accountEndpoints = account.NewEndpoints(accountSvc)
 		inspectEndpoints = inspect.NewEndpoints(inspectSvc)
+		infoEndpoints = info.NewEndpoints(infoSvc)
 	}
 
 	// Create channel used by both the signal handler and server goroutines
@@ -103,12 +111,13 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host = net.JoinHostPort(u.Host, ":80")
 			}
-			handleHTTPServer(ctx, u, accountEndpoints, inspectEndpoints, &wg, errc, logger, *dbgF)
+			handleHTTPServer(ctx, u, accountEndpoints, inspectEndpoints, infoEndpoints, &wg, errc, logger, *dbgF)
 		}
 
 	default:
 		fmt.Fprintf(os.Stderr, "invalid host argument: %q (valid hosts: localhost)\n", *hostF)
 	}
+	logger.Printf("Version:%s", GitSummary)
 
 	// Wait for signal.
 	logger.Printf("exiting (%v)", <-errc)

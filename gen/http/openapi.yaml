@@ -36,6 +36,25 @@ paths:
             $ref: '#/definitions/AccountTrackedAccountResponseCollection'
       schemes:
       - http
+    post:
+      tags:
+      - account
+      summary: add account
+      description: Add Algorand account(s) to track
+      operationId: account#add
+      parameters:
+      - name: AddRequestBody
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/AccountAddRequestBody'
+          required:
+          - address
+      responses:
+        "200":
+          description: OK response.
+      schemes:
+      - http
   /account/{address}:
     get:
       tags:
@@ -58,22 +77,6 @@ paths:
             required:
             - address
             - holdings
-      schemes:
-      - http
-    put:
-      tags:
-      - account
-      summary: add account
-      description: Add Algorand account to track
-      operationId: account#add
-      parameters:
-      - name: address
-        in: path
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK response.
       schemes:
       - http
   /inspect:
@@ -107,7 +110,39 @@ paths:
             type: file
       schemes:
       - http
+  /version:
+    get:
+      tags:
+      - info
+      summary: version info
+      description: Returns version information for the service
+      operationId: info#version
+      responses:
+        "200":
+          description: OK response.
+          schema:
+            type: string
+      schemes:
+      - http
 definitions:
+  AccountAddRequestBody:
+    title: AccountAddRequestBody
+    type: object
+    properties:
+      address:
+        type: array
+        items:
+          type: string
+          example: Id aut.
+        example:
+        - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+    example:
+      address:
+      - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+      - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+    required:
+    - address
   AccountGetResponseBody:
     title: AccountGetResponseBody
     type: object

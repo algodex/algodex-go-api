@@ -10,7 +10,15 @@ package server
 import (
 	account "algodexidx/gen/account"
 	accountviews "algodexidx/gen/account/views"
+
+	goa "goa.design/goa/v3/pkg"
 )
+
+// AddRequestBody is the type of the "account" service "add" endpoint HTTP
+// request body.
+type AddRequestBody struct {
+	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
+}
 
 // GetResponseBody is the type of the "account" service "get" endpoint HTTP
 // response body.
@@ -81,9 +89,12 @@ func NewTrackedAccountResponseFullCollection(res accountviews.TrackedAccountColl
 }
 
 // NewAddPayload builds a account service add endpoint payload.
-func NewAddPayload(address string) *account.AddPayload {
+func NewAddPayload(body *AddRequestBody) *account.AddPayload {
 	v := &account.AddPayload{}
-	v.Address = address
+	v.Address = make([]string, len(body.Address))
+	for i, val := range body.Address {
+		v.Address[i] = val
+	}
 
 	return v
 }
@@ -102,4 +113,12 @@ func NewListPayload(view *string) *account.ListPayload {
 	v.View = view
 
 	return v
+}
+
+// ValidateAddRequestBody runs the validations defined on AddRequestBody
+func ValidateAddRequestBody(body *AddRequestBody) (err error) {
+	if body.Address == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+	}
+	return
 }

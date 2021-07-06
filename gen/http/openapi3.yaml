@@ -51,6 +51,25 @@ paths:
                 holdings:
                   "202586210": 100
                   "205471981": 200
+    post:
+      tags:
+      - account
+      summary: add account
+      description: Add Algorand account(s) to track
+      operationId: account#add
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddRequestBody'
+            example:
+              address:
+              - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+              - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+      responses:
+        "200":
+          description: OK response.
   /account/{address}:
     get:
       tags:
@@ -81,23 +100,6 @@ paths:
                 holdings:
                   "202586210": 100
                   "205471981": 200
-    put:
-      tags:
-      - account
-      summary: add account
-      description: Add Algorand account to track
-      operationId: account#add
-      parameters:
-      - name: address
-        in: path
-        required: true
-        schema:
-          type: string
-          example: Saepe reiciendis molestiae labore.
-        example: Et velit labore laborum rerum dolores.
-      responses:
-        "200":
-          description: OK response.
   /inspect:
     post:
       tags:
@@ -112,7 +114,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UnpackRequestBody'
             example:
-              msgpack: Aperiam reiciendis id aut.
+              msgpack: Necessitatibus ut unde soluta illo.
       responses:
         "200":
           description: OK response.
@@ -125,6 +127,22 @@ paths:
       responses:
         "200":
           description: File downloaded
+  /version:
+    get:
+      tags:
+      - info
+      summary: version info
+      description: Returns version information for the service
+      operationId: info#version
+      responses:
+        "200":
+          description: OK response.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Reiciendis molestiae labore veniam et.
+              example: Rerum dolores in blanditiis.
 components:
   schemas:
     Account:
@@ -150,6 +168,23 @@ components:
       required:
       - address
       - holdings
+    AddRequestBody:
+      type: object
+      properties:
+        address:
+          type: array
+          items:
+            type: string
+            example: Sed ut.
+          example:
+          - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+          - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+      example:
+        address:
+        - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+      required:
+      - address
     AlgodexAccount:
       type: object
       properties:
@@ -179,6 +214,14 @@ components:
       items:
         $ref: '#/components/schemas/AlgodexAccount'
       example:
+      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        holdings:
+          "202586210": 100
+          "205471981": 200
+      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        holdings:
+          "202586210": 100
+          "205471981": 200
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
           "202586210": 100
@@ -226,16 +269,22 @@ components:
         holdings:
           "202586210": 100
           "205471981": 200
+      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        holdings:
+          "202586210": 100
+          "205471981": 200
     UnpackRequestBody:
       type: object
       properties:
         msgpack:
           type: string
-          example: Repellat dolorem quia ut repellendus sit sunt.
+          example: Ut repellendus sit sunt facere.
       example:
-        msgpack: Sunt eaque maiores.
+        msgpack: Eaque maiores consectetur.
 tags:
 - name: account
   description: The account service specifies which Algorand accounts to track
 - name: inspect
   description: The inspect service provides msgpack decoding services
+- name: info
+  description: The info service provides information on version data, etc.

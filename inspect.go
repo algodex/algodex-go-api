@@ -38,7 +38,7 @@ func (s *inspectsrvc) Unpack(ctx context.Context, p *inspect.UnpackPayload) (err
 	//}
 	msgPackData, err := base64.StdEncoding.DecodeString(*p.Msgpack)
 	if err != nil {
-		return fmt.Errorf("invaldi msgpack base64, error: %w", err)
+		return fmt.Errorf("invalid msgpack base64, error: %w", err)
 	}
 	var (
 		count int
@@ -58,8 +58,10 @@ func (s *inspectsrvc) Unpack(ctx context.Context, p *inspect.UnpackPayload) (err
 			break
 		}
 	}
+	//err = nil
+	return nil
 	/*
-			dec := protocol.NewDecoderBytes(data)
+		dec := protocol.NewDecoderBytes(data)
 		count := 0
 		for {
 			var txn transactions.SignedTxn

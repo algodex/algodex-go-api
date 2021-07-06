@@ -9,6 +9,8 @@ package client
 
 import (
 	account "algodexidx/gen/account"
+	"encoding/json"
+	"fmt"
 	"unicode/utf8"
 
 	goa "goa.design/goa/v3/pkg"
@@ -16,13 +18,28 @@ import (
 
 // BuildAddPayload builds the payload for the account add endpoint from CLI
 // flags.
-func BuildAddPayload(accountAddAddress string) (*account.AddPayload, error) {
-	var address string
+func BuildAddPayload(accountAddBody string) (*account.AddPayload, error) {
+	var err error
+	var body AddRequestBody
 	{
-		address = accountAddAddress
+		err = json.Unmarshal([]byte(accountAddBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n      ]\n   }'")
+		}
+		if body.Address == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+		}
+		if err != nil {
+			return nil, err
+		}
 	}
 	v := &account.AddPayload{}
-	v.Address = address
+	if body.Address != nil {
+		v.Address = make([]string, len(body.Address))
+		for i, val := range body.Address {
+			v.Address[i] = val
+		}
+	}
 
 	return v, nil
 }

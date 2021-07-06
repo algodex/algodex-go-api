@@ -9,6 +9,7 @@ package cli
 
 import (
 	accountc "algodexidx/gen/http/account/client"
+	infoc "algodexidx/gen/http/info/client"
 	inspectc "algodexidx/gen/http/inspect/client"
 	"flag"
 	"fmt"
@@ -26,15 +27,22 @@ import (
 func UsageCommands() string {
 	return `account (add|get|list)
 inspect unpack
+info version
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` account add --address "Facere suscipit magni molestiae soluta cupiditate totam."` + "\n" +
-		os.Args[0] + ` inspect unpack --body '{
-      "msgpack": "Aperiam reiciendis id aut."
+	return os.Args[0] + ` account add --body '{
+      "address": [
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+      ]
    }'` + "\n" +
+		os.Args[0] + ` inspect unpack --body '{
+      "msgpack": "Necessitatibus ut unde soluta illo."
+   }'` + "\n" +
+		os.Args[0] + ` info version` + "\n" +
 		""
 }
 
@@ -50,8 +58,8 @@ func ParseEndpoint(
 	var (
 		accountFlags = flag.NewFlagSet("account", flag.ContinueOnError)
 
-		accountAddFlags       = flag.NewFlagSet("add", flag.ExitOnError)
-		accountAddAddressFlag = accountAddFlags.String("address", "REQUIRED", "")
+		accountAddFlags    = flag.NewFlagSet("add", flag.ExitOnError)
+		accountAddBodyFlag = accountAddFlags.String("body", "REQUIRED", "")
 
 		accountGetFlags       = flag.NewFlagSet("get", flag.ExitOnError)
 		accountGetAddressFlag = accountGetFlags.String("address", "REQUIRED", "Public Account address")
@@ -63,6 +71,10 @@ func ParseEndpoint(
 
 		inspectUnpackFlags    = flag.NewFlagSet("unpack", flag.ExitOnError)
 		inspectUnpackBodyFlag = inspectUnpackFlags.String("body", "REQUIRED", "")
+
+		infoFlags = flag.NewFlagSet("info", flag.ContinueOnError)
+
+		infoVersionFlags = flag.NewFlagSet("version", flag.ExitOnError)
 	)
 	accountFlags.Usage = accountUsage
 	accountAddFlags.Usage = accountAddUsage
@@ -71,6 +83,9 @@ func ParseEndpoint(
 
 	inspectFlags.Usage = inspectUsage
 	inspectUnpackFlags.Usage = inspectUnpackUsage
+
+	infoFlags.Usage = infoUsage
+	infoVersionFlags.Usage = infoVersionUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -91,6 +106,8 @@ func ParseEndpoint(
 			svcf = accountFlags
 		case "inspect":
 			svcf = inspectFlags
+		case "info":
+			svcf = infoFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -126,6 +143,13 @@ func ParseEndpoint(
 
 			}
 
+		case "info":
+			switch epn {
+			case "version":
+				epf = infoVersionFlags
+
+			}
+
 		}
 	}
 	if epf == nil {
@@ -151,7 +175,7 @@ func ParseEndpoint(
 			switch epn {
 			case "add":
 				endpoint = c.Add()
-				data, err = accountc.BuildAddPayload(*accountAddAddressFlag)
+				data, err = accountc.BuildAddPayload(*accountAddBodyFlag)
 			case "get":
 				endpoint = c.Get()
 				data, err = accountc.BuildGetPayload(*accountGetAddressFlag)
@@ -165,6 +189,13 @@ func ParseEndpoint(
 			case "unpack":
 				endpoint = c.Unpack()
 				data, err = inspectc.BuildUnpackPayload(*inspectUnpackBodyFlag)
+			}
+		case "info":
+			c := infoc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "version":
+				endpoint = c.Version()
+				data = nil
 			}
 		}
 	}
@@ -182,7 +213,7 @@ Usage:
     %s [globalflags] account COMMAND [flags]
 
 COMMAND:
-    add: Add Algorand account to track
+    add: Add Algorand account(s) to track
     get: Get specific account
     list: List all tracked accounts
 
@@ -191,13 +222,18 @@ Additional help:
 `, os.Args[0], os.Args[0])
 }
 func accountAddUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] account add -address STRING
+	fmt.Fprintf(os.Stderr, `%s [flags] account add -body JSON
 
-Add Algorand account to track
-    -address STRING: 
+Add Algorand account(s) to track
+    -body JSON: 
 
 Example:
-    `+os.Args[0]+` account add --address "Facere suscipit magni molestiae soluta cupiditate totam."
+    `+os.Args[0]+` account add --body '{
+      "address": [
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+      ]
+   }'
 `, os.Args[0])
 }
 
@@ -219,7 +255,7 @@ List all tracked accounts
     -view STRING: 
 
 Example:
-    `+os.Args[0]+` account list --view "default"
+    `+os.Args[0]+` account list --view "full"
 `, os.Args[0])
 }
 
@@ -244,7 +280,30 @@ Unpack a msgpack body (base64 encoded)
 
 Example:
     `+os.Args[0]+` inspect unpack --body '{
-      "msgpack": "Aperiam reiciendis id aut."
+      "msgpack": "Necessitatibus ut unde soluta illo."
    }'
+`, os.Args[0])
+}
+
+// infoUsage displays the usage of the info command and its subcommands.
+func infoUsage() {
+	fmt.Fprintf(os.Stderr, `The info service provides information on version data, etc.
+Usage:
+    %s [globalflags] info COMMAND [flags]
+
+COMMAND:
+    version: Returns version information for the service
+
+Additional help:
+    %s info COMMAND --help
+`, os.Args[0], os.Args[0])
+}
+func infoVersionUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] info version
+
+Returns version information for the service
+
+Example:
+    `+os.Args[0]+` info version
 `, os.Args[0])
 }

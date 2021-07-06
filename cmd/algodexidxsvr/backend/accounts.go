@@ -38,17 +38,19 @@ type watchData struct {
 	watchedAccounts accountMap
 }
 
-func WatchAccount(ctx context.Context, address string) error {
-	account := &trackedAccount{
-		Address: address,
+func WatchAccounts(ctx context.Context, addresses ...string) error {
+	for _, address := range addresses {
+		ta := &trackedAccount{
+			Address: address,
+		}
+		err := ta.UpdateHoldings(ctx)
+		if err != nil {
+			return fmt.Errorf("couldn't add watch on address:%s error:%w", address, err)
+		}
+		watchedData.Lock()
+		watchedData.watchedAccounts[address] = ta
+		watchedData.Unlock()
 	}
-	err := account.UpdateHoldings(ctx)
-	if err != nil {
-		return fmt.Errorf("couldn't add watch on account: %w", err)
-	}
-	watchedData.Lock()
-	defer watchedData.Unlock()
-	watchedData.watchedAccounts[address] = account
 	return nil
 }
 

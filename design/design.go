@@ -85,17 +85,19 @@ var _ = Service(
 
 		Method(
 			"add", func() {
-				Description("Add Algorand account to track")
+				Description("Add Algorand account(s) to track")
 				Payload(
 					func() {
-						Attribute("address", String)
+						Attribute("address", ArrayOf(String), func() {
+							Example([]string{"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU", "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"})
+						})
 						Required("address")
 					},
 				)
 
 				HTTP(
 					func() {
-						PUT("/account/{address}")
+						POST("/account")
 						Response(StatusOK)
 					},
 				)
@@ -168,6 +170,25 @@ var _ = Service(
 				HTTP(
 					func() {
 						POST("/inspect")
+						Response(StatusOK)
+					},
+				)
+			},
+		)
+	},
+)
+
+var _ = Service(
+	"info", func() {
+		Description("The info service provides information on version data, etc.")
+
+		Method(
+			"version", func() {
+				Description("Returns version information for the service")
+				Result(String)
+				HTTP(
+					func() {
+						GET("/version")
 						Response(StatusOK)
 					},
 				)

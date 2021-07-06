@@ -11,6 +11,7 @@ import (
 	account "algodexidx/gen/account"
 	accountviews "algodexidx/gen/account/views"
 	"context"
+	"io"
 	"net/http"
 	"unicode/utf8"
 
@@ -32,12 +33,21 @@ func EncodeAddResponse(encoder func(context.Context, http.ResponseWriter) goahtt
 func DecodeAddRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			address string
-
-			params = mux.Vars(r)
+			body AddRequestBody
+			err  error
 		)
-		address = params["address"]
-		payload := NewAddPayload(address)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateAddRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+		payload := NewAddPayload(&body)
 
 		return payload, nil
 	}

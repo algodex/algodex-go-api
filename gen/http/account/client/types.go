@@ -15,6 +15,12 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// AddRequestBody is the type of the "account" service "add" endpoint HTTP
+// request body.
+type AddRequestBody struct {
+	Address []string `form:"address" json:"address" xml:"address"`
+}
+
 // GetResponseBody is the type of the "account" service "get" endpoint HTTP
 // response body.
 type GetResponseBody struct {
@@ -34,6 +40,19 @@ type TrackedAccountResponse struct {
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 	// Opted-in ASA IDs
 	Holdings map[string]uint64 `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
+}
+
+// NewAddRequestBody builds the HTTP request body from the payload of the "add"
+// endpoint of the "account" service.
+func NewAddRequestBody(p *account.AddPayload) *AddRequestBody {
+	body := &AddRequestBody{}
+	if p.Address != nil {
+		body.Address = make([]string, len(p.Address))
+		for i, val := range p.Address {
+			body.Address[i] = val
+		}
+	}
+	return body
 }
 
 // NewGetAccountOK builds a "account" service "get" endpoint result from a HTTP
