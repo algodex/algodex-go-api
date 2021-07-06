@@ -10,14 +10,13 @@ var _ = API(
 		Title("AlgoDex Indexer Service")
 		Description("Service for tracking Algorand accounts and currently opted-in Holdings")
 		cors.Origin(
-			"/.*localhost.*/", func() {
-				cors.Headers(
-					//"X-Authorization", "X-Time", "X-Api-Version",
-					"Content-Type", "Origin",
-					//"Authorization",
-				)
+			"*", func() {
+				cors.Headers("*")//"X-Authorization", "X-Time", "X-Api-Version",
+				//"Content-Type", "Origin",
+				//"Authorization",
+
 				cors.Methods("GET", "POST", "OPTIONS")
-				cors.Expose("Content-Type", "Origin")
+				//cors.Expose("Content-Type", "Origin")
 				cors.MaxAge(600)
 				//cors.Credentials()
 			},
