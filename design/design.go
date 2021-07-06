@@ -1,11 +1,27 @@
 package design
 
-import . "goa.design/goa/v3/dsl"
+import (
+	. "goa.design/goa/v3/dsl"
+	cors "goa.design/plugins/v3/cors/dsl"
+)
 
 var _ = API(
 	"algodexidx", func() {
 		Title("AlgoDex Indexer Service")
 		Description("Service for tracking Algorand accounts and currently opted-in Holdings")
+		cors.Origin("localhost")
+		//cors.Origin(
+		//	"/.*localhost.*/", func() {
+		//		cors.Headers(
+		//			"X-Authorization", "X-Time", "X-Api-Version",
+		//			"Content-Type", "Origin", "Authorization",
+		//		)
+		//		cors.Methods("GET", "POST", "OPTIONS")
+		//		cors.Expose("Content-Type", "Origin")
+		//		cors.MaxAge(60)
+		//		cors.Credentials()
+		//	},
+		//)
 		Server(
 			"algodexidxsvr", func() {
 				Host(
@@ -88,9 +104,16 @@ var _ = Service(
 				Description("Add Algorand account(s) to track")
 				Payload(
 					func() {
-						Attribute("address", ArrayOf(String), func() {
-							Example([]string{"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU", "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"})
-						})
+						Attribute(
+							"address", ArrayOf(String), func() {
+								Example(
+									[]string{
+										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
+									},
+								)
+							},
+						)
 						Required("address")
 					},
 				)
@@ -166,16 +189,20 @@ var _ = Service(
 						Attribute("msgpack", String)
 					},
 				)
-				Result(String, func() {
-					Description("Returns output from goal clerk inspect of passed msgpack-encoded payload")
-				})
+				Result(
+					String, func() {
+						Description("Returns output from goal clerk inspect of passed msgpack-encoded payload")
+					},
+				)
 
 				HTTP(
 					func() {
 						POST("/inspect")
-						Response(StatusOK, func() {
-							ContentType("text/plain")
-						})
+						Response(
+							StatusOK, func() {
+								ContentType("text/plain")
+							},
+						)
 					},
 				)
 			},

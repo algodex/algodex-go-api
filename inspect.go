@@ -50,7 +50,8 @@ func (s *inspectsrvc) Unpack(ctx context.Context, p *inspect.UnpackPayload) (res
 		return "", fmt.Errorf("couldn't close temp file: %w", err)
 	}
 	// TODO: Hardcoded for docker execution environment at this point
-	cmd := exec.Command("/node/goal", "clerk", "inspect", tmpfile.Name())
+	cmd := exec.Command("/Users/patrickb/node/goal", "clerk", "inspect", tmpfile.Name())
+	//cmd := exec.Command("/node/goal", "clerk", "inspect", tmpfile.Name())
 	inspectOutput, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("couldn't execute goal command: %w", err)
