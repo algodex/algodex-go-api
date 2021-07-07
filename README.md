@@ -28,22 +28,23 @@ This is an early-stage service exposing a REST API for watching accounts as well
   * `GET /account`
     ```json
       [{"address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-                   "xxxxxx", ...]
+                   "xxxxxx"]
     ```
   * `GET /account?view=full`
     ```json
-      [{"address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-        "holdings": {
-          "1": 9991000,
-          "17574184": 3,
-          "17574196": 12,
-          "17574397": 10,
-          "17968465": 1,
-          "18432613": 1
-        }
-      },
-      {"address": "xxxx". "holdings": {"1": 1231411, ...}},
-      ... ]
+      [
+        {"address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
+          "holdings": {
+            "1": 9991000,
+            "17574184": 3,
+            "17574196": 12,
+            "17574397": 10,
+            "17968465": 1,
+            "18432613": 1
+          }
+        },
+        {"address": "xxxx", "holdings": {"1": 1231411}}
+      ]
       ```
 
 ### Debug helper
