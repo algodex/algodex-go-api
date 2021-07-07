@@ -20,6 +20,9 @@ type Client struct {
 	// Unpack Doer is the HTTP client used to make requests to the unpack endpoint.
 	UnpackDoer goahttp.Doer
 
+	// CORS Doer is the HTTP client used to make requests to the  endpoint.
+	CORSDoer goahttp.Doer
+
 	// RestoreResponseBody controls whether the response bodies are reset after
 	// decoding so they can be read again.
 	RestoreResponseBody bool
@@ -41,6 +44,7 @@ func NewClient(
 ) *Client {
 	return &Client{
 		UnpackDoer:          doer,
+		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,

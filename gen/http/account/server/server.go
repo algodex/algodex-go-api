@@ -14,6 +14,7 @@ import (
 
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
+	"goa.design/plugins/v3/cors"
 )
 
 // Server lists the account service endpoint HTTP handlers.
@@ -22,6 +23,7 @@ type Server struct {
 	Add                http.Handler
 	Get                http.Handler
 	List               http.Handler
+	CORS               http.Handler
 	GenHTTPOpenapiJSON http.Handler
 }
 
@@ -65,11 +67,15 @@ func New(
 			{"Add", "POST", "/account"},
 			{"Get", "GET", "/account/{address}"},
 			{"List", "GET", "/account"},
+			{"CORS", "OPTIONS", "/account"},
+			{"CORS", "OPTIONS", "/account/{address}"},
+			{"CORS", "OPTIONS", "/openapi.json"},
 			{"./gen/http/openapi.json", "GET", "/openapi.json"},
 		},
 		Add:                NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
 		Get:                NewGetHandler(e.Get, mux, decoder, encoder, errhandler, formatter),
 		List:               NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
+		CORS:               NewCORSHandler(),
 		GenHTTPOpenapiJSON: http.FileServer(fileSystemGenHTTPOpenapiJSON),
 	}
 }
@@ -82,6 +88,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Add = m(s.Add)
 	s.Get = m(s.Get)
 	s.List = m(s.List)
+	s.CORS = m(s.CORS)
 }
 
 // Mount configures the mux to serve the account endpoints.
@@ -89,13 +96,14 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountAddHandler(mux, h.Add)
 	MountGetHandler(mux, h.Get)
 	MountListHandler(mux, h.List)
+	MountCORSHandler(mux, h.CORS)
 	MountGenHTTPOpenapiJSON(mux, goahttp.Replace("", "/./gen/http/openapi.json", h.GenHTTPOpenapiJSON))
 }
 
 // MountAddHandler configures the mux to serve the "account" service "add"
 // endpoint.
 func MountAddHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := h.(http.HandlerFunc)
+	f, ok := HandleAccountOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
@@ -146,7 +154,7 @@ func NewAddHandler(
 // MountGetHandler configures the mux to serve the "account" service "get"
 // endpoint.
 func MountGetHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := h.(http.HandlerFunc)
+	f, ok := HandleAccountOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
@@ -197,7 +205,7 @@ func NewGetHandler(
 // MountListHandler configures the mux to serve the "account" service "list"
 // endpoint.
 func MountListHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := h.(http.HandlerFunc)
+	f, ok := HandleAccountOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
@@ -248,5 +256,55 @@ func NewListHandler(
 // MountGenHTTPOpenapiJSON configures the mux to serve GET request made to
 // "/openapi.json".
 func MountGenHTTPOpenapiJSON(mux goahttp.Muxer, h http.Handler) {
-	mux.Handle("GET", "/openapi.json", h.ServeHTTP)
+	mux.Handle("GET", "/openapi.json", HandleAccountOrigin(h).ServeHTTP)
+}
+
+// MountCORSHandler configures the mux to serve the CORS endpoints for the
+// service account.
+func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
+	h = HandleAccountOrigin(h)
+	f, ok := h.(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("OPTIONS", "/account", f)
+	mux.Handle("OPTIONS", "/account/{address}", f)
+	mux.Handle("OPTIONS", "/openapi.json", f)
+}
+
+// NewCORSHandler creates a HTTP handler which returns a simple 200 response.
+func NewCORSHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+	})
+}
+
+// HandleAccountOrigin applies the CORS response headers corresponding to the
+// origin for the service account.
+func HandleAccountOrigin(h http.Handler) http.Handler {
+	origHndlr := h.(http.HandlerFunc)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			origHndlr(w, r)
+			return
+		}
+		if cors.MatchOrigin(origin, "*") {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+			w.Header().Set("Access-Control-Max-Age", "600")
+			if acrm := r.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "*")
+			}
+			origHndlr(w, r)
+			return
+		}
+		origHndlr(w, r)
+		return
+	})
 }
