@@ -27,8 +27,8 @@ This is an early-stage service exposing a REST API for watching accounts as well
 * **Fetching** information for **all** accounts:
   * `GET /account`
     ```json
-      [{"address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-                   "xxxxxx"]
+      [{"address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"},
+       {"address": "xxxxxxx"}]
     ```
   * `GET /account?view=full`
     ```json
