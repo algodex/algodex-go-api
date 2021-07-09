@@ -40,7 +40,7 @@ func UsageExamples() string {
       ]
    }'` + "\n" +
 		os.Args[0] + ` inspect unpack --body '{
-      "msgpack": "Illo totam facere suscipit magni molestiae."
+      "msgpack": "Id assumenda."
    }'` + "\n" +
 		os.Args[0] + ` info version` + "\n" +
 		""
@@ -255,7 +255,7 @@ List all tracked accounts
     -view STRING: 
 
 Example:
-    `+os.Args[0]+` account list --view "full"
+    `+os.Args[0]+` account list --view "default"
 `, os.Args[0])
 }
 
@@ -266,7 +266,7 @@ Usage:
     %s [globalflags] inspect COMMAND [flags]
 
 COMMAND:
-    unpack: Unpack a msgpack body (base64 encoded)
+    unpack: Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output
 
 Additional help:
     %s inspect COMMAND --help
@@ -275,12 +275,12 @@ Additional help:
 func inspectUnpackUsage() {
 	fmt.Fprintf(os.Stderr, `%s [flags] inspect unpack -body JSON
 
-Unpack a msgpack body (base64 encoded)
+Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output
     -body JSON: 
 
 Example:
     `+os.Args[0]+` inspect unpack --body '{
-      "msgpack": "Illo totam facere suscipit magni molestiae."
+      "msgpack": "Id assumenda."
    }'
 `, os.Args[0])
 }

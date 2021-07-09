@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-func AccountWatcher(ctx context.Context, logger *log.Logger) {
+func accountWatcher(ctx context.Context, logger *log.Logger) {
 	defer logger.Println("Exited yardWalletUpdater")
 	wg := sync.WaitGroup{}
 

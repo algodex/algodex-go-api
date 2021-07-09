@@ -216,6 +216,22 @@ func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 	}
 }
 
+// unmarshalHoldingResponseBodyToAccountHolding builds a value of type
+// *account.Holding from a value of type *HoldingResponseBody.
+func unmarshalHoldingResponseBodyToAccountHolding(v *HoldingResponseBody) *account.Holding {
+	res := &account.Holding{
+		Asset:        *v.Asset,
+		Amount:       *v.Amount,
+		Decimals:     *v.Decimals,
+		MetadataHash: *v.MetadataHash,
+		Name:         *v.Name,
+		UnitName:     *v.UnitName,
+		URL:          *v.URL,
+	}
+
+	return res
+}
+
 // unmarshalTrackedAccountResponseToAccountviewsTrackedAccountView builds a
 // value of type *accountviews.TrackedAccountView from a value of type
 // *TrackedAccountResponse.
@@ -223,11 +239,26 @@ func unmarshalTrackedAccountResponseToAccountviewsTrackedAccountView(v *TrackedA
 	res := &accountviews.TrackedAccountView{
 		Address: v.Address,
 	}
-	res.Holdings = make(map[string]uint64, len(v.Holdings))
+	res.Holdings = make(map[string]*accountviews.HoldingView, len(v.Holdings))
 	for key, val := range v.Holdings {
 		tk := key
-		tv := val
-		res.Holdings[tk] = tv
+		res.Holdings[tk] = unmarshalHoldingResponseToAccountviewsHoldingView(val)
+	}
+
+	return res
+}
+
+// unmarshalHoldingResponseToAccountviewsHoldingView builds a value of type
+// *accountviews.HoldingView from a value of type *HoldingResponse.
+func unmarshalHoldingResponseToAccountviewsHoldingView(v *HoldingResponse) *accountviews.HoldingView {
+	res := &accountviews.HoldingView{
+		Asset:        v.Asset,
+		Amount:       v.Amount,
+		Decimals:     v.Decimals,
+		MetadataHash: v.MetadataHash,
+		Name:         v.Name,
+		UnitName:     v.UnitName,
+		URL:          v.URL,
 	}
 
 	return res

@@ -11,7 +11,7 @@ var _ = API(
 		Description("Service for tracking Algorand accounts and currently opted-in Holdings")
 		cors.Origin(
 			"*", func() {
-				cors.Headers("*")//"X-Authorization", "X-Time", "X-Api-Version",
+				cors.Headers("*") //"X-Authorization", "X-Time", "X-Api-Version",
 				//"Content-Type", "Origin",
 				//"Authorization",
 
@@ -43,9 +43,8 @@ var Account = Type(
 			},
 		)
 		Attribute(
-			"holdings", MapOf(String, UInt64), func() {
-				Description("Opted-in ASA IDs")
-				Example(map[string]uint64{"202586210": 100, "205471981": 200})
+			"holdings", MapOf(String, Holding), func() {
+				Description("Account Assets")
 			},
 		)
 		Required("address", "holdings")
@@ -66,6 +65,12 @@ var Holding = Type(
 				Description("Balance in asset base units")
 			},
 		)
+		Attribute("decimals", UInt64)
+		Attribute("metadataHash", String)
+		Attribute("name", String)
+		Attribute("unitName", String)
+		Attribute("url", String)
+		Required("asset", "amount", "decimals", "metadataHash", "name", "unitName", "url")
 	},
 )
 
@@ -182,7 +187,7 @@ var _ = Service(
 
 		Method(
 			"unpack", func() {
-				Description("Unpack a msgpack body (base64 encoded)")
+				Description("Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output")
 				Payload(
 					func() {
 						Attribute("msgpack", String)
@@ -196,7 +201,7 @@ var _ = Service(
 
 				HTTP(
 					func() {
-						POST("/inspect")
+						POST("/inspect/unpack")
 						Response(
 							StatusOK, func() {
 								ContentType("text/plain")
@@ -216,7 +221,11 @@ var _ = Service(
 		Method(
 			"version", func() {
 				Description("Returns version information for the service")
-				Result(String)
+				Result(
+					String, func() {
+						Example("14193a3-dirty")
+					},
+				)
 				HTTP(
 					func() {
 						GET("/version")

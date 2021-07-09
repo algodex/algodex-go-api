@@ -13,7 +13,7 @@ import (
 
 // The inspect service provides msgpack decoding services
 type Service interface {
-	// Unpack a msgpack body (base64 encoded)
+	// Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output
 	Unpack(context.Context, *UnpackPayload) (res string, err error)
 }
 

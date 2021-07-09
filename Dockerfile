@@ -11,9 +11,8 @@ RUN go get -u -v github.com/ahmetb/govvv
 ADD . .
 # Generate a binary
 RUN env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -ldflags "$(govvv -flags)" -o app ./cmd/algodexidxsvr
-RUN #env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app ./cmd/algodexidxsvr
 
-# Second (final) stage, base image is scratch
+# Use centos as new base as we want an algorand node install for the goal cli (for the debugging inspection endpoint)
 FROM centos:latest
 EXPOSE 8000
 
@@ -23,4 +22,4 @@ RUN cd /node && ./update.sh -i -c stable -p /node -d /node/data -n
 
 COPY --from=builder /go/src/algodexidx/app /app
 
-CMD [ "/app" ]
+ENTRYPOINT [ "/app" ]

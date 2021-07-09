@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 
 	account "algodexidx/gen/account"
 
@@ -44,7 +45,7 @@ func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *acco
 	}
 	res = &account.Account{
 		Address:  backendAccount.Address,
-		Holdings: backendAccount.Holdings,
+		Holdings: backendHoldingToDSLHolding(backendAccount.Holdings),
 	}
 	return
 }
@@ -62,9 +63,25 @@ func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (
 		res = append(
 			res, &account.TrackedAccount{
 				Address:  acct.Address,
-				Holdings: acct.Holdings,
+				Holdings: backendHoldingToDSLHolding(acct.Holdings),
 			},
 		)
 	}
 	return
+}
+
+func backendHoldingToDSLHolding(backendHolding map[uint64]*backend.Holding) map[string]*account.Holding {
+	retHolding := make(map[string]*account.Holding, len(backendHolding))
+	for key, holding := range backendHolding {
+		retHolding[strconv.FormatUint(key, 10)] = &account.Holding{
+			Asset:        holding.AssetID,
+			Amount:       holding.Amount,
+			Decimals:     holding.Info.Decimals,
+			MetadataHash: string(holding.Info.MetadataHash),
+			Name:         holding.Info.Name,
+			UnitName:     holding.Info.UnitName,
+			URL:          holding.Info.Url,
+		}
+	}
+	return retHolding
 }
