@@ -50,8 +50,8 @@ type GetPayload struct {
 type Account struct {
 	// Public Account address
 	Address string
-	// Opted-in ASA IDs
-	Holdings map[string]uint64
+	// Account Assets
+	Holdings map[string]*Holding
 }
 
 // ListPayload is the payload type of the account service list method.
@@ -64,12 +64,25 @@ type ListPayload struct {
 // method.
 type TrackedAccountCollection []*TrackedAccount
 
+// Holding defines an ASA Asset ID and its balance.  ID 1 represents ALGO
+type Holding struct {
+	// ASA ID (1 for ALGO)
+	Asset uint64
+	// Balance in asset base units
+	Amount       uint64
+	Decimals     uint64
+	MetadataHash string
+	Name         string
+	UnitName     string
+	URL          string
+}
+
 // A TrackedAccount is an Account returned by the indexer
 type TrackedAccount struct {
 	// Public Account address
 	Address string
-	// Opted-in ASA IDs
-	Holdings map[string]uint64
+	// Account Assets
+	Holdings map[string]*Holding
 }
 
 // NewTrackedAccountCollection initializes result type TrackedAccountCollection
@@ -161,11 +174,10 @@ func newTrackedAccountFull(vres *accountviews.TrackedAccountView) *TrackedAccoun
 		res.Address = *vres.Address
 	}
 	if vres.Holdings != nil {
-		res.Holdings = make(map[string]uint64, len(vres.Holdings))
+		res.Holdings = make(map[string]*Holding, len(vres.Holdings))
 		for key, val := range vres.Holdings {
 			tk := key
-			tv := val
-			res.Holdings[tk] = tv
+			res.Holdings[tk] = transformAccountviewsHoldingViewToHolding(val)
 		}
 	}
 	return res
@@ -187,12 +199,46 @@ func newTrackedAccountViewFull(res *TrackedAccount) *accountviews.TrackedAccount
 		Address: &res.Address,
 	}
 	if res.Holdings != nil {
-		vres.Holdings = make(map[string]uint64, len(res.Holdings))
+		vres.Holdings = make(map[string]*accountviews.HoldingView, len(res.Holdings))
 		for key, val := range res.Holdings {
 			tk := key
-			tv := val
-			vres.Holdings[tk] = tv
+			vres.Holdings[tk] = transformHoldingToAccountviewsHoldingView(val)
 		}
 	}
 	return vres
+}
+
+// transformAccountviewsHoldingViewToHolding builds a value of type *Holding
+// from a value of type *accountviews.HoldingView.
+func transformAccountviewsHoldingViewToHolding(v *accountviews.HoldingView) *Holding {
+	if v == nil {
+		return nil
+	}
+	res := &Holding{
+		Asset:        *v.Asset,
+		Amount:       *v.Amount,
+		Decimals:     *v.Decimals,
+		MetadataHash: *v.MetadataHash,
+		Name:         *v.Name,
+		UnitName:     *v.UnitName,
+		URL:          *v.URL,
+	}
+
+	return res
+}
+
+// transformHoldingToAccountviewsHoldingView builds a value of type
+// *accountviews.HoldingView from a value of type *Holding.
+func transformHoldingToAccountviewsHoldingView(v *Holding) *accountviews.HoldingView {
+	res := &accountviews.HoldingView{
+		Asset:        &v.Asset,
+		Amount:       &v.Amount,
+		Decimals:     &v.Decimals,
+		MetadataHash: &v.MetadataHash,
+		Name:         &v.Name,
+		UnitName:     &v.UnitName,
+		URL:          &v.URL,
+	}
+
+	return res
 }

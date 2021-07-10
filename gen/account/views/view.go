@@ -30,8 +30,21 @@ type TrackedAccountCollectionView []*TrackedAccountView
 type TrackedAccountView struct {
 	// Public Account address
 	Address *string
-	// Opted-in ASA IDs
-	Holdings map[string]uint64
+	// Account Assets
+	Holdings map[string]*HoldingView
+}
+
+// HoldingView is a type that runs validations on a projected type.
+type HoldingView struct {
+	// ASA ID (1 for ALGO)
+	Asset *uint64
+	// Balance in asset base units
+	Amount       *uint64
+	Decimals     *uint64
+	MetadataHash *string
+	Name         *string
+	UnitName     *string
+	URL          *string
 }
 
 var (
@@ -122,6 +135,39 @@ func ValidateTrackedAccountViewFull(result *TrackedAccountView) (err error) {
 		if utf8.RuneCountInString(*result.Address) > 58 {
 			err = goa.MergeErrors(err, goa.InvalidLengthError("result.address", *result.Address, utf8.RuneCountInString(*result.Address), 58, false))
 		}
+	}
+	for _, v := range result.Holdings {
+		if v != nil {
+			if err2 := ValidateHoldingView(v); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateHoldingView runs the validations defined on HoldingView.
+func ValidateHoldingView(result *HoldingView) (err error) {
+	if result.Asset == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("asset", "result"))
+	}
+	if result.Amount == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("amount", "result"))
+	}
+	if result.Decimals == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("decimals", "result"))
+	}
+	if result.MetadataHash == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("metadataHash", "result"))
+	}
+	if result.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.UnitName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("unitName", "result"))
+	}
+	if result.URL == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("url", "result"))
 	}
 	return
 }

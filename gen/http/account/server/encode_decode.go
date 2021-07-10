@@ -133,6 +133,22 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 	}
 }
 
+// marshalAccountHoldingToHoldingResponseBody builds a value of type
+// *HoldingResponseBody from a value of type *account.Holding.
+func marshalAccountHoldingToHoldingResponseBody(v *account.Holding) *HoldingResponseBody {
+	res := &HoldingResponseBody{
+		Asset:        v.Asset,
+		Amount:       v.Amount,
+		Decimals:     v.Decimals,
+		MetadataHash: v.MetadataHash,
+		Name:         v.Name,
+		UnitName:     v.UnitName,
+		URL:          v.URL,
+	}
+
+	return res
+}
+
 // marshalAccountviewsTrackedAccountViewToTrackedAccountResponse builds a value
 // of type *TrackedAccountResponse from a value of type
 // *accountviews.TrackedAccountView.
@@ -152,12 +168,27 @@ func marshalAccountviewsTrackedAccountViewToTrackedAccountResponseFull(v *accoun
 		Address: *v.Address,
 	}
 	if v.Holdings != nil {
-		res.Holdings = make(map[string]uint64, len(v.Holdings))
+		res.Holdings = make(map[string]*HoldingResponse, len(v.Holdings))
 		for key, val := range v.Holdings {
 			tk := key
-			tv := val
-			res.Holdings[tk] = tv
+			res.Holdings[tk] = marshalAccountviewsHoldingViewToHoldingResponse(val)
 		}
+	}
+
+	return res
+}
+
+// marshalAccountviewsHoldingViewToHoldingResponse builds a value of type
+// *HoldingResponse from a value of type *accountviews.HoldingView.
+func marshalAccountviewsHoldingViewToHoldingResponse(v *accountviews.HoldingView) *HoldingResponse {
+	res := &HoldingResponse{
+		Asset:        *v.Asset,
+		Amount:       *v.Amount,
+		Decimals:     *v.Decimals,
+		MetadataHash: *v.MetadataHash,
+		Name:         *v.Name,
+		UnitName:     *v.UnitName,
+		URL:          *v.URL,
 	}
 
 	return res

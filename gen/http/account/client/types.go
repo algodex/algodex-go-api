@@ -26,20 +26,46 @@ type AddRequestBody struct {
 type GetResponseBody struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
-	// Opted-in ASA IDs
-	Holdings map[string]uint64 `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
+	// Account Assets
+	Holdings map[string]*HoldingResponseBody `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
 }
 
 // ListResponseBody is the type of the "account" service "list" endpoint HTTP
 // response body.
 type ListResponseBody []*TrackedAccountResponse
 
+// HoldingResponseBody is used to define fields on response body types.
+type HoldingResponseBody struct {
+	// ASA ID (1 for ALGO)
+	Asset *uint64 `form:"asset,omitempty" json:"asset,omitempty" xml:"asset,omitempty"`
+	// Balance in asset base units
+	Amount       *uint64 `form:"amount,omitempty" json:"amount,omitempty" xml:"amount,omitempty"`
+	Decimals     *uint64 `form:"decimals,omitempty" json:"decimals,omitempty" xml:"decimals,omitempty"`
+	MetadataHash *string `form:"metadataHash,omitempty" json:"metadataHash,omitempty" xml:"metadataHash,omitempty"`
+	Name         *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	UnitName     *string `form:"unitName,omitempty" json:"unitName,omitempty" xml:"unitName,omitempty"`
+	URL          *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
+}
+
 // TrackedAccountResponse is used to define fields on response body types.
 type TrackedAccountResponse struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
-	// Opted-in ASA IDs
-	Holdings map[string]uint64 `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
+	// Account Assets
+	Holdings map[string]*HoldingResponse `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
+}
+
+// HoldingResponse is used to define fields on response body types.
+type HoldingResponse struct {
+	// ASA ID (1 for ALGO)
+	Asset *uint64 `form:"asset,omitempty" json:"asset,omitempty" xml:"asset,omitempty"`
+	// Balance in asset base units
+	Amount       *uint64 `form:"amount,omitempty" json:"amount,omitempty" xml:"amount,omitempty"`
+	Decimals     *uint64 `form:"decimals,omitempty" json:"decimals,omitempty" xml:"decimals,omitempty"`
+	MetadataHash *string `form:"metadataHash,omitempty" json:"metadataHash,omitempty" xml:"metadataHash,omitempty"`
+	Name         *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	UnitName     *string `form:"unitName,omitempty" json:"unitName,omitempty" xml:"unitName,omitempty"`
+	URL          *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
 }
 
 // NewAddRequestBody builds the HTTP request body from the payload of the "add"
@@ -61,11 +87,10 @@ func NewGetAccountOK(body *GetResponseBody) *account.Account {
 	v := &account.Account{
 		Address: *body.Address,
 	}
-	v.Holdings = make(map[string]uint64, len(body.Holdings))
+	v.Holdings = make(map[string]*account.Holding, len(body.Holdings))
 	for key, val := range body.Holdings {
 		tk := key
-		tv := val
-		v.Holdings[tk] = tv
+		v.Holdings[tk] = unmarshalHoldingResponseBodyToAccountHolding(val)
 	}
 
 	return v
@@ -95,6 +120,40 @@ func ValidateGetResponseBody(body *GetResponseBody) (err error) {
 			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address", *body.Address, utf8.RuneCountInString(*body.Address), 58, false))
 		}
 	}
+	for _, v := range body.Holdings {
+		if v != nil {
+			if err2 := ValidateHoldingResponseBody(v); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateHoldingResponseBody runs the validations defined on
+// HoldingResponseBody
+func ValidateHoldingResponseBody(body *HoldingResponseBody) (err error) {
+	if body.Asset == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("asset", "body"))
+	}
+	if body.Amount == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("amount", "body"))
+	}
+	if body.Decimals == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("decimals", "body"))
+	}
+	if body.MetadataHash == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("metadataHash", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.UnitName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("unitName", "body"))
+	}
+	if body.URL == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("url", "body"))
+	}
 	return
 }
 
@@ -111,6 +170,39 @@ func ValidateTrackedAccountResponse(body *TrackedAccountResponse) (err error) {
 		if utf8.RuneCountInString(*body.Address) > 58 {
 			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address", *body.Address, utf8.RuneCountInString(*body.Address), 58, false))
 		}
+	}
+	for _, v := range body.Holdings {
+		if v != nil {
+			if err2 := ValidateHoldingResponse(v); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateHoldingResponse runs the validations defined on HoldingResponse
+func ValidateHoldingResponse(body *HoldingResponse) (err error) {
+	if body.Asset == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("asset", "body"))
+	}
+	if body.Amount == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("amount", "body"))
+	}
+	if body.Decimals == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("decimals", "body"))
+	}
+	if body.MetadataHash == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("metadataHash", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.UnitName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("unitName", "body"))
+	}
+	if body.URL == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("url", "body"))
 	}
 	return
 }

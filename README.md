@@ -11,19 +11,33 @@ This is an early-stage service exposing a REST API for watching accounts as well
     * This will cause the server to watch the chain for any transaction impacting those accounts and queuing parallel updates of those accounts against current node state.
 * **Fetching** information for a **specific** account:
   * `GET /account/address`
+    * Note: ID "1" represents the holdings ALGO balance. 
     * eg return:
     ```json
-      {"address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-       "holdings": {
-          "1": 9991000,
-          "17574184": 3,
-          "17574196": 12,
-          "17574397": 10,
-          "17968465": 1,
-          "18432613": 1
+    {
+      "address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
+      "holdings": {
+        "1": {
+          "asset": 1,
+          "amount": 9991000,
+          "decimals": 6,
+          "metadataHash": "",
+          "name": "ALGO",
+          "unitName": "ALGO",
+          "url": ""
+        },
+        "17574184": {
+          "asset": 17574184,
+          "amount": 3,
+          "decimals": 0,
+          "metadataHash": "",
+          "name": "Fluffy Catcher",
+          "unitName": "NET",
+          "url": "https://fluffybunnycoin.store/15"
         }
       }
-      ```
+    }
+    ```
 * **Fetching** information for **all** accounts:
   * `GET /account`
     ```json
@@ -33,24 +47,28 @@ This is an early-stage service exposing a REST API for watching accounts as well
   * `GET /account?view=full`
     ```json
       [
-        {"address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
+        {
+          "address": "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
           "holdings": {
-            "1": 9991000,
-            "17574184": 3,
-            "17574196": 12,
-            "17574397": 10,
-            "17968465": 1,
-            "18432613": 1
+            "1": {
+              "asset": 1,
+              "amount": 9991000,
+              "decimals": 6,
+              "metadataHash": "",
+              "name": "ALGO",
+              "unitName": "ALGO",
+              "url": ""
+            }
           }
         },
-        {"address": "xxxx", "holdings": {"1": 1231411}}
+        {"address": "xxxx", "holdings": {"1": {}}}
       ]
       ```
 
 ### Debug helper
 
 * Returns output from `goal clerk inspect` for base64 encoded msgpack transaction data. 
-  * `POST /inspect {"msgpack": "base64 encoded data"}`
+  * `POST /inspect/unpack {"msgpack": "base64 encoded data"}`
     * Returns text/plain response from 'goal clerk inspect' of body data.  
   
 ## Building (for testing)
@@ -64,9 +82,14 @@ docker build -t algodexidxsvr:latest .
 ## Running (for testing)
 
 ```
-docker run --rm -p 8000:8000 algodexidxsvr:latest
+docker run --rm -p 8000:8000 algodexidxsvr:latest [args]
 ```
+### Optional Arguments
 
+```
+ -debug (adds logging ot show all incoming/outgoing requests/responses)
+ -network (testnet|mainnet)  (defaults to testnet)  
+````
 #### Swagger
 
 Contents of gen/openapi3.yaml can be pasted into https://editor.swagger.io/ for API view/testing.  

@@ -25,8 +25,8 @@ type AddRequestBody struct {
 type GetResponseBody struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
-	// Opted-in ASA IDs
-	Holdings map[string]uint64 `form:"holdings" json:"holdings" xml:"holdings"`
+	// Account Assets
+	Holdings map[string]*HoldingResponseBody `form:"holdings" json:"holdings" xml:"holdings"`
 }
 
 // TrackedAccountResponseCollection is the type of the "account" service "list"
@@ -36,6 +36,19 @@ type TrackedAccountResponseCollection []*TrackedAccountResponse
 // TrackedAccountResponseFullCollection is the type of the "account" service
 // "list" endpoint HTTP response body.
 type TrackedAccountResponseFullCollection []*TrackedAccountResponseFull
+
+// HoldingResponseBody is used to define fields on response body types.
+type HoldingResponseBody struct {
+	// ASA ID (1 for ALGO)
+	Asset uint64 `form:"asset" json:"asset" xml:"asset"`
+	// Balance in asset base units
+	Amount       uint64 `form:"amount" json:"amount" xml:"amount"`
+	Decimals     uint64 `form:"decimals" json:"decimals" xml:"decimals"`
+	MetadataHash string `form:"metadataHash" json:"metadataHash" xml:"metadataHash"`
+	Name         string `form:"name" json:"name" xml:"name"`
+	UnitName     string `form:"unitName" json:"unitName" xml:"unitName"`
+	URL          string `form:"url" json:"url" xml:"url"`
+}
 
 // TrackedAccountResponse is used to define fields on response body types.
 type TrackedAccountResponse struct {
@@ -47,8 +60,21 @@ type TrackedAccountResponse struct {
 type TrackedAccountResponseFull struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
-	// Opted-in ASA IDs
-	Holdings map[string]uint64 `form:"holdings" json:"holdings" xml:"holdings"`
+	// Account Assets
+	Holdings map[string]*HoldingResponse `form:"holdings" json:"holdings" xml:"holdings"`
+}
+
+// HoldingResponse is used to define fields on response body types.
+type HoldingResponse struct {
+	// ASA ID (1 for ALGO)
+	Asset uint64 `form:"asset" json:"asset" xml:"asset"`
+	// Balance in asset base units
+	Amount       uint64 `form:"amount" json:"amount" xml:"amount"`
+	Decimals     uint64 `form:"decimals" json:"decimals" xml:"decimals"`
+	MetadataHash string `form:"metadataHash" json:"metadataHash" xml:"metadataHash"`
+	Name         string `form:"name" json:"name" xml:"name"`
+	UnitName     string `form:"unitName" json:"unitName" xml:"unitName"`
+	URL          string `form:"url" json:"url" xml:"url"`
 }
 
 // NewGetResponseBody builds the HTTP response body from the result of the
@@ -58,11 +84,10 @@ func NewGetResponseBody(res *account.Account) *GetResponseBody {
 		Address: res.Address,
 	}
 	if res.Holdings != nil {
-		body.Holdings = make(map[string]uint64, len(res.Holdings))
+		body.Holdings = make(map[string]*HoldingResponseBody, len(res.Holdings))
 		for key, val := range res.Holdings {
 			tk := key
-			tv := val
-			body.Holdings[tk] = tv
+			body.Holdings[tk] = marshalAccountHoldingToHoldingResponseBody(val)
 		}
 	}
 	return body

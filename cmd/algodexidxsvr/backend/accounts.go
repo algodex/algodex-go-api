@@ -3,7 +3,6 @@ package backend
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"sync"
 )
 
@@ -15,8 +14,8 @@ type trackedAccount struct {
 	sync.RWMutex
 	// Public Account address
 	Address string
-	// Opted-in ASA IDs
-	Holdings map[string]uint64
+	// Opted-in ASA information
+	Holdings map[uint64]*Holding
 }
 
 func (ta *trackedAccount) UpdateHoldings(ctx context.Context) error {
@@ -26,9 +25,9 @@ func (ta *trackedAccount) UpdateHoldings(ctx context.Context) error {
 	}
 	ta.Lock()
 	defer ta.Unlock()
-	ta.Holdings = make(map[string]uint64, len(holdings))
-	for _, holding := range holdings {
-		ta.Holdings[strconv.FormatUint(holding.AssetID, 10)] = holding.Amount
+	ta.Holdings = make(map[uint64]*Holding, len(holdings))
+	for key, holding := range holdings {
+		ta.Holdings[key] = holding
 	}
 	return nil
 }

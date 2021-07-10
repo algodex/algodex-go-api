@@ -31,8 +31,15 @@ func main() {
 		httpPortF = flag.String("http-port", "", "HTTP port (overrides host HTTP port specified in service design)")
 		secureF   = flag.Bool("secure", false, "Use secure scheme (https or grpcs)")
 		dbgF      = flag.Bool("debug", false, "Log request and response bodies")
+
+		network = flag.String("network", "testnet", "Algorand network to connect to (testnet or mainnet")
 	)
 	flag.Parse()
+
+	if *network != "testnet" && *network != "mainnet" {
+		fmt.Fprintf(os.Stderr, "invalid network %s\n", *network)
+		os.Exit(1)
+	}
 
 	// Setup logger. Replace logger with your own log package of choice.
 	var (
@@ -82,8 +89,7 @@ func main() {
 	var wg sync.WaitGroup
 	ctx, cancel := context.WithCancel(context.Background())
 
-	backend.InitAlgoClient("", logger) // will currently crash hard if can't initialize
-	go backend.AccountWatcher(ctx, logger)
+	backend.InitBackend(ctx, logger, *network)
 
 	// Start the servers and send errors (if any) to the error channel.
 	switch *hostF {
@@ -118,6 +124,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "invalid host argument: %q (valid hosts: localhost)\n", *hostF)
 	}
 	logger.Printf("Version:%s", GitSummary)
+	logger.Printf("Network:%s", *network)
 
 	// Wait for signal.
 	logger.Printf("exiting (%v)", <-errc)

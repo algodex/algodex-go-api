@@ -9,5 +9,5 @@ package server
 
 // UnpackInspectPath returns the URL path to the inspect service unpack HTTP endpoint.
 func UnpackInspectPath() string {
-	return "/inspect"
+	return "/inspect/unpack"
 }

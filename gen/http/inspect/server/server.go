@@ -57,8 +57,8 @@ func New(
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
-			{"Unpack", "POST", "/inspect"},
-			{"CORS", "OPTIONS", "/inspect"},
+			{"Unpack", "POST", "/inspect/unpack"},
+			{"CORS", "OPTIONS", "/inspect/unpack"},
 		},
 		Unpack: NewUnpackHandler(e.Unpack, mux, decoder, encoder, errhandler, formatter),
 		CORS:   NewCORSHandler(),
@@ -89,7 +89,7 @@ func MountUnpackHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/inspect", f)
+	mux.Handle("POST", "/inspect/unpack", f)
 }
 
 // NewUnpackHandler creates a HTTP handler which loads the HTTP request and
@@ -141,7 +141,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("OPTIONS", "/inspect", f)
+	mux.Handle("OPTIONS", "/inspect/unpack", f)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.
