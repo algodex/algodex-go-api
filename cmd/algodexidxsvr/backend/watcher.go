@@ -62,9 +62,14 @@ func blockWatcher(ctx context.Context, logger *log.Logger, updateChan chan *trac
 		}
 		block, _ := algoClient.Block(round).Do(ctx)
 		foundAccounts := map[string]bool{}
+		// Iterate every transaction in the block, marking every account
+		// updated in any way in that block.
 		for _, txn := range block.Payset {
 			if !txn.Txn.Receiver.IsZero() {
 				foundAccounts[txn.Txn.Receiver.String()] = true
+			}
+			if !txn.Txn.CloseRemainderTo.IsZero() {
+				foundAccounts[txn.Txn.CloseRemainderTo.String()] = true
 			}
 			if !txn.Txn.Sender.IsZero() {
 				foundAccounts[txn.Txn.Sender.String()] = true
@@ -79,6 +84,8 @@ func blockWatcher(ctx context.Context, logger *log.Logger, updateChan chan *trac
 				foundAccounts[txn.Txn.AssetCloseTo.String()] = true
 			}
 		}
+		// Now we check our unique map of 'touched' accounts against our map of 'watched' accounts
+		// and add to our queue of accounts to update balances for in the background
 		watchedData.IsWatchedAccount(
 			foundAccounts, func(account *trackedAccount) {
 				logger.Printf("Block with transactions, block:%d, account:%s", round, account.Address)

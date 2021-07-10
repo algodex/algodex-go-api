@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/algodexidx.iml" filepath="$PROJECT_DIR$/.idea/algodexidx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../algodex-api/.idea/algodex-api.iml" filepath="$PROJECT_DIR$/../algodex-api/.idea/algodex-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../algodex-architecture/.idea/algodex-architecture.iml" filepath="$PROJECT_DIR$/../algodex-architecture/.idea/algodex-architecture.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/algodex-go-api.iml" filepath="$PROJECT_DIR$/.idea/algodex-go-api.iml" />
     </modules>
   </component>
 </project>
