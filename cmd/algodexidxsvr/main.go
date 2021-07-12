@@ -95,7 +95,7 @@ func main() {
 	switch *hostF {
 	case "localhost":
 		{
-			addr := "http://:80"
+			addr := "http://:8000"
 			u, err := url.Parse(addr)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "invalid URL %#v: %s\n", addr, err)

@@ -82,7 +82,7 @@ docker build -t algodexidxsvr:latest .
 ## Running (for testing)
 
 ```
-docker run --rm -p 8000:80 algodexidxsvr:latest [args]
+docker run --rm -p 8000:8000 algodexidxsvr:latest [args]
 ```
 ### Optional Arguments
 

@@ -3,7 +3,7 @@ info:
   title: AlgoDex Indexer Service
   description: Service for tracking Algorand accounts and currently opted-in Holdings
   version: ""
-host: localhost:80
+host: localhost:8000
 consumes:
 - application/json
 - application/xml
