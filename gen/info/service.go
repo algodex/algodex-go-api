@@ -11,10 +11,13 @@ import (
 	"context"
 )
 
-// The info service provides information on version data, etc.
+// The info service provides information on version data, liveness, readiness
+// checks, etc.
 type Service interface {
 	// Returns version information for the service
 	Version(context.Context) (res string, err error)
+	// Simple health check
+	Live(context.Context) (err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -25,4 +28,4 @@ const ServiceName = "info"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [1]string{"version"}
+var MethodNames = [2]string{"version", "live"}

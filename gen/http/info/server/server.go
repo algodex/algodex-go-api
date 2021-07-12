@@ -21,6 +21,7 @@ import (
 type Server struct {
 	Mounts  []*MountPoint
 	Version http.Handler
+	Live    http.Handler
 	CORS    http.Handler
 }
 
@@ -58,9 +59,12 @@ func New(
 	return &Server{
 		Mounts: []*MountPoint{
 			{"Version", "GET", "/version"},
+			{"Live", "GET", "/live"},
 			{"CORS", "OPTIONS", "/version"},
+			{"CORS", "OPTIONS", "/live"},
 		},
 		Version: NewVersionHandler(e.Version, mux, decoder, encoder, errhandler, formatter),
+		Live:    NewLiveHandler(e.Live, mux, decoder, encoder, errhandler, formatter),
 		CORS:    NewCORSHandler(),
 	}
 }
@@ -71,12 +75,14 @@ func (s *Server) Service() string { return "info" }
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Version = m(s.Version)
+	s.Live = m(s.Live)
 	s.CORS = m(s.CORS)
 }
 
 // Mount configures the mux to serve the info endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountVersionHandler(mux, h.Version)
+	MountLiveHandler(mux, h.Live)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -124,6 +130,50 @@ func NewVersionHandler(
 	})
 }
 
+// MountLiveHandler configures the mux to serve the "info" service "live"
+// endpoint.
+func MountLiveHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleInfoOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/live", f)
+}
+
+// NewLiveHandler creates a HTTP handler which loads the HTTP request and calls
+// the "info" service "live" endpoint.
+func NewLiveHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		encodeResponse = EncodeLiveResponse(encoder)
+		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "live")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "info")
+		var err error
+		res, err := endpoint(ctx, nil)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service info.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -135,6 +185,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 		}
 	}
 	mux.Handle("OPTIONS", "/version", f)
+	mux.Handle("OPTIONS", "/live", f)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

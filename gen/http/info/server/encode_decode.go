@@ -25,3 +25,12 @@ func EncodeVersionResponse(encoder func(context.Context, http.ResponseWriter) go
 		return enc.Encode(body)
 	}
 }
+
+// EncodeLiveResponse returns an encoder for responses returned by the info
+// live endpoint.
+func EncodeLiveResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		w.WriteHeader(http.StatusOK)
+		return nil
+	}
+}

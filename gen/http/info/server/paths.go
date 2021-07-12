@@ -11,3 +11,8 @@ package server
 func VersionInfoPath() string {
 	return "/version"
 }
+
+// LiveInfoPath returns the URL path to the info service live HTTP endpoint.
+func LiveInfoPath() string {
+	return "/live"
+}

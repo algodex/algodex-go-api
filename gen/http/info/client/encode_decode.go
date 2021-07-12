@@ -66,3 +66,45 @@ func DecodeVersionResponse(decoder func(*http.Response) goahttp.Decoder, restore
 		}
 	}
 }
+
+// BuildLiveRequest instantiates a HTTP request object with method and path set
+// to call the "info" service "live" endpoint
+func (c *Client) BuildLiveRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: LiveInfoPath()}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("info", "live", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeLiveResponse returns a decoder for responses returned by the info live
+// endpoint. restoreBody controls whether the response body should be restored
+// after having been read.
+func DecodeLiveResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			return nil, nil
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("info", "live", resp.StatusCode, string(body))
+		}
+	}
+}
