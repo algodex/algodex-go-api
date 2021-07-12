@@ -14,7 +14,7 @@ RUN env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -ldflags "$(govvv -
 
 # Use centos as new base as we want an algorand node install for the goal cli (for the debugging inspection endpoint)
 FROM centos:latest
-EXPOSE 8000
+EXPOSE 80
 
 RUN yum install wget -y
 RUN mkdir -p /node && cd /node && wget https://raw.githubusercontent.com/algorand/go-algorand-doc/master/downloads/installers/update.sh && chmod 544 ./update.sh
