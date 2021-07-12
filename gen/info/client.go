@@ -16,12 +16,14 @@ import (
 // Client is the "info" service client.
 type Client struct {
 	VersionEndpoint goa.Endpoint
+	LiveEndpoint    goa.Endpoint
 }
 
 // NewClient initializes a "info" service client given the endpoints.
-func NewClient(version goa.Endpoint) *Client {
+func NewClient(version, live goa.Endpoint) *Client {
 	return &Client{
 		VersionEndpoint: version,
+		LiveEndpoint:    live,
 	}
 }
 
@@ -33,4 +35,10 @@ func (c *Client) Version(ctx context.Context) (res string, err error) {
 		return
 	}
 	return ires.(string), nil
+}
+
+// Live calls the "live" endpoint of the "info" service.
+func (c *Client) Live(ctx context.Context) (err error) {
+	_, err = c.LiveEndpoint(ctx, nil)
+	return
 }

@@ -216,7 +216,7 @@ var _ = Service(
 
 var _ = Service(
 	"info", func() {
-		Description("The info service provides information on version data, etc.")
+		Description("The info service provides information on version data, liveness, readiness checks, etc.")
 
 		Method(
 			"version", func() {
@@ -231,6 +231,16 @@ var _ = Service(
 						GET("/version")
 						Response(StatusOK)
 					},
+				)
+			},
+		)
+		Method(
+			"live", func() {
+				Description("Simple health check")
+				HTTP(func() {
+					GET("/live")
+					Response(StatusOK)
+				},
 				)
 			},
 		)

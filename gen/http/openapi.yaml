@@ -102,6 +102,18 @@ paths:
             type: string
       schemes:
       - http
+  /live:
+    get:
+      tags:
+      - info
+      summary: live info
+      description: Simple health check
+      operationId: info#live
+      responses:
+        "200":
+          description: OK response.
+      schemes:
+      - http
   /openapi.json:
     get:
       tags:

@@ -16,18 +16,21 @@ import (
 // Endpoints wraps the "info" service endpoints.
 type Endpoints struct {
 	Version goa.Endpoint
+	Live    goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "info" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
 		Version: NewVersionEndpoint(s),
+		Live:    NewLiveEndpoint(s),
 	}
 }
 
 // Use applies the given middleware to all the "info" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Version = m(e.Version)
+	e.Live = m(e.Live)
 }
 
 // NewVersionEndpoint returns an endpoint function that calls the method
@@ -35,5 +38,13 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 func NewVersionEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		return s.Version(ctx)
+	}
+}
+
+// NewLiveEndpoint returns an endpoint function that calls the method "live" of
+// service "info".
+func NewLiveEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return nil, s.Live(ctx)
 	}
 }

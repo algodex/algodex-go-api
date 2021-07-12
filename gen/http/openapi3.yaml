@@ -145,6 +145,16 @@ paths:
                   payload
                 example: Qui est maxime voluptatem eaque cum.
               example: Aut provident accusantium itaque doloribus voluptatem et.
+  /live:
+    get:
+      tags:
+      - info
+      summary: live info
+      description: Simple health check
+      operationId: info#live
+      responses:
+        "200":
+          description: OK response.
   /openapi.json:
     get:
       tags:
@@ -428,4 +438,5 @@ tags:
 - name: inspect
   description: The inspect service provides msgpack decoding services
 - name: info
-  description: The info service provides information on version data, etc.
+  description: The info service provides information on version data, liveness, readiness
+    checks, etc.

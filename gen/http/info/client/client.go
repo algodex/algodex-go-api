@@ -21,6 +21,9 @@ type Client struct {
 	// endpoint.
 	VersionDoer goahttp.Doer
 
+	// Live Doer is the HTTP client used to make requests to the live endpoint.
+	LiveDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -45,6 +48,7 @@ func NewClient(
 ) *Client {
 	return &Client{
 		VersionDoer:         doer,
+		LiveDoer:            doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -68,6 +72,25 @@ func (c *Client) Version() goa.Endpoint {
 		resp, err := c.VersionDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("info", "version", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Live returns an endpoint that makes HTTP requests to the info service live
+// server.
+func (c *Client) Live() goa.Endpoint {
+	var (
+		decodeResponse = DecodeLiveResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildLiveRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.LiveDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("info", "live", err)
 		}
 		return decodeResponse(resp)
 	}

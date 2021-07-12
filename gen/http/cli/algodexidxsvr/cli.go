@@ -27,7 +27,7 @@ import (
 func UsageCommands() string {
 	return `account (add|get|list)
 inspect unpack
-info version
+info (version|live)
 `
 }
 
@@ -75,6 +75,8 @@ func ParseEndpoint(
 		infoFlags = flag.NewFlagSet("info", flag.ContinueOnError)
 
 		infoVersionFlags = flag.NewFlagSet("version", flag.ExitOnError)
+
+		infoLiveFlags = flag.NewFlagSet("live", flag.ExitOnError)
 	)
 	accountFlags.Usage = accountUsage
 	accountAddFlags.Usage = accountAddUsage
@@ -86,6 +88,7 @@ func ParseEndpoint(
 
 	infoFlags.Usage = infoUsage
 	infoVersionFlags.Usage = infoVersionUsage
+	infoLiveFlags.Usage = infoLiveUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -148,6 +151,9 @@ func ParseEndpoint(
 			case "version":
 				epf = infoVersionFlags
 
+			case "live":
+				epf = infoLiveFlags
+
 			}
 
 		}
@@ -195,6 +201,9 @@ func ParseEndpoint(
 			switch epn {
 			case "version":
 				endpoint = c.Version()
+				data = nil
+			case "live":
+				endpoint = c.Live()
 				data = nil
 			}
 		}
@@ -287,12 +296,13 @@ Example:
 
 // infoUsage displays the usage of the info command and its subcommands.
 func infoUsage() {
-	fmt.Fprintf(os.Stderr, `The info service provides information on version data, etc.
+	fmt.Fprintf(os.Stderr, `The info service provides information on version data, liveness, readiness checks, etc.
 Usage:
     %s [globalflags] info COMMAND [flags]
 
 COMMAND:
     version: Returns version information for the service
+    live: Simple health check
 
 Additional help:
     %s info COMMAND --help
@@ -305,5 +315,15 @@ Returns version information for the service
 
 Example:
     `+os.Args[0]+` info version
+`, os.Args[0])
+}
+
+func infoLiveUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] info live
+
+Simple health check
+
+Example:
+    `+os.Args[0]+` info live
 `, os.Args[0])
 }
