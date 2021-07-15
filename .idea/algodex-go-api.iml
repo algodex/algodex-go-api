@@ -7,5 +7,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="algodex-architecture" />
     <orderEntry type="module" module-name="algodex-api" />
+    <orderEntry type="module" module-name="algodex-sdk" />
   </component>
 </module>

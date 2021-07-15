@@ -25,7 +25,7 @@ var _ = API(
 			"algodexidxsvr", func() {
 				Host(
 					"localhost", func() {
-						URI("http://localhost:8000")
+						URI("http://localhost:80")
 					},
 				)
 			},
