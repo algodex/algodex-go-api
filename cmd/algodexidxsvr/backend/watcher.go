@@ -9,7 +9,7 @@ import (
 )
 
 func accountWatcher(ctx context.Context, logger *log.Logger) {
-	defer logger.Println("Exited yardWalletUpdater")
+	defer logger.Println("Exited accountWatcher")
 	wg := sync.WaitGroup{}
 
 	accountUpdateChan := make(chan *trackedAccount, 1000)
@@ -45,7 +45,7 @@ func accountUpdater(ctx context.Context, wg *sync.WaitGroup, logger *log.Logger,
 }
 
 func blockWatcher(ctx context.Context, logger *log.Logger, updateChan chan *trackedAccount) {
-	defer logger.Println("Exited blockYardWatcher")
+	defer logger.Println("Exited blockWatcher")
 	nodeStatus, err := algoClient.Status().Do(ctx)
 	if err != nil {
 		fmt.Printf("error getting algod status: %s\n", err)
