@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../algodex-api/.idea/algodex-api.iml" filepath="$PROJECT_DIR$/../algodex-api/.idea/algodex-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/../algodex-architecture/.idea/algodex-architecture.iml" filepath="$PROJECT_DIR$/../algodex-architecture/.idea/algodex-architecture.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../algodex-environment/.idea/algodex-environment.iml" filepath="$PROJECT_DIR$/../algodex-environment/.idea/algodex-environment.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/algodex-go-api.iml" filepath="$PROJECT_DIR$/.idea/algodex-go-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/../algodex-sdk/.idea/algodex-sdk.iml" filepath="$PROJECT_DIR$/../algodex-sdk/.idea/algodex-sdk.iml" />
     </modules>

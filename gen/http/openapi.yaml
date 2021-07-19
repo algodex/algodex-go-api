@@ -114,12 +114,12 @@ paths:
           description: OK response.
       schemes:
       - http
-  /openapi.json:
+  /openapi3.yaml:
     get:
       tags:
       - account
-      summary: Download ./gen/http/openapi.json
-      operationId: account#/openapi.json
+      summary: Download ./openapi3.yaml
+      operationId: account#/openapi3.yaml
       responses:
         "200":
           description: File downloaded

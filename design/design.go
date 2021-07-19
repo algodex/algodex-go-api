@@ -177,7 +177,7 @@ var _ = Service(
 				)
 			},
 		)
-		Files("/openapi.json", "./gen/http/openapi.json")
+		Files("/openapi3.yaml", "./openapi3.yaml")
 	},
 )
 
