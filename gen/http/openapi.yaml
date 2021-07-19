@@ -3,7 +3,7 @@ info:
   title: AlgoDex Indexer Service
   description: Service for tracking Algorand accounts and currently opted-in Holdings
   version: ""
-host: localhost:8000
+host: localhost:80
 consumes:
 - application/json
 - application/xml
@@ -114,12 +114,12 @@ paths:
           description: OK response.
       schemes:
       - http
-  /openapi.json:
+  /openapi3.yaml:
     get:
       tags:
       - account
-      summary: Download ./gen/http/openapi.json
-      operationId: account#/openapi.json
+      summary: Download ./openapi3.yaml
+      operationId: account#/openapi3.yaml
       responses:
         "200":
           description: File downloaded

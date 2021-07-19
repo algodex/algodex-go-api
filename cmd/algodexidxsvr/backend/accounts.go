@@ -84,8 +84,8 @@ func (w *watchData) IsWatchedAccount(toMatch map[string]bool, matched func(*trac
 		w.watchedAccounts = accountMap{}
 	}
 	for account, _ := range toMatch {
-		if yard, found := w.watchedAccounts[account]; found {
-			matched(yard)
+		if watchedAccount, found := w.watchedAccounts[account]; found {
+			matched(watchedAccount)
 		}
 	}
 }

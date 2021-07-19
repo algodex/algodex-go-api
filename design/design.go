@@ -25,7 +25,7 @@ var _ = API(
 			"algodexidxsvr", func() {
 				Host(
 					"localhost", func() {
-						URI("http://localhost:8000")
+						URI("http://localhost:80")
 					},
 				)
 			},
@@ -177,7 +177,7 @@ var _ = Service(
 				)
 			},
 		)
-		Files("/openapi.json", "./gen/http/openapi.json")
+		Files("/openapi3.yaml", "./openapi3.yaml")
 	},
 )
 

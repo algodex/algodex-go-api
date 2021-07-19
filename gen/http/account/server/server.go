@@ -19,12 +19,12 @@ import (
 
 // Server lists the account service endpoint HTTP handlers.
 type Server struct {
-	Mounts             []*MountPoint
-	Add                http.Handler
-	Get                http.Handler
-	List               http.Handler
-	CORS               http.Handler
-	GenHTTPOpenapiJSON http.Handler
+	Mounts       []*MountPoint
+	Add          http.Handler
+	Get          http.Handler
+	List         http.Handler
+	CORS         http.Handler
+	Openapi3Yaml http.Handler
 }
 
 // ErrorNamer is an interface implemented by generated error structs that
@@ -57,10 +57,10 @@ func New(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(err error) goahttp.Statuser,
-	fileSystemGenHTTPOpenapiJSON http.FileSystem,
+	fileSystemOpenapi3Yaml http.FileSystem,
 ) *Server {
-	if fileSystemGenHTTPOpenapiJSON == nil {
-		fileSystemGenHTTPOpenapiJSON = http.Dir(".")
+	if fileSystemOpenapi3Yaml == nil {
+		fileSystemOpenapi3Yaml = http.Dir(".")
 	}
 	return &Server{
 		Mounts: []*MountPoint{
@@ -69,14 +69,14 @@ func New(
 			{"List", "GET", "/account"},
 			{"CORS", "OPTIONS", "/account"},
 			{"CORS", "OPTIONS", "/account/{address}"},
-			{"CORS", "OPTIONS", "/openapi.json"},
-			{"./gen/http/openapi.json", "GET", "/openapi.json"},
+			{"CORS", "OPTIONS", "/openapi3.yaml"},
+			{"./openapi3.yaml", "GET", "/openapi3.yaml"},
 		},
-		Add:                NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
-		Get:                NewGetHandler(e.Get, mux, decoder, encoder, errhandler, formatter),
-		List:               NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
-		CORS:               NewCORSHandler(),
-		GenHTTPOpenapiJSON: http.FileServer(fileSystemGenHTTPOpenapiJSON),
+		Add:          NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
+		Get:          NewGetHandler(e.Get, mux, decoder, encoder, errhandler, formatter),
+		List:         NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
+		CORS:         NewCORSHandler(),
+		Openapi3Yaml: http.FileServer(fileSystemOpenapi3Yaml),
 	}
 }
 
@@ -97,7 +97,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountGetHandler(mux, h.Get)
 	MountListHandler(mux, h.List)
 	MountCORSHandler(mux, h.CORS)
-	MountGenHTTPOpenapiJSON(mux, goahttp.Replace("", "/./gen/http/openapi.json", h.GenHTTPOpenapiJSON))
+	MountOpenapi3Yaml(mux, goahttp.Replace("", "/./openapi3.yaml", h.Openapi3Yaml))
 }
 
 // MountAddHandler configures the mux to serve the "account" service "add"
@@ -253,10 +253,10 @@ func NewListHandler(
 	})
 }
 
-// MountGenHTTPOpenapiJSON configures the mux to serve GET request made to
-// "/openapi.json".
-func MountGenHTTPOpenapiJSON(mux goahttp.Muxer, h http.Handler) {
-	mux.Handle("GET", "/openapi.json", HandleAccountOrigin(h).ServeHTTP)
+// MountOpenapi3Yaml configures the mux to serve GET request made to
+// "/openapi3.yaml".
+func MountOpenapi3Yaml(mux goahttp.Muxer, h http.Handler) {
+	mux.Handle("GET", "/openapi3.yaml", HandleAccountOrigin(h).ServeHTTP)
 }
 
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
@@ -271,7 +271,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	}
 	mux.Handle("OPTIONS", "/account", f)
 	mux.Handle("OPTIONS", "/account/{address}", f)
-	mux.Handle("OPTIONS", "/openapi.json", f)
+	mux.Handle("OPTIONS", "/openapi3.yaml", f)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

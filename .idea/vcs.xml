@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../algodex-api" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../algodex-sdk" vcs="Git" />
   </component>
 </project>
