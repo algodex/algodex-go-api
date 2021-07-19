@@ -32,10 +32,13 @@ func main() {
 		secureF   = flag.Bool("secure", false, "Use secure scheme (https or grpcs)")
 		dbgF      = flag.Bool("debug", false, "Log request and response bodies")
 
-		network = flag.String("network", "testnet", "Algorand network to connect to (testnet or mainnet")
+		network = flag.String("network", "", "Algorand network to connect to (testnet or mainnet) - or ALGODEX_NETWORK env.")
 	)
 	flag.Parse()
 
+	if *network == "" {
+		*network = os.Getenv("ALGODEX_NETWORK")
+	}
 	if *network != "testnet" && *network != "mainnet" {
 		fmt.Fprintf(os.Stderr, "invalid network %s\n", *network)
 		os.Exit(1)
