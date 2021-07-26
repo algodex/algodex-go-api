@@ -6,6 +6,21 @@ import (
 	"sync"
 )
 
+/*
+type AccountData interface {
+	WatchAccounts(ctx context.Context, addresses ...string) error
+	GetWatchedAccounts() []*Account {
+	GetAccount(address string) (Account, error)
+}
+
+type Account struct {
+	// Public Account address
+	Address string
+	// Opted-in ASA information
+	Holdings map[uint64]*Holding
+}
+*/
+
 var watchedData watchData
 
 type accountMap map[string]*trackedAccount

@@ -6,47 +6,69 @@ import (
 	"log"
 	"runtime"
 	"sync"
+
+	"github.com/algorand/go-algorand-sdk/client/v2/algod"
 )
 
-func accountWatcher(ctx context.Context, logger *log.Logger) {
-	defer logger.Println("Exited accountWatcher")
+type watcher struct {
+	logger            *log.Logger
+	algoClient        *algod.Client
+	accountUpdateChan chan *trackedAccount
+}
+
+func newWatcher(log *log.Logger, algoClient *algod.Client, persistor Persistor) *watcher {
+	return &watcher{
+		logger:     log,
+		algoClient: algoClient,
+	}
+}
+
+func (w *watcher) start(ctx context.Context) {
+	go w.accountWatcher(ctx)
+}
+
+func (w *watcher) accountWatcher(ctx context.Context) {
+	defer w.logger.Println("Exited accountWatcher")
 	wg := sync.WaitGroup{}
 
-	accountUpdateChan := make(chan *trackedAccount, 1000)
+	w.accountUpdateChan = make(chan *trackedAccount, 1000)
 	// Create parallel update workers - 4x core count
 	for i := 0; i < runtime.NumCPU()*4; i++ {
 		wg.Add(1)
-		go accountUpdater(ctx, &wg, logger, accountUpdateChan)
+		go w.accountUpdater(ctx, &wg)
 	}
 
 	// at startup - update ALL watched accounts
 	for _, account := range watchedData.GetWatchedAccounts() {
-		accountUpdateChan <- account
+		w.accountUpdateChan <- account
 	}
 	// Then we just watch for updates in each new block
-	go blockWatcher(ctx, logger, accountUpdateChan)
+	go w.blockWatcher(ctx)
 
+	// Wait until we're told to exit...
 	<-ctx.Done()
-	close(accountUpdateChan)
+	// Shut down the updater channel (which will terminate the accountUpdaters once they're caught up)
+	close(w.accountUpdateChan)
+	// Now wait until all the updaters finish...
 	wg.Wait()
 }
 
-func accountUpdater(ctx context.Context, wg *sync.WaitGroup, logger *log.Logger, updateChan chan *trackedAccount) {
+func (w *watcher) accountUpdater(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
-	// Endlessly loop on accounts to update the assets for until our channel is closed
-	for account := range updateChan {
-		logger.Printf("Account holdings update, account:%s", account.Address)
+	// Endlessly loop on accounts to update the assets until our channel is closed
+	for account := range w.accountUpdateChan {
+		w.logger.Printf("Account holdings update, account:%s", account.Address)
 		err := account.UpdateHoldings(ctx)
 		if err != nil {
-			logger.Printf("error fetching holdings for account:%v, error:%v", account.Address, err.Error())
+			w.logger.Printf("error fetching holdings for account:%v, error:%v", account.Address, err.Error())
 			continue
 		}
 	}
 }
 
-func blockWatcher(ctx context.Context, logger *log.Logger, updateChan chan *trackedAccount) {
-	defer logger.Println("Exited blockWatcher")
-	nodeStatus, err := algoClient.Status().Do(ctx)
+func (w *watcher) blockWatcher(ctx context.Context) {
+	defer w.logger.Println("Exited blockWatcher")
+	nodeStatus, err := w.algoClient.Status().Do(ctx)
 	if err != nil {
 		fmt.Printf("error getting algod status: %s\n", err)
 		return
@@ -60,7 +82,7 @@ func blockWatcher(ctx context.Context, logger *log.Logger, updateChan chan *trac
 		default:
 			break
 		}
-		block, _ := algoClient.Block(round).Do(ctx)
+		block, _ := w.algoClient.Block(round).Do(ctx)
 		foundAccounts := map[string]bool{}
 		// Iterate every transaction in the block, marking every account
 		// updated in any way in that block.
@@ -88,11 +110,11 @@ func blockWatcher(ctx context.Context, logger *log.Logger, updateChan chan *trac
 		// and add to our queue of accounts to update balances for in the background
 		watchedData.IsWatchedAccount(
 			foundAccounts, func(account *trackedAccount) {
-				logger.Printf("Block with transactions, block:%d, account:%s", round, account.Address)
-				updateChan <- account
+				w.logger.Printf("Block with transactions, block:%d, account:%s", round, account.Address)
+				w.accountUpdateChan <- account
 			},
 		)
-		_, _ = algoClient.StatusAfterBlock(round).Do(ctx)
+		_, _ = w.algoClient.StatusAfterBlock(round).Do(ctx)
 		round++
 	}
 }

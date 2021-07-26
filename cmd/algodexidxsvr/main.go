@@ -12,15 +12,18 @@ import (
 	"sync"
 	"syscall"
 
-	info "algodexidx/gen/info"
-
-	algodexidx "algodexidx"
-	"algodexidx/cmd/algodexidxsvr/backend"
-	account "algodexidx/gen/account"
-	inspect "algodexidx/gen/inspect"
+	"algodexidx"
+	"algodexidx/backend"
+	"algodexidx/gen/account"
+	"algodexidx/gen/info"
+	"algodexidx/gen/inspect"
 )
 
-var GitSummary string
+// Variables set at build time using govv flags (https://github.com/ahmetb/govvv)
+var (
+	GitSummary string
+	BuildDate  string
+)
 
 func main() {
 	// Define command line flags, add any other flag required to configure the
@@ -32,7 +35,9 @@ func main() {
 		secureF   = flag.Bool("secure", false, "Use secure scheme (https or grpcs)")
 		dbgF      = flag.Bool("debug", false, "Log request and response bodies")
 
-		network = flag.String("network", "", "Algorand network to connect to (testnet or mainnet) - or ALGODEX_NETWORK env.")
+		network = flag.String(
+			"network", "", "Algorand network to connect to (testnet or mainnet) - or ALGODEX_NETWORK env.",
+		)
 	)
 	flag.Parse()
 
@@ -42,39 +47,6 @@ func main() {
 	if *network != "testnet" && *network != "mainnet" {
 		fmt.Fprintf(os.Stderr, "invalid network %s\n", *network)
 		os.Exit(1)
-	}
-
-	// Setup logger. Replace logger with your own log package of choice.
-	var (
-		logger *log.Logger
-	)
-	{
-		logger = log.New(os.Stderr, "[algodexidx] ", log.Ltime)
-	}
-
-	// Initialize the services.
-	var (
-		accountSvc account.Service
-		inspectSvc inspect.Service
-		infoSvc    info.Service
-	)
-	{
-		accountSvc = algodexidx.NewAccount(logger)
-		inspectSvc = algodexidx.NewInspect(logger)
-		infoSvc = algodexidx.NewInfo(logger, GitSummary)
-	}
-
-	// Wrap the services in endpoints that can be invoked from other services
-	// potentially running in different processes.
-	var (
-		accountEndpoints *account.Endpoints
-		inspectEndpoints *inspect.Endpoints
-		infoEndpoints    *info.Endpoints
-	)
-	{
-		accountEndpoints = account.NewEndpoints(accountSvc)
-		inspectEndpoints = inspect.NewEndpoints(inspectSvc)
-		infoEndpoints = info.NewEndpoints(infoSvc)
 	}
 
 	// Create channel used by both the signal handler and server goroutines
@@ -92,7 +64,41 @@ func main() {
 	var wg sync.WaitGroup
 	ctx, cancel := context.WithCancel(context.Background())
 
-	backend.InitBackend(ctx, logger, *network)
+	// Setup logger. Replace logger with your own log package of choice.
+	var (
+		logger *log.Logger
+	)
+	{
+		logger = log.New(os.Stderr, "[algodexidx] ", log.Ltime)
+	}
+
+	// Initialize all of our independent backend/background services
+	itf := backend.InitBackend(ctx, logger, *network)
+
+	// Initialize the services.
+	var (
+		accountSvc account.Service
+		inspectSvc inspect.Service
+		infoSvc    info.Service
+	)
+	{
+		accountSvc = algodexidx.NewAccount(logger, itf)
+		inspectSvc = algodexidx.NewInspect(logger)
+		infoSvc = algodexidx.NewInfo(logger, fmt.Sprintf("%s [%s]", GitSummary, BuildDate))
+	}
+
+	// Wrap the services in endpoints that can be invoked from other services
+	// potentially running in different processes.
+	var (
+		accountEndpoints *account.Endpoints
+		inspectEndpoints *inspect.Endpoints
+		infoEndpoints    *info.Endpoints
+	)
+	{
+		accountEndpoints = account.NewEndpoints(accountSvc)
+		inspectEndpoints = inspect.NewEndpoints(inspectSvc)
+		infoEndpoints = info.NewEndpoints(infoSvc)
+	}
 
 	// Start the servers and send errors (if any) to the error channel.
 	switch *hostF {

@@ -7,20 +7,20 @@ import (
 	"log"
 	"strconv"
 
-	account "algodexidx/gen/account"
-
-	"algodexidx/cmd/algodexidxsvr/backend"
+	"algodexidx/backend"
+	"algodexidx/gen/account"
 )
 
 // account service example implementation.
 // The example methods log the requests and return zero values.
 type accountsrvc struct {
-	logger *log.Logger
+	logger  *log.Logger
+	backend backend.Itf
 }
 
 // NewAccount returns the account service implementation.
-func NewAccount(logger *log.Logger) account.Service {
-	return &accountsrvc{logger}
+func NewAccount(logger *log.Logger, itf backend.Itf) account.Service {
+	return &accountsrvc{logger, itf}
 }
 
 // Add Algorand account to track
@@ -29,6 +29,7 @@ func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error
 	if p == nil || len(p.Address) == 0 {
 		return errors.New("must provide address(es) to watch")
 	}
+	s.backend.WatchAccounts(ctx, p.Address...)
 	err = backend.WatchAccounts(ctx, p.Address...)
 	if err != nil {
 		return fmt.Errorf("account watch add of addresses:%v, error:%w", p.Address, err)
