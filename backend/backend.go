@@ -13,51 +13,47 @@ import (
 	"github.com/algorand/go-algorand-sdk/client/v2/algod"
 )
 
-var algoClient *algod.Client
+//var algoClient *algod.Client
 
 type Itf interface {
 	WatchAccounts(ctx context.Context, addresses ...string) error
-	GetAccount(ctx context.Context, address string) Account
-	GetAccounts(ctx context.Context) []Account
+	GetAccount(ctx context.Context, address string) (*Account, error)
+	GetAccounts(ctx context.Context) []*Account
 }
 
 type backendState struct {
 	log        *log.Logger
 	algoClient *algod.Client
 	persist    Persistor
-	//watcher    Watcher
+	watcher    *watcher
 }
 
 func (b *backendState) WatchAccounts(ctx context.Context, addresses ...string) error {
-	return b.persist.WatchAccounts(ctx, addresses...)
+	return b.watcher.WatchAccounts(ctx, addresses...)
 }
 
-func (b *backendState) GetAccount(ctx context.Context, address string) Account {
-	// TODO implement!
-	return Account{}
+func (b *backendState) GetAccount(ctx context.Context, address string) (*Account, error) {
+	return b.watcher.GetAccount(ctx, address)
 }
 
-func (b *backendState) GetAccounts(ctx context.Context) []Account {
-	// TODO implement!
-	//accounts := b.persist.GetWatchedAccounts(ctx)
-	//for _, account := range accounts {
-	//
-	//}
-	return []Account{}
+func (b *backendState) GetAccounts(ctx context.Context) []*Account {
+	return b.watcher.GetAccounts(ctx)
 }
 
 func InitBackend(ctx context.Context, log *log.Logger, network string) *backendState {
 	var err error
 	be := &backendState{log: log}
 
-	algoClient, err = initAlgoClient(os.Getenv("ALGORAND_DATA"), log, network)
+	be.algoClient, err = initAlgoClient(os.Getenv("ALGORAND_DATA"), log, network)
 	if err != nil {
 		log.Fatalf("failure in algo client setup: %v", err)
 	}
-	be.algoClient = algoClient
-	be.persist = initPersistance(ctx)
-	// Start the block watcher - giving it persistence interface for pushing updates...
-	newWatcher(log, algoClient, be.persist).start(ctx)
+	be.persist = initPersistance(ctx, log)
+	// Load all the accounts we've already been told to watch
+
+	// Start the block watcher - giving it persistence interface for getting data/pushing updates...
+	be.watcher = newWatcher(log, be.algoClient, be.persist)
+	be.watcher.start(ctx)
 	return be
 }
 

@@ -21,8 +21,9 @@ import (
 
 // Variables set at build time using govv flags (https://github.com/ahmetb/govvv)
 var (
-	GitSummary string
-	BuildDate  string
+	GitSummary     string
+	BuildDate      string
+	VersionSummary = fmt.Sprintf("%s [%s]", GitSummary, BuildDate)
 )
 
 func main() {
@@ -40,6 +41,20 @@ func main() {
 		)
 	)
 	flag.Parse()
+
+	// Set up sentry
+	//hostname, _ := os.Hostname()
+	//err := sentry.Init(sentry.ClientOptions{
+	//	// Either set your DSN here or set the SENTRY_DSN environment variable.
+	//	Dsn: "https://16ac7f11f4884d308d515d2666b3e455@o861560.ingest.sentry.io/5821465",
+	//	// Either set environment and release here or set the SENTRY_ENVIRONMENT
+	//	// and SENTRY_RELEASE environment variables.
+	//	Environment: hostname,
+	//	Release:     fmt.Sprintf("%s@%s", os.Args[0], GitSummary),
+	//	// Enable printing of SDK debug messages.
+	//	// Useful when getting started or trying to figure something out.
+	//	Debug: true,
+	//})
 
 	if *network == "" {
 		*network = os.Getenv("ALGODEX_NETWORK")
@@ -84,7 +99,7 @@ func main() {
 	{
 		accountSvc = algodexidx.NewAccount(logger, itf)
 		inspectSvc = algodexidx.NewInspect(logger)
-		infoSvc = algodexidx.NewInfo(logger, fmt.Sprintf("%s [%s]", GitSummary, BuildDate))
+		infoSvc = algodexidx.NewInfo(logger, VersionSummary)
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services

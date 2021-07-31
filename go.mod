@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/algorand/go-algorand-sdk v1.9.1
+	github.com/getsentry/sentry-go v0.11.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/google/go-querystring v1.1.0 // indirect
