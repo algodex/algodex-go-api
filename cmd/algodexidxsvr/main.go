@@ -37,7 +37,7 @@ func main() {
 		dbgF      = flag.Bool("debug", false, "Log request and response bodies")
 
 		network = flag.String(
-			"network", "", "Algorand network to connect to (testnet or mainnet) - or ALGODEX_NETWORK env.",
+			"network", "testnet", "Algorand network to connect to (testnet or mainnet) - or ALGODEX_NETWORK env.",
 		)
 	)
 	flag.Parse()

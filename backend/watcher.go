@@ -41,7 +41,7 @@ func (w *watcher) WatchAccounts(ctx context.Context, addresses ...string) error 
 func (w *watcher) GetAccount(ctx context.Context, address string) (*Account, error) {
 	account, err := w.persist.GetAccount(ctx, address)
 	if account == nil {
-		// not cached yet - fetch it and update cache..
+		// not cached yet - force update from chain and update cache
 		account, err = w.updateAccountInfo(ctx, address)
 		if err != nil {
 			return nil, fmt.Errorf("error fetching un-cached account info, error:%w", err)
@@ -217,6 +217,8 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 	}
 }
 
+// updateAccountInfo fetches the latest balance information from the node for the specified account and all of its
+// assets - updating the persistence layer with updated asset info and the resulting
 func (w *watcher) updateAccountInfo(ctx context.Context, address string) (*Account, error) {
 	accountInfo, err := w.algoClient.AccountInformation(address).Do(ctx)
 	if err != nil {

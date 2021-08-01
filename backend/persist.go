@@ -49,26 +49,26 @@ func initPersistance(ctx context.Context, log *log.Logger) *persistor {
 			},
 		),
 	}
-	log.Printf(
-		"conecting to mysql host:%s:%s db:%s", os.Getenv("ALGODEX_DB_HOST"), os.Getenv("ALGODEX_DB_PORT"),
-		os.Getenv("ALGODEX_DB_NAME"),
-	)
-	sqlConn, err := sqlx.Connect(
-		"mysql", fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s",
-			os.Getenv("ALGODEX_DB_USER"), os.Getenv("ALGODEX_DB_PASS"),
-			os.Getenv("ALGODEX_DB_HOST"), os.Getenv("ALGODEX_DB_PORT"),
-			os.Getenv("ALGODEX_DB_NAME"),
-		),
-	)
-	if err != nil {
-		log.Panicf("error in opening sql connection: %v", err)
-	}
+	//log.Printf(
+	//	"conecting to mysql host:%s:%s db:%s", os.Getenv("ALGODEX_DB_HOST"), os.Getenv("ALGODEX_DB_PORT"),
+	//	os.Getenv("ALGODEX_DB_NAME"),
+	//)
+	//sqlConn, err := sqlx.Connect(
+	//	"mysql", fmt.Sprintf(
+	//		"%s:%s@tcp(%s:%s)/%s",
+	//		os.Getenv("ALGODEX_DB_USER"), os.Getenv("ALGODEX_DB_PASS"),
+	//		os.Getenv("ALGODEX_DB_HOST"), os.Getenv("ALGODEX_DB_PORT"),
+	//		os.Getenv("ALGODEX_DB_NAME"),
+	//	),
+	//)
+	//if err != nil {
+	//	log.Panicf("error in opening sql connection: %v", err)
+	//}
 	// Some examples we don't care about... yet
 	//sqlConn.SetConnMaxLifetime(time.Minute * 3)
 	//sqlConn.SetMaxOpenConns(10)
 	//sqlConn.SetMaxIdleConns(10)
-	ret.sql = sqlConn
+	//ret.sql = sqlConn
 
 	//var round uint64
 	//sqlConn.Get(&round, "SELECT round FROM config")
