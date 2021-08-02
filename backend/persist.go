@@ -116,21 +116,33 @@ func (p *persistor) GetWatchedAccounts(ctx context.Context) ([]string, error) {
 }
 
 func (p *persistor) GetWatchedAccountMatches(ctx context.Context, doesMatch []string) ([]string, error) {
-	redisStrings := make([]interface{}, len(doesMatch))
-	for i := range doesMatch {
-		redisStrings[i] = doesMatch[i]
-	}
-	// We get back indexed true/false for whether each element was member of set (our watched accounts)
-	members, err := p.redis.SMIsMember(ctx, redisKey("accounts", "watched"), redisStrings...).Result()
-	if err != nil {
-		return nil, fmt.Errorf("calling GetWatchedAccountMatches: %w", err)
-	}
-	matches := make([]string, 0, len(redisStrings))
-	for i, isMember := range members {
-		if isMember {
-			matches = append(matches, doesMatch[i])
+	// AWS doesn't support SMIsMember yet, so just walk them all manually
+	matches := make([]string, 0, len(doesMatch))
+	for _, address := range doesMatch {
+		member, err := p.redis.SIsMember(ctx, redisKey("accounts", "watched"), address).Result()
+		if err != nil {
+			return nil, fmt.Errorf("calling GetWatchedAccountMatches: %w", err)
+		}
+		if member {
+			matches = append(matches, address)
 		}
 	}
+	// Switch to this once AWS supports Redis 6.2
+	//redisStrings := make([]interface{}, len(doesMatch))
+	//for i := range doesMatch {
+	//	redisStrings[i] = doesMatch[i]
+	//}
+	//// We get back indexed true/false for whether each element was member of set (our watched accounts)
+	//members, err := p.redis.SMIsMember(ctx, redisKey("accounts", "watched"), redisStrings...).Result()
+	//if err != nil {
+	//	return nil, fmt.Errorf("calling GetWatchedAccountMatches: %w", err)
+	//}
+	//matches := make([]string, 0, len(redisStrings))
+	//for i, isMember := range members {
+	//	if isMember {
+	//		matches = append(matches, doesMatch[i])
+	//	}
+	//}
 	return matches, nil
 }
 
