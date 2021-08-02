@@ -7,20 +7,20 @@ import (
 	"log"
 	"strconv"
 
-	account "algodexidx/gen/account"
-
-	"algodexidx/cmd/algodexidxsvr/backend"
+	"algodexidx/backend"
+	"algodexidx/gen/account"
 )
 
 // account service example implementation.
 // The example methods log the requests and return zero values.
 type accountsrvc struct {
-	logger *log.Logger
+	logger  *log.Logger
+	backend backend.Itf
 }
 
 // NewAccount returns the account service implementation.
-func NewAccount(logger *log.Logger) account.Service {
-	return &accountsrvc{logger}
+func NewAccount(logger *log.Logger, itf backend.Itf) account.Service {
+	return &accountsrvc{logger, itf}
 }
 
 // Add Algorand account to track
@@ -29,9 +29,10 @@ func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error
 	if p == nil || len(p.Address) == 0 {
 		return errors.New("must provide address(es) to watch")
 	}
-	err = backend.WatchAccounts(ctx, p.Address...)
+	// pass on to persistence backend... (redis for eg)
+	err = s.backend.WatchAccounts(ctx, p.Address...)
 	if err != nil {
-		return fmt.Errorf("account watch add of addresses:%v, error:%w", p.Address, err)
+		return fmt.Errorf("account watch persistence add of addresses:%v, error:%w", p.Address, err)
 	}
 	return
 }
@@ -39,7 +40,7 @@ func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error
 // Get specific account
 func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *account.Account, err error) {
 	s.logger.Println("account.get", p.Address)
-	backendAccount := backend.GetAccount(p.Address)
+	backendAccount, err := s.backend.GetAccount(ctx, p.Address)
 	if backendAccount == nil {
 		return nil, fmt.Errorf("account:%s is not watched or other error", p.Address)
 	}
@@ -59,7 +60,7 @@ func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (
 		view = *p.View
 	}
 	s.logger.Println("account.list, view:", view)
-	for _, acct := range backend.GetAccounts() {
+	for _, acct := range s.backend.GetAccounts(ctx) {
 		res = append(
 			res, &account.TrackedAccount{
 				Address:  acct.Address,

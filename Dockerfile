@@ -8,7 +8,7 @@ WORKDIR /go/src/algodexidx
 RUN go get -u -v github.com/ahmetb/govvv
 
 # Copy all project files
-ADD . .
+COPY . ./
 # Generate a binary
 RUN env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -ldflags "$(govvv -flags)" -o app ./cmd/algodexidxsvr
 
