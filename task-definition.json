@@ -32,6 +32,12 @@
                     "awslogs-stream-prefix": "ecs"
                 }
             },
+            "secrets": [
+                {
+                    "name": "ALGODEX_DB_PASS",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:563462845177:secret:testpass-r22vVN"
+                }
+            ],
             "healthCheck": {
                 "command": [
                     "CMD-SHELL",

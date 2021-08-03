@@ -30,17 +30,6 @@ type Persistor interface {
 	//GetAccount(address string) (Account, error)
 }
 
-/*
-type Account struct {
-// Public Account address
-Address string
-// Opted-in ASA information
-Holdings map[uint64]*Holding
-}
-
-}
-*/
-
 func initPersistance(ctx context.Context, log *log.Logger) *persistor {
 	ret := &persistor{
 		redis: redis.NewClient(
@@ -49,6 +38,7 @@ func initPersistance(ctx context.Context, log *log.Logger) *persistor {
 			},
 		),
 	}
+	log.Printf("DB PASS:%s", os.Getenv("ALGODEX_DB_PASS"))
 	//log.Printf(
 	//	"conecting to mysql host:%s:%s db:%s", os.Getenv("ALGODEX_DB_HOST"), os.Getenv("ALGODEX_DB_PORT"),
 	//	os.Getenv("ALGODEX_DB_NAME"),
