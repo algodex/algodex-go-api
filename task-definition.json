@@ -32,10 +32,28 @@
                     "awslogs-stream-prefix": "ecs"
                 }
             },
+            "environment": [
+                {
+                    "name": "ALGODEX_DB_USER",
+                    "value": "algodex"
+                },
+                {
+                    "name": "ALGODEX_DB_HOST",
+                    "value": "172.31.27.17"
+                },
+                {
+                    "name": "ALGODEX_DB_PORT",
+                    "value": "3306"
+                },
+                {
+                    "name": "ALGODEX_DB_NAME",
+                    "value": "algodex"
+                }
+            ],
             "secrets": [
                 {
                     "name": "ALGODEX_DB_PASS",
-                    "valueFrom": "arn:aws:secretsmanager:us-east-2:563462845177:secret:testpass-r22vVN"
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:563462845177:secret:mysqlPass"
                 }
             ],
             "healthCheck": {
