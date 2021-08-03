@@ -15,12 +15,6 @@
             "essential": true,
             "entryPoint": [],
             "command": [],
-            "environment": [
-                {
-                    "name": "ALGODEX_REDIS_ADDR",
-                    "value": "algodex-redis.cvu9cm.0001.use2.cache.amazonaws.com:6379"
-                }
-            ],
             "mountPoints": [],
             "volumesFrom": [],
             "readonlyRootFilesystem": true,
@@ -33,6 +27,10 @@
                 }
             },
             "environment": [
+                {
+                    "name": "ALGODEX_REDIS_ADDR",
+                    "value": "algodex-redis.cvu9cm.0001.use2.cache.amazonaws.com:6379"
+                },
                 {
                     "name": "ALGODEX_DB_USER",
                     "value": "algodex"
