@@ -60,7 +60,7 @@ func InitBackend(ctx context.Context, log *log.Logger, network string) *backendS
 func initAlgoClient(dataDir string, log *log.Logger, network string) (*algod.Client, error) {
 	var (
 		apiURL     string
-		apiKey     string
+		apiToken   string
 		serverAddr *url.URL
 		err        error
 	)
@@ -75,24 +75,27 @@ func initAlgoClient(dataDir string, log *log.Logger, network string) (*algod.Cli
 			log.Fatal("error reading data-dir file", err)
 		}
 		apiURL = fmt.Sprintf("http://%s", strings.TrimSpace(string(netPath)))
-		apiKey = string(apiKeyBytes)
+		apiToken = string(apiKeyBytes)
 	} else {
-		if network == "testnet" {
-			apiURL = "https://api.testnet.algoexplorer.io"
-		} else if network == "mainnet" {
-			apiURL = "https://api.algoexplorer.io"
+		apiURL = os.Getenv("ALGODEX_ALGOD")
+		apiToken = os.Getenv("ALGODEX_ALGOD_TOKEN")
+		if apiURL == "" {
+			if network == "testnet" {
+				apiURL = "https://api.testnet.algoexplorer.io"
+			} else if network == "mainnet" {
+				apiURL = "https://api.algoexplorer.io"
+			}
 		}
-		if os.Getenv("API_ENDPOINT") != "" {
-			apiURL = os.Getenv("API_ENDPOINT")
-		}
-		apiKey = os.Getenv("API_KEY")
+		// Strip off trailing slash if present in url which the Algorand client doesn't handle properly
+		apiURL = strings.TrimRight(apiURL, "/")
 	}
 	serverAddr, err = url.Parse(apiURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse url:%v, error:%w", apiURL, err)
 	}
+	log.Printf("Connecting to node at:%s", serverAddr.String())
 
-	client, err := algod.MakeClient(serverAddr.String(), apiKey)
+	client, err := algod.MakeClient(serverAddr.String(), apiToken)
 	if err != nil {
 		return nil, fmt.Errorf(`failed to make algod client (url:%s), error:%w`, serverAddr.String(), err)
 	}

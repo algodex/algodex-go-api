@@ -15,12 +15,6 @@
             "essential": true,
             "entryPoint": [],
             "command": [],
-            "environment": [
-                {
-                    "name": "ALGODEX_REDIS_ADDR",
-                    "value": "algodex-redis.cvu9cm.0001.use2.cache.amazonaws.com:6379"
-                }
-            ],
             "mountPoints": [],
             "volumesFrom": [],
             "readonlyRootFilesystem": true,
@@ -32,6 +26,42 @@
                     "awslogs-stream-prefix": "ecs"
                 }
             },
+            "environment": [
+                {
+                    "name": "ALGODEX_REDIS_ADDR",
+                    "value": "algodex-redis.cvu9cm.0001.use2.cache.amazonaws.com:6379"
+                },
+                {
+                    "name": "ALGODEX_DB_USER",
+                    "value": "algodex"
+                },
+                {
+                    "name": "ALGODEX_DB_HOST",
+                    "value": "172.31.27.17"
+                },
+                {
+                    "name": "ALGODEX_DB_PORT",
+                    "value": "3306"
+                },
+                {
+                    "name": "ALGODEX_DB_NAME",
+                    "value": "algodex"
+                },
+                {
+                    "name": "ALGODEX_ALGOD",
+                    "value": "http://ec2-18-216-194-132.us-east-2.compute.amazonaws.com:8080/"
+                },
+                {
+                    "name": "ALGODEX_ALGOD_TOKEN",
+                    "value": "11e4dcfb445a8c7e8380848747f18afcd5d84ccb395e003e5b72127ca5e9a259"
+                }
+            ],
+            "secrets": [
+                {
+                    "name": "ALGODEX_DB_PASS",
+                    "valueFrom": "arn:aws:secretsmanager:us-east-2:563462845177:secret:mysqlPass"
+                }
+            ],
             "healthCheck": {
                 "command": [
                     "CMD-SHELL",
