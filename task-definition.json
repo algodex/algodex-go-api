@@ -37,7 +37,7 @@
                 },
                 {
                     "name": "ALGODEX_DB_HOST",
-                    "value": "172.31.27.17"
+                    "value": "algodex.cluster-cvm6shnrdgnm.us-east-2.rds.amazonaws.com"
                 },
                 {
                     "name": "ALGODEX_DB_PORT",
