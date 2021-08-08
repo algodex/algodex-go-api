@@ -6,6 +6,7 @@ import (
 	"log"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/algorand/go-algorand-sdk/client/v2/algod"
 	"github.com/algorand/go-algorand-sdk/types"
@@ -205,9 +206,29 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 		matches, err := w.persist.GetWatchedAccountMatches(ctx, updatedAccounts)
 		if err != nil {
 			w.logger.Printf("blockWatcher error in GetWatchedAccountMatches: %s", err.Error())
+			// start over with same round number - maybe its a temporary issue w/ persistance layer
+			// TODO: need more formal error logging...
+			time.Sleep(100 * time.Millisecond)
+			continue
 		} else {
 			for _, address := range matches {
 				w.accountUpdateChan <- address
+			}
+			// wait until channel is empty or we're told to exit so we're sure all balances are updated
+			// before persisting that we successfully processed this round.
+			for {
+				// First make sure we're not told to exit...
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					break
+				}
+				// Then see if the accountUpdateChan has been drained...
+				if len(w.accountUpdateChan) == 0 {
+					break
+				}
+				time.Sleep(10 * time.Millisecond)
 			}
 		}
 		w.persist.SetLastRound(ctx, round)
