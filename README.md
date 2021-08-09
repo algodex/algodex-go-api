@@ -84,12 +84,22 @@ docker build -t algodexidxsvr:latest .
 ```
 docker run --rm -p 8000:80 algodexidxsvr:latest [args]
 ```
+
 ### Optional Arguments
 
 ```
  -debug (adds logging ot show all incoming/outgoing requests/responses)
- -network (testnet|mainnet)  (defaults to testnet)  
+ -network (testnet|mainnet)  (defaults to testnet - or ALGODEX_NETWORK environment var)  
 ````
+
+## Native building
+
+* Install go, run make.  Binaries for the service and a CLI helper are placed in the out/ subdirectory
+
+### Updating generated content
+
+* Run make generate - knowledge of goa (https://goa.design/) is recommended.
+
 #### Swagger
 
 Contents of gen/openapi3.yaml can be pasted into https://editor.swagger.io/ for API view/testing.  
