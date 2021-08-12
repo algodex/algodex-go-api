@@ -26,6 +26,8 @@ type AddRequestBody struct {
 type GetResponseBody struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
+	// Round fetched
+	Round *uint64 `form:"round,omitempty" json:"round,omitempty" xml:"round,omitempty"`
 	// Account Assets
 	Holdings map[string]*HoldingResponseBody `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
 }
@@ -51,6 +53,8 @@ type HoldingResponseBody struct {
 type TrackedAccountResponse struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
+	// Round fetched
+	Round *uint64 `form:"round,omitempty" json:"round,omitempty" xml:"round,omitempty"`
 	// Account Assets
 	Holdings map[string]*HoldingResponse `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
 }
@@ -86,6 +90,7 @@ func NewAddRequestBody(p *account.AddPayload) *AddRequestBody {
 func NewGetAccountOK(body *GetResponseBody) *account.Account {
 	v := &account.Account{
 		Address: *body.Address,
+		Round:   *body.Round,
 	}
 	v.Holdings = make(map[string]*account.Holding, len(body.Holdings))
 	for key, val := range body.Holdings {
@@ -111,6 +116,9 @@ func NewListTrackedAccountCollectionOK(body ListResponseBody) accountviews.Track
 func ValidateGetResponseBody(body *GetResponseBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+	}
+	if body.Round == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("round", "body"))
 	}
 	if body.Holdings == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "body"))
@@ -162,6 +170,9 @@ func ValidateHoldingResponseBody(body *HoldingResponseBody) (err error) {
 func ValidateTrackedAccountResponse(body *TrackedAccountResponse) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+	}
+	if body.Round == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("round", "body"))
 	}
 	if body.Holdings == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "body"))

@@ -13,6 +13,8 @@ const algoID = 1
 type Account struct {
 	// Public Account address
 	Address string
+	// Round which the information was updated for
+	Round uint64
 	// Opted-in ASA / balance information
 	Holdings map[uint64]*Holding
 }

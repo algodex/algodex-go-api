@@ -50,6 +50,8 @@ type GetPayload struct {
 type Account struct {
 	// Public Account address
 	Address string
+	// Round fetched
+	Round uint64
 	// Account Assets
 	Holdings map[string]*Holding
 }
@@ -81,6 +83,8 @@ type Holding struct {
 type TrackedAccount struct {
 	// Public Account address
 	Address string
+	// Round fetched
+	Round uint64
 	// Account Assets
 	Holdings map[string]*Holding
 }
@@ -173,6 +177,9 @@ func newTrackedAccountFull(vres *accountviews.TrackedAccountView) *TrackedAccoun
 	if vres.Address != nil {
 		res.Address = *vres.Address
 	}
+	if vres.Round != nil {
+		res.Round = *vres.Round
+	}
 	if vres.Holdings != nil {
 		res.Holdings = make(map[string]*Holding, len(vres.Holdings))
 		for key, val := range vres.Holdings {
@@ -197,6 +204,7 @@ func newTrackedAccountView(res *TrackedAccount) *accountviews.TrackedAccountView
 func newTrackedAccountViewFull(res *TrackedAccount) *accountviews.TrackedAccountView {
 	vres := &accountviews.TrackedAccountView{
 		Address: &res.Address,
+		Round:   &res.Round,
 	}
 	if res.Holdings != nil {
 		vres.Holdings = make(map[string]*accountviews.HoldingView, len(res.Holdings))

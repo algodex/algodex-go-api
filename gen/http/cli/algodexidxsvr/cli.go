@@ -40,7 +40,7 @@ func UsageExamples() string {
       ]
    }'` + "\n" +
 		os.Args[0] + ` inspect unpack --body '{
-      "msgpack": "Id assumenda."
+      "msgpack": "Assumenda est."
    }'` + "\n" +
 		os.Args[0] + ` info version` + "\n" +
 		""
@@ -264,7 +264,7 @@ List all tracked accounts
     -view STRING: 
 
 Example:
-    `+os.Args[0]+` account list --view "default"
+    `+os.Args[0]+` account list --view "full"
 `, os.Args[0])
 }
 
@@ -289,7 +289,7 @@ Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output
 
 Example:
     `+os.Args[0]+` inspect unpack --body '{
-      "msgpack": "Id assumenda."
+      "msgpack": "Assumenda est."
    }'
 `, os.Args[0])
 }

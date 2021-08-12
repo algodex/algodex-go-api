@@ -42,12 +42,13 @@ var Account = Type(
 				Example("4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU")
 			},
 		)
+		Attribute("round", UInt64, "Round fetched")
 		Attribute(
 			"holdings", MapOf(String, Holding), func() {
 				Description("Account Assets")
 			},
 		)
-		Required("address", "holdings")
+		Required("address", "round", "holdings")
 	},
 )
 
@@ -82,6 +83,7 @@ var TrackedAccount = ResultType(
 		Attributes(
 			func() {
 				Attribute("address")
+				Attribute("round")
 				Attribute("holdings")
 			},
 		)
@@ -93,6 +95,7 @@ var TrackedAccount = ResultType(
 		View(
 			"full", func() {
 				Attribute("address")
+				Attribute("round")
 				Attribute("holdings")
 			},
 		)
@@ -237,10 +240,11 @@ var _ = Service(
 		Method(
 			"live", func() {
 				Description("Simple health check")
-				HTTP(func() {
-					GET("/live")
-					Response(StatusOK)
-				},
+				HTTP(
+					func() {
+						GET("/live")
+						Response(StatusOK)
+					},
 				)
 			},
 		)

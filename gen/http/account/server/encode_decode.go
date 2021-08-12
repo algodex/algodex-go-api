@@ -166,6 +166,7 @@ func marshalAccountviewsTrackedAccountViewToTrackedAccountResponse(v *accountvie
 func marshalAccountviewsTrackedAccountViewToTrackedAccountResponseFull(v *accountviews.TrackedAccountView) *TrackedAccountResponseFull {
 	res := &TrackedAccountResponseFull{
 		Address: *v.Address,
+		Round:   *v.Round,
 	}
 	if v.Holdings != nil {
 		res.Holdings = make(map[string]*HoldingResponse, len(v.Holdings))

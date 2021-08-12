@@ -76,6 +76,7 @@ paths:
             $ref: '#/definitions/AccountGetResponseBody'
             required:
             - address
+            - round
             - holdings
       schemes:
       - http
@@ -150,7 +151,7 @@ definitions:
         type: array
         items:
           type: string
-          example: Dolores laborum qui quam deleniti veritatis.
+          example: Laborum qui quam deleniti veritatis.
         example:
         - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
@@ -173,15 +174,7 @@ definitions:
         type: object
         description: Account Assets
         example:
-          Aut itaque.:
-            amount: 12373123001069819448
-            asset: 202586210
-            decimals: 5519094376750021556
-            metadataHash: Saepe reiciendis molestiae labore.
-            name: Et velit labore laborum rerum dolores.
-            unitName: Blanditiis ut ea est esse.
-            url: Blanditiis quaerat nihil repellendus explicabo eos.
-          Dignissimos ad.:
+          Itaque dicta dignissimos ad.:
             amount: 12373123001069819448
             asset: 202586210
             decimals: 5519094376750021556
@@ -190,10 +183,15 @@ definitions:
             unitName: Blanditiis ut ea est esse.
             url: Blanditiis quaerat nihil repellendus explicabo eos.
         additionalProperties: true
+      round:
+        type: integer
+        description: Round fetched
+        example: 2848837700029611100
+        format: int64
     example:
       address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
       holdings:
-        Consequatur placeat quidem blanditiis dolorem officiis aspernatur.:
+        Placeat quidem blanditiis dolorem officiis aspernatur.:
           amount: 12373123001069819448
           asset: 202586210
           decimals: 5519094376750021556
@@ -201,16 +199,10 @@ definitions:
           name: Et velit labore laborum rerum dolores.
           unitName: Blanditiis ut ea est esse.
           url: Blanditiis quaerat nihil repellendus explicabo eos.
-        Officia atque qui laudantium nesciunt doloremque excepturi.:
-          amount: 12373123001069819448
-          asset: 202586210
-          decimals: 5519094376750021556
-          metadataHash: Saepe reiciendis molestiae labore.
-          name: Et velit labore laborum rerum dolores.
-          unitName: Blanditiis ut ea est esse.
-          url: Blanditiis quaerat nihil repellendus explicabo eos.
+      round: 1795073648923869556
     required:
     - address
+    - round
     - holdings
   AccountTrackedAccountResponseCollection:
     title: 'Mediatype identifier: application/vnd.algodex.account; type=collection;
@@ -223,16 +215,15 @@ definitions:
     example:
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
   InspectUnpackRequestBody:
     title: InspectUnpackRequestBody
     type: object
     properties:
       msgpack:
         type: string
-        example: Dolore impedit aspernatur numquam iure.
+        example: Atque qui laudantium nesciunt doloremque excepturi odit.
     example:
-      msgpack: Esse distinctio.
+      msgpack: Dolore impedit aspernatur numquam iure.
   TrackedAccountResponse:
     title: 'Mediatype identifier: application/vnd.algodex.account; view=default'
     type: object

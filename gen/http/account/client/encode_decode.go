@@ -238,6 +238,7 @@ func unmarshalHoldingResponseBodyToAccountHolding(v *HoldingResponseBody) *accou
 func unmarshalTrackedAccountResponseToAccountviewsTrackedAccountView(v *TrackedAccountResponse) *accountviews.TrackedAccountView {
 	res := &accountviews.TrackedAccountView{
 		Address: v.Address,
+		Round:   v.Round,
 	}
 	res.Holdings = make(map[string]*accountviews.HoldingView, len(v.Holdings))
 	for key, val := range v.Holdings {

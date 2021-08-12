@@ -247,6 +247,7 @@ func (w *watcher) updateAccountInfo(ctx context.Context, address string) (*Accou
 	}
 	retAccount := &Account{
 		Address:  address,
+		Round:    accountInfo.Round,
 		Holdings: make(map[uint64]*Holding, len(accountInfo.Assets)+1),
 	}
 

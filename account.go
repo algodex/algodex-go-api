@@ -46,6 +46,7 @@ func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *acco
 	}
 	res = &account.Account{
 		Address:  backendAccount.Address,
+		Round:    backendAccount.Round,
 		Holdings: backendHoldingToDSLHolding(backendAccount.Holdings),
 	}
 	return
@@ -64,6 +65,7 @@ func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (
 		res = append(
 			res, &account.TrackedAccount{
 				Address:  acct.Address,
+				Round:    acct.Round,
 				Holdings: backendHoldingToDSLHolding(acct.Holdings),
 			},
 		)

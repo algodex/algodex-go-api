@@ -25,7 +25,7 @@ paths:
           enum:
           - default
           - full
-        example: full
+        example: default
       responses:
         "200":
           description: OK response.
@@ -37,24 +37,26 @@ paths:
               example:
               - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
                 holdings:
-                  Id vitae nulla sunt exercitationem.:
-                    amount: 14649371533185185085
+                  Sed ut.:
+                    amount: 5634291384550134497
                     asset: 202586210
-                    decimals: 13557633239838944818
-                    metadataHash: Tempore ex blanditiis aut.
-                    name: Necessitatibus ut unde soluta illo.
-                    unitName: Facere suscipit magni molestiae soluta cupiditate totam.
-                    url: Expedita ut illum aperiam.
+                    decimals: 891370476552451481
+                    metadataHash: Non quisquam tempore ex blanditiis.
+                    name: Id necessitatibus ut unde.
+                    unitName: Illo totam facere suscipit magni molestiae.
+                    url: Cupiditate totam eum expedita ut illum.
+                round: 11826018997914015028
               - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
                 holdings:
-                  Id vitae nulla sunt exercitationem.:
-                    amount: 14649371533185185085
+                  Sed ut.:
+                    amount: 5634291384550134497
                     asset: 202586210
-                    decimals: 13557633239838944818
-                    metadataHash: Tempore ex blanditiis aut.
-                    name: Necessitatibus ut unde soluta illo.
-                    unitName: Facere suscipit magni molestiae soluta cupiditate totam.
-                    url: Expedita ut illum aperiam.
+                    decimals: 891370476552451481
+                    metadataHash: Non quisquam tempore ex blanditiis.
+                    name: Id necessitatibus ut unde.
+                    unitName: Illo totam facere suscipit magni molestiae.
+                    url: Cupiditate totam eum expedita ut illum.
+                round: 11826018997914015028
     post:
       tags:
       - account
@@ -102,7 +104,7 @@ paths:
               example:
                 address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
                 holdings:
-                  Laborum laboriosam natus non et earum.:
+                  Accusamus veritatis ipsum quis ex laborum laboriosam.:
                     amount: 12373123001069819448
                     asset: 202586210
                     decimals: 5519094376750021556
@@ -110,14 +112,7 @@ paths:
                     name: Et velit labore laborum rerum dolores.
                     unitName: Blanditiis ut ea est esse.
                     url: Blanditiis quaerat nihil repellendus explicabo eos.
-                  Maxime accusamus veritatis ipsum quis.:
-                    amount: 12373123001069819448
-                    asset: 202586210
-                    decimals: 5519094376750021556
-                    metadataHash: Saepe reiciendis molestiae labore.
-                    name: Et velit labore laborum rerum dolores.
-                    unitName: Blanditiis ut ea est esse.
-                    url: Blanditiis quaerat nihil repellendus explicabo eos.
+                round: 10295399508196253610
   /inspect/unpack:
     post:
       tags:
@@ -133,7 +128,7 @@ paths:
             schema:
               $ref: '#/components/schemas/UnpackRequestBody'
             example:
-              msgpack: Id assumenda.
+              msgpack: Assumenda est.
       responses:
         "200":
           description: OK response.
@@ -143,8 +138,9 @@ paths:
                 type: string
                 description: Returns output from goal clerk inspect of passed msgpack-encoded
                   payload
-                example: Qui est maxime voluptatem eaque cum.
-              example: Aut provident accusantium itaque doloribus voluptatem et.
+                example: Dignissimos consectetur ratione itaque explicabo consequatur
+                  qui.
+              example: Eaque cum ipsum odio dolor aut provident.
   /live:
     get:
       tags:
@@ -202,11 +198,23 @@ components:
               name: Et velit labore laborum rerum dolores.
               unitName: Blanditiis ut ea est esse.
               url: Blanditiis quaerat nihil repellendus explicabo eos.
+            Possimus ut fugit.:
+              amount: 12373123001069819448
+              asset: 202586210
+              decimals: 5519094376750021556
+              metadataHash: Saepe reiciendis molestiae labore.
+              name: Et velit labore laborum rerum dolores.
+              unitName: Blanditiis ut ea est esse.
+              url: Blanditiis quaerat nihil repellendus explicabo eos.
           additionalProperties: true
+        round:
+          type: integer
+          description: Round fetched
+          example: 8996115405718972670
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Dolorem quia omnis ut.:
+          Quia iste quis minus.:
             amount: 12373123001069819448
             asset: 202586210
             decimals: 5519094376750021556
@@ -214,16 +222,10 @@ components:
             name: Et velit labore laborum rerum dolores.
             unitName: Blanditiis ut ea est esse.
             url: Blanditiis quaerat nihil repellendus explicabo eos.
-          Voluptate quia iste quis.:
-            amount: 12373123001069819448
-            asset: 202586210
-            decimals: 5519094376750021556
-            metadataHash: Saepe reiciendis molestiae labore.
-            name: Et velit labore laborum rerum dolores.
-            unitName: Blanditiis ut ea est esse.
-            url: Blanditiis quaerat nihil repellendus explicabo eos.
+        round: 15745257045504693798
       required:
       - address
+      - round
       - holdings
     AddRequestBody:
       type: object
@@ -232,7 +234,7 @@ components:
           type: array
           items:
             type: string
-            example: Voluptate facilis possimus ut.
+            example: Esse distinctio.
           example:
           - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
           - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
@@ -254,45 +256,67 @@ components:
           type: object
           description: Account Assets
           example:
-            Ut alias voluptatum voluptas voluptatem officia.:
-              amount: 9526786926685192104
+            Officia deserunt id in velit alias.:
+              amount: 799206650352541578
               asset: 202586210
-              decimals: 955764664882562990
-              metadataHash: Commodi enim quia.
-              name: Deserunt reiciendis ut mollitia nemo.
-              unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-              url: Voluptatem nesciunt aperiam.
+              decimals: 6176359929065967441
+              metadataHash: Maiores aut quo commodi enim.
+              name: Perspiciatis deserunt.
+              unitName: Ut mollitia.
+              url: Quas et dolorem ullam dignissimos id.
+            Ut vel excepturi ut.:
+              amount: 799206650352541578
+              asset: 202586210
+              decimals: 6176359929065967441
+              metadataHash: Maiores aut quo commodi enim.
+              name: Perspiciatis deserunt.
+              unitName: Ut mollitia.
+              url: Quas et dolorem ullam dignissimos id.
+            Voluptatum voluptas.:
+              amount: 799206650352541578
+              asset: 202586210
+              decimals: 6176359929065967441
+              metadataHash: Maiores aut quo commodi enim.
+              name: Perspiciatis deserunt.
+              unitName: Ut mollitia.
+              url: Quas et dolorem ullam dignissimos id.
           additionalProperties: true
+        round:
+          type: integer
+          description: Round fetched
+          example: 8699948218631199972
       description: A TrackedAccount is an Account returned by the indexer
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
+          Dolores minima aliquid tenetur aut occaecati.:
+            amount: 799206650352541578
+            asset: 202586210
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+          Expedita nobis.:
+            amount: 799206650352541578
+            asset: 202586210
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
           Explicabo occaecati.:
-            amount: 9526786926685192104
+            amount: 799206650352541578
             asset: 202586210
-            decimals: 955764664882562990
-            metadataHash: Commodi enim quia.
-            name: Deserunt reiciendis ut mollitia nemo.
-            unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-            url: Voluptatem nesciunt aperiam.
-          Harum quia.:
-            amount: 9526786926685192104
-            asset: 202586210
-            decimals: 955764664882562990
-            metadataHash: Commodi enim quia.
-            name: Deserunt reiciendis ut mollitia nemo.
-            unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-            url: Voluptatem nesciunt aperiam.
-          In velit.:
-            amount: 9526786926685192104
-            asset: 202586210
-            decimals: 955764664882562990
-            metadataHash: Commodi enim quia.
-            name: Deserunt reiciendis ut mollitia nemo.
-            unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-            url: Voluptatem nesciunt aperiam.
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+        round: 10274472141884412792
       required:
       - address
+      - round
       - holdings
     TrackedAccountCollection:
       type: array
@@ -301,34 +325,48 @@ components:
       example:
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Id vitae nulla sunt exercitationem.:
-            amount: 14649371533185185085
+          Sed ut.:
+            amount: 5634291384550134497
             asset: 202586210
-            decimals: 13557633239838944818
-            metadataHash: Tempore ex blanditiis aut.
-            name: Necessitatibus ut unde soluta illo.
-            unitName: Facere suscipit magni molestiae soluta cupiditate totam.
-            url: Expedita ut illum aperiam.
+            decimals: 891370476552451481
+            metadataHash: Non quisquam tempore ex blanditiis.
+            name: Id necessitatibus ut unde.
+            unitName: Illo totam facere suscipit magni molestiae.
+            url: Cupiditate totam eum expedita ut illum.
+        round: 11826018997914015028
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Id vitae nulla sunt exercitationem.:
-            amount: 14649371533185185085
+          Sed ut.:
+            amount: 5634291384550134497
             asset: 202586210
-            decimals: 13557633239838944818
-            metadataHash: Tempore ex blanditiis aut.
-            name: Necessitatibus ut unde soluta illo.
-            unitName: Facere suscipit magni molestiae soluta cupiditate totam.
-            url: Expedita ut illum aperiam.
+            decimals: 891370476552451481
+            metadataHash: Non quisquam tempore ex blanditiis.
+            name: Id necessitatibus ut unde.
+            unitName: Illo totam facere suscipit magni molestiae.
+            url: Cupiditate totam eum expedita ut illum.
+        round: 11826018997914015028
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Id vitae nulla sunt exercitationem.:
-            amount: 14649371533185185085
+          Sed ut.:
+            amount: 5634291384550134497
             asset: 202586210
-            decimals: 13557633239838944818
-            metadataHash: Tempore ex blanditiis aut.
-            name: Necessitatibus ut unde soluta illo.
-            unitName: Facere suscipit magni molestiae soluta cupiditate totam.
-            url: Expedita ut illum aperiam.
+            decimals: 891370476552451481
+            metadataHash: Non quisquam tempore ex blanditiis.
+            name: Id necessitatibus ut unde.
+            unitName: Illo totam facere suscipit magni molestiae.
+            url: Cupiditate totam eum expedita ut illum.
+        round: 11826018997914015028
+      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        holdings:
+          Sed ut.:
+            amount: 5634291384550134497
+            asset: 202586210
+            decimals: 891370476552451481
+            metadataHash: Non quisquam tempore ex blanditiis.
+            name: Id necessitatibus ut unde.
+            unitName: Illo totam facere suscipit magni molestiae.
+            url: Cupiditate totam eum expedita ut illum.
+        round: 11826018997914015028
     TrackedAccountResponseFull:
       type: object
       properties:
@@ -341,61 +379,43 @@ components:
           type: object
           description: Account Assets
           example:
-            Aut occaecati optio voluptatem saepe.:
-              amount: 9526786926685192104
-              asset: 202586210
-              decimals: 955764664882562990
-              metadataHash: Commodi enim quia.
-              name: Deserunt reiciendis ut mollitia nemo.
-              unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-              url: Voluptatem nesciunt aperiam.
             Explicabo dolorum.:
-              amount: 9526786926685192104
+              amount: 799206650352541578
               asset: 202586210
-              decimals: 955764664882562990
-              metadataHash: Commodi enim quia.
-              name: Deserunt reiciendis ut mollitia nemo.
-              unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-              url: Voluptatem nesciunt aperiam.
-            Odio dolores minima aliquid.:
-              amount: 9526786926685192104
+              decimals: 6176359929065967441
+              metadataHash: Maiores aut quo commodi enim.
+              name: Perspiciatis deserunt.
+              unitName: Ut mollitia.
+              url: Quas et dolorem ullam dignissimos id.
+            Non modi enim optio minus explicabo aut.:
+              amount: 799206650352541578
               asset: 202586210
-              decimals: 955764664882562990
-              metadataHash: Commodi enim quia.
-              name: Deserunt reiciendis ut mollitia nemo.
-              unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-              url: Voluptatem nesciunt aperiam.
+              decimals: 6176359929065967441
+              metadataHash: Maiores aut quo commodi enim.
+              name: Perspiciatis deserunt.
+              unitName: Ut mollitia.
+              url: Quas et dolorem ullam dignissimos id.
           additionalProperties: true
+        round:
+          type: integer
+          description: Round fetched
+          example: 4709680674881830878
       description: A TrackedAccount is an Account returned by the indexer (full view)
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Dolor in delectus.:
-            amount: 9526786926685192104
+          Ut dolore aspernatur consectetur nisi qui.:
+            amount: 799206650352541578
             asset: 202586210
-            decimals: 955764664882562990
-            metadataHash: Commodi enim quia.
-            name: Deserunt reiciendis ut mollitia nemo.
-            unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-            url: Voluptatem nesciunt aperiam.
-          Modi enim optio minus explicabo aut labore.:
-            amount: 9526786926685192104
-            asset: 202586210
-            decimals: 955764664882562990
-            metadataHash: Commodi enim quia.
-            name: Deserunt reiciendis ut mollitia nemo.
-            unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-            url: Voluptatem nesciunt aperiam.
-          Sit ut dolore aspernatur consectetur nisi qui.:
-            amount: 9526786926685192104
-            asset: 202586210
-            decimals: 955764664882562990
-            metadataHash: Commodi enim quia.
-            name: Deserunt reiciendis ut mollitia nemo.
-            unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-            url: Voluptatem nesciunt aperiam.
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+        round: 13413792328504470442
       required:
       - address
+      - round
       - holdings
     TrackedAccountResponseFullCollection:
       type: array
@@ -406,32 +426,69 @@ components:
       example:
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Id aliquid molestiae similique id.:
-            amount: 9526786926685192104
+          Error quam tenetur id aliquid.:
+            amount: 799206650352541578
             asset: 202586210
-            decimals: 955764664882562990
-            metadataHash: Commodi enim quia.
-            name: Deserunt reiciendis ut mollitia nemo.
-            unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-            url: Voluptatem nesciunt aperiam.
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+          Nesciunt voluptatibus voluptatem nesciunt aperiam incidunt.:
+            amount: 799206650352541578
+            asset: 202586210
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+        round: 511372126505206655
       - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Id aliquid molestiae similique id.:
-            amount: 9526786926685192104
+          Error quam tenetur id aliquid.:
+            amount: 799206650352541578
             asset: 202586210
-            decimals: 955764664882562990
-            metadataHash: Commodi enim quia.
-            name: Deserunt reiciendis ut mollitia nemo.
-            unitName: Et dolorem ullam dignissimos id soluta nesciunt.
-            url: Voluptatem nesciunt aperiam.
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+          Nesciunt voluptatibus voluptatem nesciunt aperiam incidunt.:
+            amount: 799206650352541578
+            asset: 202586210
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+        round: 511372126505206655
+      - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        holdings:
+          Error quam tenetur id aliquid.:
+            amount: 799206650352541578
+            asset: 202586210
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+          Nesciunt voluptatibus voluptatem nesciunt aperiam incidunt.:
+            amount: 799206650352541578
+            asset: 202586210
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+        round: 511372126505206655
     UnpackRequestBody:
       type: object
       properties:
         msgpack:
           type: string
-          example: Accusantium quidem omnis expedita omnis.
+          example: In delectus dicta deserunt.
       example:
-        msgpack: Totam dignissimos consectetur ratione itaque explicabo.
+        msgpack: Quidem omnis expedita omnis eligendi.
 tags:
 - name: account
   description: The account service specifies which Algorand accounts to track

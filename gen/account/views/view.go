@@ -30,6 +30,8 @@ type TrackedAccountCollectionView []*TrackedAccountView
 type TrackedAccountView struct {
 	// Public Account address
 	Address *string
+	// Round fetched
+	Round *uint64
 	// Account Assets
 	Holdings map[string]*HoldingView
 }
@@ -56,6 +58,7 @@ var (
 		},
 		"full": []string{
 			"address",
+			"round",
 			"holdings",
 		},
 	}
@@ -67,6 +70,7 @@ var (
 		},
 		"full": []string{
 			"address",
+			"round",
 			"holdings",
 		},
 	}
@@ -127,6 +131,9 @@ func ValidateTrackedAccountView(result *TrackedAccountView) (err error) {
 func ValidateTrackedAccountViewFull(result *TrackedAccountView) (err error) {
 	if result.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "result"))
+	}
+	if result.Round == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("round", "result"))
 	}
 	if result.Holdings == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "result"))

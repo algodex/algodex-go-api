@@ -25,6 +25,8 @@ type AddRequestBody struct {
 type GetResponseBody struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
+	// Round fetched
+	Round uint64 `form:"round" json:"round" xml:"round"`
 	// Account Assets
 	Holdings map[string]*HoldingResponseBody `form:"holdings" json:"holdings" xml:"holdings"`
 }
@@ -60,6 +62,8 @@ type TrackedAccountResponse struct {
 type TrackedAccountResponseFull struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
+	// Round fetched
+	Round uint64 `form:"round" json:"round" xml:"round"`
 	// Account Assets
 	Holdings map[string]*HoldingResponse `form:"holdings" json:"holdings" xml:"holdings"`
 }
@@ -82,6 +86,7 @@ type HoldingResponse struct {
 func NewGetResponseBody(res *account.Account) *GetResponseBody {
 	body := &GetResponseBody{
 		Address: res.Address,
+		Round:   res.Round,
 	}
 	if res.Holdings != nil {
 		body.Holdings = make(map[string]*HoldingResponseBody, len(res.Holdings))
