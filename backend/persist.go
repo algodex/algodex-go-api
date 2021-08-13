@@ -31,6 +31,7 @@ type Persistor interface {
 }
 
 func initPersistance(ctx context.Context, log *log.Logger) *persistor {
+	log.Printf("connecting to redis host:%s", os.Getenv("ALGODEX_REDIS_ADDR"))
 	ret := &persistor{
 		redis: redis.NewClient(
 			&redis.Options{
