@@ -1,7 +1,7 @@
 {
     "containerDefinitions": [
         {
-            "name": "algodex-go",
+            "name": "algodex-go-test",
             "image": "563462845177.dkr.ecr.us-east-2.amazonaws.com/algodex-ecr/algodex-go:latest",
             "cpu": 0,
             "links": [],
@@ -21,7 +21,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/algodex-go",
+                    "awslogs-group": "/ecs/algodex-go-test",
                     "awslogs-region": "us-east-2",
                     "awslogs-stream-prefix": "ecs"
                 }
@@ -73,7 +73,7 @@
             }
         }
     ],
-    "family": "algodex-go",
+    "family": "algodex-go-test",
     "executionRoleArn": "arn:aws:iam::563462845177:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "volumes": [],
