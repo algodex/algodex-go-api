@@ -29,7 +29,7 @@
             "environment": [
                 {
                     "name": "ALGODEX_REDIS_ADDR",
-                    "value": "algodex-redis.cvu9cm.0001.use2.cache.amazonaws.com:6379"
+                    "value": "algodex-redis-public-testnet-1.cvu9cm.0001.use2.cache.amazonaws.com:6379"
                 },
                 {
                     "name": "ALGODEX_DB_USER",
@@ -45,7 +45,7 @@
                 },
                 {
                     "name": "ALGODEX_DB_NAME",
-                    "value": "algodex"
+                    "value": "algodex_public_test"
                 },
                 {
                     "name": "ALGODEX_ALGOD",

@@ -25,7 +25,7 @@
 
 on:
   push:
-    branches: [ development ]
+    branches: [ main ]
 #  pull_request:
 #    branches: [ main ]
 #  release:
@@ -87,14 +87,14 @@ jobs:
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
-        task-definition: ecs/test-task-definition.json
-        container-name: algodex-go-test
+        task-definition: ecs/public-test-task-definition.json
+        container-name: algodex-go-public-test
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: algodex-go-test-svc
+        service: algodex-go-public-test-svc
         cluster: algodex
         wait-for-service-stability: true
