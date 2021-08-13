@@ -73,13 +73,13 @@ jobs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ecs/test-task-definition.json
-        container-name: algodex-go
+        container-name: algodex-go-test
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: algodex-go-svc
+        service: algodex-go-test-svc
         cluster: algodex
         wait-for-service-stability: true
