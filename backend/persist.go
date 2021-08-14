@@ -2,10 +2,12 @@ package backend
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -33,38 +35,56 @@ type Persistor interface {
 func initPersistance(ctx context.Context, log *log.Logger) *persistor {
 	log.Printf("connecting to redis host:%s", os.Getenv("ALGODEX_REDIS_ADDR"))
 	ret := &persistor{
-		redis: redis.NewClient(
-			&redis.Options{
-				Addr: os.Getenv("ALGODEX_REDIS_ADDR"),
-			},
-		),
+		redis: redis.NewClient(&redis.Options{Addr: os.Getenv("ALGODEX_REDIS_ADDR")}),
+		sql:   initSQL(),
 	}
+
+	return ret
+}
+
+func initSQL() *sqlx.DB {
 	log.Printf(
 		"conecting to mysql host:%s:%s db:%s", os.Getenv("ALGODEX_DB_HOST"), os.Getenv("ALGODEX_DB_PORT"),
 		os.Getenv("ALGODEX_DB_NAME"),
 	)
-	sqlConn, err := sqlx.Connect(
-		"mysql", fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s",
-			os.Getenv("ALGODEX_DB_USER"), os.Getenv("ALGODEX_DB_PASS"),
-			os.Getenv("ALGODEX_DB_HOST"), os.Getenv("ALGODEX_DB_PORT"),
-			os.Getenv("ALGODEX_DB_NAME"),
-		),
+	var (
+		// Retry for up to 2? minutes
+		sqlConn *sqlx.DB
+		err     error
 	)
-	if err != nil {
-		log.Panicf("error in opening sql connection: %v", err)
+	retryExpiration := time.Now().Add(2 * time.Minute)
+	for {
+		sqlConn, err = sqlx.Connect(
+			"mysql", fmt.Sprintf(
+				"%s:%s@tcp(%s:%s)/%s",
+				os.Getenv("ALGODEX_DB_USER"), os.Getenv("ALGODEX_DB_PASS"),
+				os.Getenv("ALGODEX_DB_HOST"), os.Getenv("ALGODEX_DB_PORT"),
+				os.Getenv("ALGODEX_DB_NAME"),
+			),
+		)
+		if err == nil {
+			break
+		}
+		// We got an error... retry until we hit our expiration time
+		if time.Now().After(retryExpiration) {
+			log.Panicf("error in opening sql connection: %s", err.Error())
+		}
+		if errors.Is(err, syscall.ECONNREFUSED) {
+			// if the host just isn't available we'll keep retrying
+			log.Printf("Host conection refused... retrying")
+		} else {
+			log.Panicf("Unexpected error in opening sql connection: %#v", err)
+		}
+		time.Sleep(500 * time.Millisecond)
 	}
-	// Some examples we don't care about... yet
-	//sqlConn.SetConnMaxLifetime(time.Minute * 3)
-	//sqlConn.SetMaxOpenConns(10)
-	//sqlConn.SetMaxIdleConns(10)
-	//ret.sql = sqlConn
+	sqlConn.SetConnMaxLifetime(time.Minute * 3)
+	sqlConn.SetMaxOpenConns(10)
+	sqlConn.SetMaxIdleConns(10)
 
 	var round uint64
 	sqlConn.Get(&round, "SELECT round FROM config")
 	log.Println("round from mysql is:", round)
-
-	return ret
+	return sqlConn
 }
 
 type persistor struct {
