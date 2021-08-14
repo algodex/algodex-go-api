@@ -37,6 +37,20 @@ func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error
 	return
 }
 
+// Delete Algorand account(s) to track
+func (s *accountsrvc) Delete(ctx context.Context, p *account.DeletePayload) (err error) {
+	s.logger.Println("account.delete", p.Address)
+	if p == nil || len(p.Address) == 0 {
+		return errors.New("must provide address(es) to remove")
+	}
+	// pass on to persistence backend... (redis for eg)
+	err = s.backend.UnwatchAccounts(ctx, p.Address...)
+	if err != nil {
+		return fmt.Errorf("account watch persistence delete of addresses:%v, error:%w", p.Address, err)
+	}
+	return
+}
+
 // Get specific account
 func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *account.Account, err error) {
 	s.logger.Println("account.get", p.Address)

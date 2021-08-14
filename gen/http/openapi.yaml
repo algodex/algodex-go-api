@@ -55,6 +55,25 @@ paths:
           description: OK response.
       schemes:
       - http
+    delete:
+      tags:
+      - account
+      summary: delete account
+      description: Delete Algorand account(s) to track
+      operationId: account#delete
+      parameters:
+      - name: DeleteRequestBody
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/AccountDeleteRequestBody'
+          required:
+          - address
+      responses:
+        "200":
+          description: OK response.
+      schemes:
+      - http
   /account/{address}:
     get:
       tags:
@@ -161,6 +180,24 @@ definitions:
       - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
     required:
     - address
+  AccountDeleteRequestBody:
+    title: AccountDeleteRequestBody
+    type: object
+    properties:
+      address:
+        type: array
+        items:
+          type: string
+          example: Dicta aut itaque dicta dignissimos.
+        example:
+        - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+    example:
+      address:
+      - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+      - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+    required:
+    - address
   AccountGetResponseBody:
     title: AccountGetResponseBody
     type: object
@@ -174,7 +211,15 @@ definitions:
         type: object
         description: Account Assets
         example:
-          Itaque dicta dignissimos ad.:
+          Consequatur placeat quidem blanditiis dolorem officiis aspernatur.:
+            amount: 12373123001069819448
+            asset: 202586210
+            decimals: 5519094376750021556
+            metadataHash: Saepe reiciendis molestiae labore.
+            name: Et velit labore laborum rerum dolores.
+            unitName: Blanditiis ut ea est esse.
+            url: Blanditiis quaerat nihil repellendus explicabo eos.
+          Officia atque qui laudantium nesciunt doloremque excepturi.:
             amount: 12373123001069819448
             asset: 202586210
             decimals: 5519094376750021556
@@ -186,12 +231,12 @@ definitions:
       round:
         type: integer
         description: Round fetched
-        example: 2848837700029611100
+        example: 693610374436374919
         format: int64
     example:
       address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
       holdings:
-        Placeat quidem blanditiis dolorem officiis aspernatur.:
+        Impedit aspernatur numquam.:
           amount: 12373123001069819448
           asset: 202586210
           decimals: 5519094376750021556
@@ -199,7 +244,7 @@ definitions:
           name: Et velit labore laborum rerum dolores.
           unitName: Blanditiis ut ea est esse.
           url: Blanditiis quaerat nihil repellendus explicabo eos.
-      round: 1795073648923869556
+      round: 7806098053388275984
     required:
     - address
     - round
@@ -215,15 +260,17 @@ definitions:
     example:
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
   InspectUnpackRequestBody:
     title: InspectUnpackRequestBody
     type: object
     properties:
       msgpack:
         type: string
-        example: Atque qui laudantium nesciunt doloremque excepturi odit.
+        example: Esse distinctio.
     example:
-      msgpack: Dolore impedit aspernatur numquam iure.
+      msgpack: Voluptate facilis possimus ut.
   TrackedAccountResponse:
     title: 'Mediatype identifier: application/vnd.algodex.account; view=default'
     type: object

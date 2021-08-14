@@ -25,7 +25,7 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `account (add|get|list)
+	return `account (add|delete|get|list)
 inspect unpack
 info (version|live)
 `
@@ -61,6 +61,9 @@ func ParseEndpoint(
 		accountAddFlags    = flag.NewFlagSet("add", flag.ExitOnError)
 		accountAddBodyFlag = accountAddFlags.String("body", "REQUIRED", "")
 
+		accountDeleteFlags    = flag.NewFlagSet("delete", flag.ExitOnError)
+		accountDeleteBodyFlag = accountDeleteFlags.String("body", "REQUIRED", "")
+
 		accountGetFlags       = flag.NewFlagSet("get", flag.ExitOnError)
 		accountGetAddressFlag = accountGetFlags.String("address", "REQUIRED", "Public Account address")
 
@@ -80,6 +83,7 @@ func ParseEndpoint(
 	)
 	accountFlags.Usage = accountUsage
 	accountAddFlags.Usage = accountAddUsage
+	accountDeleteFlags.Usage = accountDeleteUsage
 	accountGetFlags.Usage = accountGetUsage
 	accountListFlags.Usage = accountListUsage
 
@@ -130,6 +134,9 @@ func ParseEndpoint(
 			switch epn {
 			case "add":
 				epf = accountAddFlags
+
+			case "delete":
+				epf = accountDeleteFlags
 
 			case "get":
 				epf = accountGetFlags
@@ -182,6 +189,9 @@ func ParseEndpoint(
 			case "add":
 				endpoint = c.Add()
 				data, err = accountc.BuildAddPayload(*accountAddBodyFlag)
+			case "delete":
+				endpoint = c.Delete()
+				data, err = accountc.BuildDeletePayload(*accountDeleteBodyFlag)
 			case "get":
 				endpoint = c.Get()
 				data, err = accountc.BuildGetPayload(*accountGetAddressFlag)
@@ -223,6 +233,7 @@ Usage:
 
 COMMAND:
     add: Add Algorand account(s) to track
+    delete: Delete Algorand account(s) to track
     get: Get specific account
     list: List all tracked accounts
 
@@ -238,6 +249,22 @@ Add Algorand account(s) to track
 
 Example:
     `+os.Args[0]+` account add --body '{
+      "address": [
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+      ]
+   }'
+`, os.Args[0])
+}
+
+func accountDeleteUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] account delete -body JSON
+
+Delete Algorand account(s) to track
+    -body JSON: 
+
+Example:
+    `+os.Args[0]+` account delete --body '{
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
          "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"

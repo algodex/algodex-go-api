@@ -133,6 +133,33 @@ var _ = Service(
 				)
 			},
 		)
+		Method(
+			"delete", func() {
+				Description("Delete Algorand account(s) to track")
+				Payload(
+					func() {
+						Attribute(
+							"address", ArrayOf(String), func() {
+								Example(
+									[]string{
+										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
+									},
+								)
+							},
+						)
+						Required("address")
+					},
+				)
+
+				HTTP(
+					func() {
+						DELETE("/account")
+						Response(StatusOK)
+					},
+				)
+			},
+		)
 
 		Method(
 			"get", func() {

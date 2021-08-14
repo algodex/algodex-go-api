@@ -52,6 +52,14 @@ func (w *watcher) WatchAccounts(ctx context.Context, addresses ...string) error 
 	return nil
 }
 
+func (w *watcher) UnwatchAccounts(ctx context.Context, addresses ...string) error {
+	err := w.persist.UnwatchAccounts(ctx, addresses...)
+	if err != nil {
+		return fmt.Errorf("error in UnwatchAccounts: %w", err)
+	}
+	return nil
+}
+
 func (w *watcher) GetAccount(ctx context.Context, address string) (*Account, error) {
 	account, err := w.persist.GetAccount(ctx, address)
 	if account == nil {

@@ -23,6 +23,7 @@ type Persistor interface {
 	GetWatchedAccounts(context.Context) ([]string, error)
 	GetWatchedAccountMatches(context.Context, []string) ([]string, error)
 	WatchAccounts(ctx context.Context, addresses ...string) error
+	UnwatchAccounts(ctx context.Context, addresses ...string) error
 	GetAccount(ctx context.Context, address string) (*Account, error)
 	UpdateAccount(ctx context.Context, account *Account) error
 	GetAssetInfo(ctx context.Context, assetID uint64) (*AssetInformation, error)
@@ -32,7 +33,7 @@ type Persistor interface {
 	//GetAccount(address string) (Account, error)
 }
 
-func initPersistance(ctx context.Context, log *log.Logger) *persistor {
+func initPersistance(_ context.Context, log *log.Logger) *persistor {
 	log.Printf("connecting to redis host:%s", os.Getenv("ALGODEX_REDIS_ADDR"))
 	ret := &persistor{
 		redis: redis.NewClient(&redis.Options{Addr: os.Getenv("ALGODEX_REDIS_ADDR")}),
@@ -82,7 +83,7 @@ func initSQL() *sqlx.DB {
 	sqlConn.SetMaxIdleConns(10)
 
 	var round uint64
-	sqlConn.Get(&round, "SELECT round FROM config")
+	_ = sqlConn.Get(&round, "SELECT round FROM config")
 	log.Println("round from mysql is:", round)
 	return sqlConn
 }
@@ -164,6 +165,23 @@ func (p *persistor) WatchAccounts(ctx context.Context, addresses ...string) erro
 	err := p.redis.SAdd(ctx, redisKey("accounts", "watched"), redisStrings...).Err()
 	if err != nil {
 		return fmt.Errorf("calling WatchAccounts: %w", err)
+	}
+	return nil
+}
+
+func (p *persistor) UnwatchAccounts(ctx context.Context, addresses ...string) error {
+	redisStrings := make([]interface{}, len(addresses))
+	for i := range addresses {
+		redisStrings[i] = addresses[i]
+	}
+	err := p.redis.SRem(ctx, redisKey("accounts", "watched"), redisStrings...).Err()
+	if err != nil {
+		return fmt.Errorf("calling UnwatchAccounts: %w", err)
+	}
+	// Go ahead and remove the account record if present.  We could wait for it to TTL out but this may be a transient
+	// account and there may be a lot of them so there's no reason to hold onto that space.
+	for _, address := range addresses {
+		p.redis.Del(ctx, redisKey("account", address))
 	}
 	return nil
 }

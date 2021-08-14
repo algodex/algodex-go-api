@@ -15,23 +15,31 @@ import (
 
 // Client is the "account" service client.
 type Client struct {
-	AddEndpoint  goa.Endpoint
-	GetEndpoint  goa.Endpoint
-	ListEndpoint goa.Endpoint
+	AddEndpoint    goa.Endpoint
+	DeleteEndpoint goa.Endpoint
+	GetEndpoint    goa.Endpoint
+	ListEndpoint   goa.Endpoint
 }
 
 // NewClient initializes a "account" service client given the endpoints.
-func NewClient(add, get, list goa.Endpoint) *Client {
+func NewClient(add, delete_, get, list goa.Endpoint) *Client {
 	return &Client{
-		AddEndpoint:  add,
-		GetEndpoint:  get,
-		ListEndpoint: list,
+		AddEndpoint:    add,
+		DeleteEndpoint: delete_,
+		GetEndpoint:    get,
+		ListEndpoint:   list,
 	}
 }
 
 // Add calls the "add" endpoint of the "account" service.
 func (c *Client) Add(ctx context.Context, p *AddPayload) (err error) {
 	_, err = c.AddEndpoint(ctx, p)
+	return
+}
+
+// Delete calls the "delete" endpoint of the "account" service.
+func (c *Client) Delete(ctx context.Context, p *DeletePayload) (err error) {
+	_, err = c.DeleteEndpoint(ctx, p)
 	return
 }
 

@@ -16,6 +16,8 @@ import (
 type Service interface {
 	// Add Algorand account(s) to track
 	Add(context.Context, *AddPayload) (err error)
+	// Delete Algorand account(s) to track
+	Delete(context.Context, *DeletePayload) (err error)
 	// Get specific account
 	Get(context.Context, *GetPayload) (res *Account, err error)
 	// List all tracked accounts
@@ -33,10 +35,15 @@ const ServiceName = "account"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [3]string{"add", "get", "list"}
+var MethodNames = [4]string{"add", "delete", "get", "list"}
 
 // AddPayload is the payload type of the account service add method.
 type AddPayload struct {
+	Address []string
+}
+
+// DeletePayload is the payload type of the account service delete method.
+type DeletePayload struct {
 	Address []string
 }
 

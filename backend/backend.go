@@ -17,6 +17,7 @@ import (
 
 type Itf interface {
 	WatchAccounts(ctx context.Context, addresses ...string) error
+	UnwatchAccounts(ctx context.Context, addresses ...string) error
 	GetAccount(ctx context.Context, address string) (*Account, error)
 	GetAccounts(ctx context.Context) []*Account
 }
@@ -30,6 +31,10 @@ type backendState struct {
 
 func (b *backendState) WatchAccounts(ctx context.Context, addresses ...string) error {
 	return b.watcher.WatchAccounts(ctx, addresses...)
+}
+
+func (b *backendState) UnwatchAccounts(ctx context.Context, addresses ...string) error {
+	return b.watcher.UnwatchAccounts(ctx, addresses...)
 }
 
 func (b *backendState) GetAccount(ctx context.Context, address string) (*Account, error) {

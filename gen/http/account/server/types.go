@@ -20,6 +20,12 @@ type AddRequestBody struct {
 	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 }
 
+// DeleteRequestBody is the type of the "account" service "delete" endpoint
+// HTTP request body.
+type DeleteRequestBody struct {
+	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
+}
+
 // GetResponseBody is the type of the "account" service "get" endpoint HTTP
 // response body.
 type GetResponseBody struct {
@@ -129,6 +135,17 @@ func NewAddPayload(body *AddRequestBody) *account.AddPayload {
 	return v
 }
 
+// NewDeletePayload builds a account service delete endpoint payload.
+func NewDeletePayload(body *DeleteRequestBody) *account.DeletePayload {
+	v := &account.DeletePayload{}
+	v.Address = make([]string, len(body.Address))
+	for i, val := range body.Address {
+		v.Address[i] = val
+	}
+
+	return v
+}
+
 // NewGetPayload builds a account service get endpoint payload.
 func NewGetPayload(address string) *account.GetPayload {
 	v := &account.GetPayload{}
@@ -147,6 +164,14 @@ func NewListPayload(view *string) *account.ListPayload {
 
 // ValidateAddRequestBody runs the validations defined on AddRequestBody
 func ValidateAddRequestBody(body *AddRequestBody) (err error) {
+	if body.Address == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+	}
+	return
+}
+
+// ValidateDeleteRequestBody runs the validations defined on DeleteRequestBody
+func ValidateDeleteRequestBody(body *DeleteRequestBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}

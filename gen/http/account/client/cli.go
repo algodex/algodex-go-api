@@ -44,6 +44,34 @@ func BuildAddPayload(accountAddBody string) (*account.AddPayload, error) {
 	return v, nil
 }
 
+// BuildDeletePayload builds the payload for the account delete endpoint from
+// CLI flags.
+func BuildDeletePayload(accountDeleteBody string) (*account.DeletePayload, error) {
+	var err error
+	var body DeleteRequestBody
+	{
+		err = json.Unmarshal([]byte(accountDeleteBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n      ]\n   }'")
+		}
+		if body.Address == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	v := &account.DeletePayload{}
+	if body.Address != nil {
+		v.Address = make([]string, len(body.Address))
+		for i, val := range body.Address {
+			v.Address[i] = val
+		}
+	}
+
+	return v, nil
+}
+
 // BuildGetPayload builds the payload for the account get endpoint from CLI
 // flags.
 func BuildGetPayload(accountGetAddress string) (*account.GetPayload, error) {
