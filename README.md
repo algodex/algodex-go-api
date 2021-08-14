@@ -102,4 +102,4 @@ docker run --rm -p 8000:80 algodexidxsvr:latest [args]
 
 #### Swagger
 
-Contents of gen/openapi3.yaml can be pasted into https://editor.swagger.io/ for API view/testing.  
+Contents of gen/http/openapi3.yaml can be pasted into https://editor.swagger.io/ for API view/testing.  
