@@ -12,11 +12,24 @@ import (
 	"github.com/algorand/go-algorand-sdk/types"
 )
 
+// addressAndResult is what is sent to the background account updater goroutines channel and
+// contains an address  to 'update' and an optional channel to signal once the account is confirmed updated.
+type addressAndResult struct {
+	address string
+	result  chan<- *Account
+}
+
+func (a addressAndResult) String() string {
+	return a.address
+}
+
+type accountUpdateChanType chan addressAndResult
+
 type watcher struct {
 	logger            *log.Logger
 	algoClient        *algod.Client
 	persist           Persistor
-	accountUpdateChan chan string
+	accountUpdateChan accountUpdateChanType
 }
 
 func newWatcher(log *log.Logger, algoClient *algod.Client, persistor Persistor) *watcher {
@@ -34,7 +47,7 @@ func (w *watcher) WatchAccounts(ctx context.Context, addresses ...string) error 
 	}
 	for _, address := range addresses {
 		// if there are a ton of accounts
-		w.accountUpdateChan <- address
+		w.accountUpdateChan <- addressAndResult{address: address}
 	}
 	return nil
 }
@@ -77,7 +90,7 @@ func (w *watcher) accountWatcher(ctx context.Context) {
 	defer w.logger.Println("Exited accountWatcher")
 	wg := sync.WaitGroup{}
 
-	w.accountUpdateChan = make(chan string, 1000)
+	w.accountUpdateChan = make(accountUpdateChanType, 1000)
 	// Create parallel update workers - 4x core count
 	for i := 0; i < runtime.NumCPU()*4; i++ {
 		wg.Add(1)
@@ -111,7 +124,7 @@ func (w *watcher) accountWatcher(ctx context.Context) {
 		go func() {
 			for _, address := range allWatched {
 				// if there are a ton of accounts
-				w.accountUpdateChan <- address
+				w.accountUpdateChan <- addressAndResult{address: address}
 			}
 		}()
 	}
@@ -130,13 +143,17 @@ func (w *watcher) accountWatcher(ctx context.Context) {
 func (w *watcher) accountUpdater(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 	// Endlessly loop on accounts to update the assets until our channel is closed
-	for address := range w.accountUpdateChan {
-		w.logger.Printf("Account holdings update, account:%s", address)
+	for accountUpdate := range w.accountUpdateChan {
+		w.logger.Printf("Account holdings update, account:%s", accountUpdate)
 		// fetching the account also updates the persistence layer for later cached fetch
-		_, err := w.updateAccountInfo(ctx, address)
+		updatedAccount, err := w.updateAccountInfo(ctx, accountUpdate.address)
 		if err != nil {
-			w.logger.Printf("error fetching holdings for account:%v, error:%v", address, err.Error())
+			w.logger.Printf("error fetching holdings for account:%v - will retry, error:%v", accountUpdate, err.Error())
+			w.accountUpdateChan <- accountUpdate
 			continue
+		}
+		if accountUpdate.result != nil {
+			accountUpdate.result <- updatedAccount
 		}
 	}
 }
@@ -211,27 +228,29 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 			time.Sleep(100 * time.Millisecond)
 			continue
 		} else {
+			results := make(chan *Account, len(matches))
 			for _, address := range matches {
-				w.accountUpdateChan <- address
+				w.accountUpdateChan <- addressAndResult{address: address, result: results}
 			}
-			// wait until channel is empty or we're told to exit so we're sure all balances are updated
-			// before persisting that we successfully processed this round.
-			for {
-				// First make sure we're not told to exit...
+			// wait until we've received every result...
+			for i := 0; i < len(matches); i++ {
 				select {
 				case <-ctx.Done():
 					return
-				default:
-					break
+				case <-results:
+				case <-time.After(20 * time.Second):
+					w.logger.Panicf(
+						"Something went wrong in fetching block data.  More than 20 seconds have elapsed waiting for result %d of %d, exiting for now",
+						i, len(matches),
+					)
 				}
-				// Then see if the accountUpdateChan has been drained...
-				if len(w.accountUpdateChan) == 0 {
-					break
-				}
-				time.Sleep(10 * time.Millisecond)
 			}
 		}
 		w.persist.SetLastRound(ctx, round)
+		if round%100 == 0 {
+			// just to show we're alive... lets show some logging activity periodically
+			w.logger.Printf("Updated round:%d", round)
+		}
 
 		_, _ = w.algoClient.StatusAfterBlock(round).Do(ctx)
 		round++
