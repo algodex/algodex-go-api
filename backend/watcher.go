@@ -98,6 +98,7 @@ func (w *watcher) accountWatcher(ctx context.Context) {
 	defer w.logger.Println("Exited accountWatcher")
 	wg := sync.WaitGroup{}
 
+	w.logger.Printf("Num cores:%d", runtime.NumCPU())
 	w.accountUpdateChan = make(accountUpdateChanType, 1000)
 	// Create parallel update workers - 4x core count
 	for i := 0; i < runtime.NumCPU()*4; i++ {
