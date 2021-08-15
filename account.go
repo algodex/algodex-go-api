@@ -51,6 +51,19 @@ func (s *accountsrvc) Delete(ctx context.Context, p *account.DeletePayload) (err
 	return
 }
 
+// Delete all tracked algorand account(s).  Used for resetting everything
+func (s *accountsrvc) Deleteall(ctx context.Context) (err error) {
+	s.logger.Print("account.deleteall")
+	allowed, err := backend.IsAddressInAllowedSubnet(ctx, backend.GetRemoteIP(ctx))
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		return
+	}
+	return s.backend.Reset(ctx)
+}
+
 // Get specific account
 func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *account.Account, err error) {
 	s.logger.Println("account.get", p.Address)

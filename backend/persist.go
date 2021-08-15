@@ -28,9 +28,7 @@ type Persistor interface {
 	UpdateAccount(ctx context.Context, account *Account) error
 	GetAssetInfo(ctx context.Context, assetID uint64) (*AssetInformation, error)
 	SetAssetInfo(ctx context.Context, assetID uint64, asset *AssetInformation) error
-	//AddWatches(context.Context, )
-	//GetWatchedAccounts() []*Account
-	//GetAccount(address string) (Account, error)
+	Reset(ctx context.Context) error
 }
 
 func initPersistance(_ context.Context, log *log.Logger) *persistor {
@@ -228,4 +226,9 @@ func (p *persistor) SetAssetInfo(ctx context.Context, assetID uint64, asset *Ass
 		return fmt.Errorf("error in SetAssetInfo: %w", err)
 	}
 	return nil
+}
+
+func (p *persistor) Reset(ctx context.Context) error {
+	// Remove the only things that don't naturally TTL out which is our 'set' of watched accounts
+	return p.redis.Del(ctx, redisKey("accounts", "watched")).Err()
 }

@@ -137,6 +137,16 @@ paths:
                     unitName: Veritatis ipsum quis ex laborum.
                     url: Natus non et earum quia.
                 round: 7528826264469965543
+  /account/all:
+    delete:
+      tags:
+      - account
+      summary: deleteall account
+      description: Delete all tracked algorand account(s).  Used for resetting everything
+      operationId: account#deleteall
+      responses:
+        "200":
+          description: OK response.
   /account/iswatched:
     post:
       tags:

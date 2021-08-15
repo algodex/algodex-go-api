@@ -21,6 +21,7 @@ type Itf interface {
 	GetAccount(ctx context.Context, address string) (*Account, error)
 	GetAccounts(ctx context.Context) []*Account
 	IsWatchedAccount(ctx context.Context, accounts []string) ([]string, error)
+	Reset(ctx context.Context) error
 }
 
 type backendState struct {
@@ -48,6 +49,10 @@ func (b *backendState) GetAccounts(ctx context.Context) []*Account {
 
 func (b *backendState) IsWatchedAccount(ctx context.Context, accounts []string) ([]string, error) {
 	return b.persist.GetWatchedAccountMatches(ctx, accounts)
+}
+
+func (b *backendState) Reset(ctx context.Context) error {
+	return b.persist.Reset(ctx)
 }
 
 func InitBackend(ctx context.Context, log *log.Logger, network string) *backendState {

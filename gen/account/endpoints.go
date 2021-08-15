@@ -17,6 +17,7 @@ import (
 type Endpoints struct {
 	Add       goa.Endpoint
 	Delete    goa.Endpoint
+	Deleteall goa.Endpoint
 	Get       goa.Endpoint
 	List      goa.Endpoint
 	Iswatched goa.Endpoint
@@ -27,6 +28,7 @@ func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
 		Add:       NewAddEndpoint(s),
 		Delete:    NewDeleteEndpoint(s),
+		Deleteall: NewDeleteallEndpoint(s),
 		Get:       NewGetEndpoint(s),
 		List:      NewListEndpoint(s),
 		Iswatched: NewIswatchedEndpoint(s),
@@ -37,6 +39,7 @@ func NewEndpoints(s Service) *Endpoints {
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Add = m(e.Add)
 	e.Delete = m(e.Delete)
+	e.Deleteall = m(e.Deleteall)
 	e.Get = m(e.Get)
 	e.List = m(e.List)
 	e.Iswatched = m(e.Iswatched)
@@ -57,6 +60,14 @@ func NewDeleteEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*DeletePayload)
 		return nil, s.Delete(ctx, p)
+	}
+}
+
+// NewDeleteallEndpoint returns an endpoint function that calls the method
+// "deleteall" of service "account".
+func NewDeleteallEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return nil, s.Deleteall(ctx)
 	}
 }
 

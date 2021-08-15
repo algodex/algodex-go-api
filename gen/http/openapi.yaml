@@ -99,6 +99,18 @@ paths:
           description: OK response.
       schemes:
       - http
+  /account/all:
+    delete:
+      tags:
+      - account
+      summary: deleteall account
+      description: Delete all tracked algorand account(s).  Used for resetting everything
+      operationId: account#deleteall
+      responses:
+        "200":
+          description: OK response.
+      schemes:
+      - http
   /account/iswatched:
     post:
       tags:

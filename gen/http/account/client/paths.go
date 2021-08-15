@@ -27,6 +27,11 @@ func DeleteAccountPath(address []string) string {
 	return fmt.Sprintf("/account/%v", strings.Join(addressSlice, ","))
 }
 
+// DeleteallAccountPath returns the URL path to the account service deleteall HTTP endpoint.
+func DeleteallAccountPath() string {
+	return "/account/all"
+}
+
 // GetAccountPath returns the URL path to the account service get HTTP endpoint.
 func GetAccountPath(address string) string {
 	return fmt.Sprintf("/account/%v", address)

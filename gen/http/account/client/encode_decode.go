@@ -129,6 +129,48 @@ func DecodeDeleteResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 	}
 }
 
+// BuildDeleteallRequest instantiates a HTTP request object with method and
+// path set to call the "account" service "deleteall" endpoint
+func (c *Client) BuildDeleteallRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DeleteallAccountPath()}
+	req, err := http.NewRequest("DELETE", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("account", "deleteall", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeDeleteallResponse returns a decoder for responses returned by the
+// account deleteall endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+func DecodeDeleteallResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			return nil, nil
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("account", "deleteall", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildGetRequest instantiates a HTTP request object with method and path set
 // to call the "account" service "get" endpoint
 func (c *Client) BuildGetRequest(ctx context.Context, v interface{}) (*http.Request, error) {

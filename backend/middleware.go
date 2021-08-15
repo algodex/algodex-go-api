@@ -2,7 +2,11 @@ package backend
 
 import (
 	"context"
+	"fmt"
+	"net"
 	"net/http"
+	"os"
+	"strings"
 
 	"goa.design/goa/v3/middleware"
 )
@@ -19,10 +23,12 @@ const (
 
 func SetRemoteIP(options ...middleware.RequestIDOption) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := context.WithValue(r.Context(), RemoteIPKey, r.RemoteAddr)
-			h.ServeHTTP(w, r.WithContext(ctx))
-		})
+		return http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				ctx := context.WithValue(r.Context(), RemoteIPKey, r.RemoteAddr)
+				h.ServeHTTP(w, r.WithContext(ctx))
+			},
+		)
 	}
 }
 
@@ -32,4 +38,20 @@ func GetRemoteIP(ctx context.Context) string {
 		return i.(string)
 	}
 	return ""
+}
+
+func IsAddressInAllowedSubnet(ctx context.Context, remoteAddress string) (bool, error) {
+	allowList := os.Getenv("ALGODEX_SUBNET_WHITELIST")
+	if allowList == "" {
+		return true, nil
+	}
+	_, subnet, err := net.ParseCIDR(allowList)
+	if err != nil {
+		return false, fmt.Errorf("error in IsAddressInAllowedSubnet: %w", err)
+	}
+	// Strip off trailing port number if present (1.2.3.4:3203)
+	if colonIdx := strings.LastIndexByte(remoteAddress, ':'); colonIdx != -1 {
+		remoteAddress = remoteAddress[:colonIdx]
+	}
+	return subnet.Contains(net.ParseIP(remoteAddress)), nil
 }

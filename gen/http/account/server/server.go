@@ -22,6 +22,7 @@ type Server struct {
 	Mounts    []*MountPoint
 	Add       http.Handler
 	Delete    http.Handler
+	Deleteall http.Handler
 	Get       http.Handler
 	List      http.Handler
 	Iswatched http.Handler
@@ -63,15 +64,18 @@ func New(
 		Mounts: []*MountPoint{
 			{"Add", "POST", "/account"},
 			{"Delete", "DELETE", "/account/{address}"},
+			{"Deleteall", "DELETE", "/account/all"},
 			{"Get", "GET", "/account/{address}"},
 			{"List", "GET", "/account"},
 			{"Iswatched", "POST", "/account/iswatched"},
 			{"CORS", "OPTIONS", "/account"},
 			{"CORS", "OPTIONS", "/account/{address}"},
+			{"CORS", "OPTIONS", "/account/all"},
 			{"CORS", "OPTIONS", "/account/iswatched"},
 		},
 		Add:       NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
 		Delete:    NewDeleteHandler(e.Delete, mux, decoder, encoder, errhandler, formatter),
+		Deleteall: NewDeleteallHandler(e.Deleteall, mux, decoder, encoder, errhandler, formatter),
 		Get:       NewGetHandler(e.Get, mux, decoder, encoder, errhandler, formatter),
 		List:      NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
 		Iswatched: NewIswatchedHandler(e.Iswatched, mux, decoder, encoder, errhandler, formatter),
@@ -86,6 +90,7 @@ func (s *Server) Service() string { return "account" }
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Add = m(s.Add)
 	s.Delete = m(s.Delete)
+	s.Deleteall = m(s.Deleteall)
 	s.Get = m(s.Get)
 	s.List = m(s.List)
 	s.Iswatched = m(s.Iswatched)
@@ -96,6 +101,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountAddHandler(mux, h.Add)
 	MountDeleteHandler(mux, h.Delete)
+	MountDeleteallHandler(mux, h.Deleteall)
 	MountGetHandler(mux, h.Get)
 	MountListHandler(mux, h.List)
 	MountIswatchedHandler(mux, h.Iswatched)
@@ -192,6 +198,50 @@ func NewDeleteHandler(
 			return
 		}
 		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountDeleteallHandler configures the mux to serve the "account" service
+// "deleteall" endpoint.
+func MountDeleteallHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleAccountOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("DELETE", "/account/all", f)
+}
+
+// NewDeleteallHandler creates a HTTP handler which loads the HTTP request and
+// calls the "account" service "deleteall" endpoint.
+func NewDeleteallHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		encodeResponse = EncodeDeleteallResponse(encoder)
+		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "deleteall")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "account")
+		var err error
+		res, err := endpoint(ctx, nil)
 		if err != nil {
 			if err := encodeError(ctx, w, err); err != nil {
 				errhandler(ctx, w, err)
@@ -369,6 +419,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	}
 	mux.Handle("OPTIONS", "/account", f)
 	mux.Handle("OPTIONS", "/account/{address}", f)
+	mux.Handle("OPTIONS", "/account/all", f)
 	mux.Handle("OPTIONS", "/account/iswatched", f)
 }
 

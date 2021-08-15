@@ -23,6 +23,10 @@ type Client struct {
 	// Delete Doer is the HTTP client used to make requests to the delete endpoint.
 	DeleteDoer goahttp.Doer
 
+	// Deleteall Doer is the HTTP client used to make requests to the deleteall
+	// endpoint.
+	DeleteallDoer goahttp.Doer
+
 	// Get Doer is the HTTP client used to make requests to the get endpoint.
 	GetDoer goahttp.Doer
 
@@ -58,6 +62,7 @@ func NewClient(
 	return &Client{
 		AddDoer:             doer,
 		DeleteDoer:          doer,
+		DeleteallDoer:       doer,
 		GetDoer:             doer,
 		ListDoer:            doer,
 		IswatchedDoer:       doer,
@@ -108,6 +113,25 @@ func (c *Client) Delete() goa.Endpoint {
 		resp, err := c.DeleteDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("account", "delete", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Deleteall returns an endpoint that makes HTTP requests to the account
+// service deleteall server.
+func (c *Client) Deleteall() goa.Endpoint {
+	var (
+		decodeResponse = DecodeDeleteallResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildDeleteallRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.DeleteallDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("account", "deleteall", err)
 		}
 		return decodeResponse(resp)
 	}

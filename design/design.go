@@ -160,6 +160,18 @@ var _ = Service(
 				)
 			},
 		)
+		Method(
+			"deleteall", func() {
+				Description("Delete all tracked algorand account(s).  Used for resetting everything")
+
+				HTTP(
+					func() {
+						DELETE("/account/all")
+						Response(StatusOK)
+					},
+				)
+			},
+		)
 
 		Method(
 			"get", func() {

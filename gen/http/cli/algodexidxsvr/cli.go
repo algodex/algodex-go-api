@@ -26,7 +26,7 @@ import (
 //
 func UsageCommands() string {
 	return `info (version|live)
-account (add|delete|get|list|iswatched)
+account (add|delete|deleteall|get|list|iswatched)
 inspect unpack
 `
 }
@@ -70,6 +70,8 @@ func ParseEndpoint(
 		accountDeleteFlags       = flag.NewFlagSet("delete", flag.ExitOnError)
 		accountDeleteAddressFlag = accountDeleteFlags.String("address", "REQUIRED", "")
 
+		accountDeleteallFlags = flag.NewFlagSet("deleteall", flag.ExitOnError)
+
 		accountGetFlags       = flag.NewFlagSet("get", flag.ExitOnError)
 		accountGetAddressFlag = accountGetFlags.String("address", "REQUIRED", "Public Account address")
 
@@ -91,6 +93,7 @@ func ParseEndpoint(
 	accountFlags.Usage = accountUsage
 	accountAddFlags.Usage = accountAddUsage
 	accountDeleteFlags.Usage = accountDeleteUsage
+	accountDeleteallFlags.Usage = accountDeleteallUsage
 	accountGetFlags.Usage = accountGetUsage
 	accountListFlags.Usage = accountListUsage
 	accountIswatchedFlags.Usage = accountIswatchedUsage
@@ -152,6 +155,9 @@ func ParseEndpoint(
 			case "delete":
 				epf = accountDeleteFlags
 
+			case "deleteall":
+				epf = accountDeleteallFlags
+
 			case "get":
 				epf = accountGetFlags
 
@@ -209,6 +215,9 @@ func ParseEndpoint(
 			case "delete":
 				endpoint = c.Delete()
 				data, err = accountc.BuildDeletePayload(*accountDeleteAddressFlag)
+			case "deleteall":
+				endpoint = c.Deleteall()
+				data = nil
 			case "get":
 				endpoint = c.Get()
 				data, err = accountc.BuildGetPayload(*accountGetAddressFlag)
@@ -278,6 +287,7 @@ Usage:
 COMMAND:
     add: Add Algorand account(s) to track
     delete: Delete Algorand account(s) to track
+    deleteall: Delete all tracked algorand account(s).  Used for resetting everything
     get: Get specific account
     list: List all tracked accounts
     iswatched: Returns which of the passed accounts are currently being monitored
@@ -313,6 +323,16 @@ Example:
       "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
       "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
    ]'
+`, os.Args[0])
+}
+
+func accountDeleteallUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] account deleteall
+
+Delete all tracked algorand account(s).  Used for resetting everything
+
+Example:
+    `+os.Args[0]+` account deleteall
 `, os.Args[0])
 }
 
