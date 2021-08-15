@@ -26,7 +26,7 @@ import (
 //
 func UsageCommands() string {
 	return `info (version|live)
-account (add|delete|get|list)
+account (add|delete|get|list|iswatched)
 inspect unpack
 `
 }
@@ -41,7 +41,7 @@ func UsageExamples() string {
       ]
    }'` + "\n" +
 		os.Args[0] + ` inspect unpack --body '{
-      "msgpack": "Assumenda est."
+      "msgpack": "Temporibus est voluptate quam dolores et."
    }'` + "\n" +
 		""
 }
@@ -76,6 +76,9 @@ func ParseEndpoint(
 		accountListFlags    = flag.NewFlagSet("list", flag.ExitOnError)
 		accountListViewFlag = accountListFlags.String("view", "", "")
 
+		accountIswatchedFlags    = flag.NewFlagSet("iswatched", flag.ExitOnError)
+		accountIswatchedBodyFlag = accountIswatchedFlags.String("body", "REQUIRED", "")
+
 		inspectFlags = flag.NewFlagSet("inspect", flag.ContinueOnError)
 
 		inspectUnpackFlags    = flag.NewFlagSet("unpack", flag.ExitOnError)
@@ -90,6 +93,7 @@ func ParseEndpoint(
 	accountDeleteFlags.Usage = accountDeleteUsage
 	accountGetFlags.Usage = accountGetUsage
 	accountListFlags.Usage = accountListUsage
+	accountIswatchedFlags.Usage = accountIswatchedUsage
 
 	inspectFlags.Usage = inspectUsage
 	inspectUnpackFlags.Usage = inspectUnpackUsage
@@ -154,6 +158,9 @@ func ParseEndpoint(
 			case "list":
 				epf = accountListFlags
 
+			case "iswatched":
+				epf = accountIswatchedFlags
+
 			}
 
 		case "inspect":
@@ -208,6 +215,9 @@ func ParseEndpoint(
 			case "list":
 				endpoint = c.List()
 				data, err = accountc.BuildListPayload(*accountListViewFlag)
+			case "iswatched":
+				endpoint = c.Iswatched()
+				data, err = accountc.BuildIswatchedPayload(*accountIswatchedBodyFlag)
 			}
 		case "inspect":
 			c := inspectc.NewClient(scheme, host, doer, enc, dec, restore)
@@ -270,6 +280,7 @@ COMMAND:
     delete: Delete Algorand account(s) to track
     get: Get specific account
     list: List all tracked accounts
+    iswatched: Returns which of the passed accounts are currently being monitored
 
 Additional help:
     %s account COMMAND --help
@@ -292,13 +303,16 @@ Example:
 }
 
 func accountDeleteUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] account delete -address STRING
+	fmt.Fprintf(os.Stderr, `%s [flags] account delete -address JSON
 
 Delete Algorand account(s) to track
-    -address STRING: 
+    -address JSON: 
 
 Example:
-    `+os.Args[0]+` account delete --address "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
+    `+os.Args[0]+` account delete --address '[
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+      "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+   ]'
 `, os.Args[0])
 }
 
@@ -320,7 +334,23 @@ List all tracked accounts
     -view STRING: 
 
 Example:
-    `+os.Args[0]+` account list --view "full"
+    `+os.Args[0]+` account list --view "default"
+`, os.Args[0])
+}
+
+func accountIswatchedUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] account iswatched -body JSON
+
+Returns which of the passed accounts are currently being monitored
+    -body JSON: 
+
+Example:
+    `+os.Args[0]+` account iswatched --body '{
+      "address": [
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+      ]
+   }'
 `, os.Args[0])
 }
 
@@ -345,7 +375,7 @@ Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output
 
 Example:
     `+os.Args[0]+` inspect unpack --body '{
-      "msgpack": "Assumenda est."
+      "msgpack": "Temporibus est voluptate quam dolores et."
    }'
 `, os.Args[0])
 }

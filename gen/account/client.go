@@ -15,19 +15,21 @@ import (
 
 // Client is the "account" service client.
 type Client struct {
-	AddEndpoint    goa.Endpoint
-	DeleteEndpoint goa.Endpoint
-	GetEndpoint    goa.Endpoint
-	ListEndpoint   goa.Endpoint
+	AddEndpoint       goa.Endpoint
+	DeleteEndpoint    goa.Endpoint
+	GetEndpoint       goa.Endpoint
+	ListEndpoint      goa.Endpoint
+	IswatchedEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "account" service client given the endpoints.
-func NewClient(add, delete_, get, list goa.Endpoint) *Client {
+func NewClient(add, delete_, get, list, iswatched goa.Endpoint) *Client {
 	return &Client{
-		AddEndpoint:    add,
-		DeleteEndpoint: delete_,
-		GetEndpoint:    get,
-		ListEndpoint:   list,
+		AddEndpoint:       add,
+		DeleteEndpoint:    delete_,
+		GetEndpoint:       get,
+		ListEndpoint:      list,
+		IswatchedEndpoint: iswatched,
 	}
 }
 
@@ -61,4 +63,14 @@ func (c *Client) List(ctx context.Context, p *ListPayload) (res TrackedAccountCo
 		return
 	}
 	return ires.(TrackedAccountCollection), nil
+}
+
+// Iswatched calls the "iswatched" endpoint of the "account" service.
+func (c *Client) Iswatched(ctx context.Context, p *IswatchedPayload) (res []string, err error) {
+	var ires interface{}
+	ires, err = c.IswatchedEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.([]string), nil
 }

@@ -139,9 +139,13 @@ var _ = Service(
 				Payload(
 					func() {
 						Attribute(
-							"address", String, func() {
-								MaxLength(58)
-								Example("4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU")
+							"address", ArrayOf(String), func() {
+								Example(
+									[]string{
+										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
+									},
+								)
 							},
 						)
 						Required("address")
@@ -198,6 +202,34 @@ var _ = Service(
 					func() {
 						GET("/account")
 						Param("view")
+						Response(StatusOK)
+					},
+				)
+			},
+		)
+
+		Method(
+			"iswatched", func() {
+				Description("Returns which of the passed accounts are currently being monitored")
+				Payload(
+					func() {
+						Attribute(
+							"address", ArrayOf(String), func() {
+								Example(
+									[]string{
+										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
+									},
+								)
+							},
+						)
+						Required("address")
+					},
+				)
+				Result(ArrayOf(String))
+				HTTP(
+					func() {
+						POST("/account/iswatched")
 						Response(StatusOK)
 					},
 				)

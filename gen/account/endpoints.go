@@ -15,19 +15,21 @@ import (
 
 // Endpoints wraps the "account" service endpoints.
 type Endpoints struct {
-	Add    goa.Endpoint
-	Delete goa.Endpoint
-	Get    goa.Endpoint
-	List   goa.Endpoint
+	Add       goa.Endpoint
+	Delete    goa.Endpoint
+	Get       goa.Endpoint
+	List      goa.Endpoint
+	Iswatched goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "account" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		Add:    NewAddEndpoint(s),
-		Delete: NewDeleteEndpoint(s),
-		Get:    NewGetEndpoint(s),
-		List:   NewListEndpoint(s),
+		Add:       NewAddEndpoint(s),
+		Delete:    NewDeleteEndpoint(s),
+		Get:       NewGetEndpoint(s),
+		List:      NewListEndpoint(s),
+		Iswatched: NewIswatchedEndpoint(s),
 	}
 }
 
@@ -37,6 +39,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Delete = m(e.Delete)
 	e.Get = m(e.Get)
 	e.List = m(e.List)
+	e.Iswatched = m(e.Iswatched)
 }
 
 // NewAddEndpoint returns an endpoint function that calls the method "add" of
@@ -77,5 +80,14 @@ func NewListEndpoint(s Service) goa.Endpoint {
 		}
 		vres := NewViewedTrackedAccountCollection(res, view)
 		return vres, nil
+	}
+}
+
+// NewIswatchedEndpoint returns an endpoint function that calls the method
+// "iswatched" of service "account".
+func NewIswatchedEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*IswatchedPayload)
+		return s.Iswatched(ctx, p)
 	}
 }

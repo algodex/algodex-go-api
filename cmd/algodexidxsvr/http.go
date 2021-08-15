@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"algodexidx/backend"
 	account "algodexidx/gen/account"
 	accountsvr "algodexidx/gen/http/account/server"
 	infosvr "algodexidx/gen/http/info/server"
@@ -83,6 +84,7 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 	{
 		handler = httpmdlwr.Log(adapter)(handler)
 		handler = httpmdlwr.RequestID()(handler)
+		handler = backend.SetRemoteIP()(handler)
 	}
 
 	// Start HTTP server using default configuration, change the code to

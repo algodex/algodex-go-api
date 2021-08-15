@@ -25,6 +25,8 @@ type Service interface {
 	//	- "default"
 	//	- "full"
 	List(context.Context, *ListPayload) (res TrackedAccountCollection, view string, err error)
+	// Returns which of the passed accounts are currently being monitored
+	Iswatched(context.Context, *IswatchedPayload) (res []string, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -35,7 +37,7 @@ const ServiceName = "account"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [4]string{"add", "delete", "get", "list"}
+var MethodNames = [5]string{"add", "delete", "get", "list", "iswatched"}
 
 // AddPayload is the payload type of the account service add method.
 type AddPayload struct {
@@ -44,7 +46,7 @@ type AddPayload struct {
 
 // DeletePayload is the payload type of the account service delete method.
 type DeletePayload struct {
-	Address string
+	Address []string
 }
 
 // GetPayload is the payload type of the account service get method.
@@ -72,6 +74,11 @@ type ListPayload struct {
 // TrackedAccountCollection is the result type of the account service list
 // method.
 type TrackedAccountCollection []*TrackedAccount
+
+// IswatchedPayload is the payload type of the account service iswatched method.
+type IswatchedPayload struct {
+	Address []string
+}
 
 // Holding defines an ASA Asset ID and its balance.  ID 1 represents ALGO
 type Holding struct {
