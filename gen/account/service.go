@@ -10,6 +10,8 @@ package account
 import (
 	accountviews "algodexidx/gen/account/views"
 	"context"
+
+	goa "goa.design/goa/v3/pkg"
 )
 
 // The account service specifies which Algorand accounts to track
@@ -103,6 +105,15 @@ type TrackedAccount struct {
 	Round uint64
 	// Account Assets
 	Holdings map[string]*Holding
+}
+
+// MakeAccessDenied builds a goa.ServiceError from an error.
+func MakeAccessDenied(err error) *goa.ServiceError {
+	return &goa.ServiceError{
+		Name:    "access_denied",
+		ID:      goa.NewErrorID(),
+		Message: err.Error(),
+	}
 }
 
 // NewTrackedAccountCollection initializes result type TrackedAccountCollection

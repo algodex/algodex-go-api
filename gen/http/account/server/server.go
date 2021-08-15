@@ -133,7 +133,7 @@ func NewAddHandler(
 	var (
 		decodeRequest  = DecodeAddRequest(mux, decoder)
 		encodeResponse = EncodeAddResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeAddError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
@@ -184,7 +184,7 @@ func NewDeleteHandler(
 	var (
 		decodeRequest  = DecodeDeleteRequest(mux, decoder)
 		encodeResponse = EncodeDeleteResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeDeleteError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
@@ -234,7 +234,7 @@ func NewDeleteallHandler(
 ) http.Handler {
 	var (
 		encodeResponse = EncodeDeleteallResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeDeleteallError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
@@ -279,7 +279,7 @@ func NewGetHandler(
 	var (
 		decodeRequest  = DecodeGetRequest(mux, decoder)
 		encodeResponse = EncodeGetResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeGetError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
@@ -330,7 +330,7 @@ func NewListHandler(
 	var (
 		decodeRequest  = DecodeListRequest(mux, decoder)
 		encodeResponse = EncodeListResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeListError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
@@ -381,7 +381,7 @@ func NewIswatchedHandler(
 	var (
 		decodeRequest  = DecodeIswatchedRequest(mux, decoder)
 		encodeResponse = EncodeIswatchedResponse(encoder)
-		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+		encodeError    = EncodeIswatchedError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
