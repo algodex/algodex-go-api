@@ -44,7 +44,7 @@ func (s *accountsrvc) Delete(ctx context.Context, p *account.DeletePayload) (err
 		return errors.New("must provide address(es) to remove")
 	}
 	// pass on to persistence backend... (redis for eg)
-	err = s.backend.UnwatchAccounts(ctx, p.Address...)
+	err = s.backend.UnwatchAccounts(ctx, p.Address)
 	if err != nil {
 		return fmt.Errorf("account watch persistence delete of addresses:%v, error:%w", p.Address, err)
 	}

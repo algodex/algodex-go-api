@@ -25,15 +25,16 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `account (add|delete|get|list)
+	return `info (version|live)
+account (add|delete|get|list)
 inspect unpack
-info (version|live)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` account add --body '{
+	return os.Args[0] + ` info version` + "\n" +
+		os.Args[0] + ` account add --body '{
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
          "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
@@ -42,7 +43,6 @@ func UsageExamples() string {
 		os.Args[0] + ` inspect unpack --body '{
       "msgpack": "Assumenda est."
    }'` + "\n" +
-		os.Args[0] + ` info version` + "\n" +
 		""
 }
 
@@ -56,13 +56,19 @@ func ParseEndpoint(
 	restore bool,
 ) (goa.Endpoint, interface{}, error) {
 	var (
+		infoFlags = flag.NewFlagSet("info", flag.ContinueOnError)
+
+		infoVersionFlags = flag.NewFlagSet("version", flag.ExitOnError)
+
+		infoLiveFlags = flag.NewFlagSet("live", flag.ExitOnError)
+
 		accountFlags = flag.NewFlagSet("account", flag.ContinueOnError)
 
 		accountAddFlags    = flag.NewFlagSet("add", flag.ExitOnError)
 		accountAddBodyFlag = accountAddFlags.String("body", "REQUIRED", "")
 
-		accountDeleteFlags    = flag.NewFlagSet("delete", flag.ExitOnError)
-		accountDeleteBodyFlag = accountDeleteFlags.String("body", "REQUIRED", "")
+		accountDeleteFlags       = flag.NewFlagSet("delete", flag.ExitOnError)
+		accountDeleteAddressFlag = accountDeleteFlags.String("address", "REQUIRED", "")
 
 		accountGetFlags       = flag.NewFlagSet("get", flag.ExitOnError)
 		accountGetAddressFlag = accountGetFlags.String("address", "REQUIRED", "Public Account address")
@@ -74,13 +80,11 @@ func ParseEndpoint(
 
 		inspectUnpackFlags    = flag.NewFlagSet("unpack", flag.ExitOnError)
 		inspectUnpackBodyFlag = inspectUnpackFlags.String("body", "REQUIRED", "")
-
-		infoFlags = flag.NewFlagSet("info", flag.ContinueOnError)
-
-		infoVersionFlags = flag.NewFlagSet("version", flag.ExitOnError)
-
-		infoLiveFlags = flag.NewFlagSet("live", flag.ExitOnError)
 	)
+	infoFlags.Usage = infoUsage
+	infoVersionFlags.Usage = infoVersionUsage
+	infoLiveFlags.Usage = infoLiveUsage
+
 	accountFlags.Usage = accountUsage
 	accountAddFlags.Usage = accountAddUsage
 	accountDeleteFlags.Usage = accountDeleteUsage
@@ -89,10 +93,6 @@ func ParseEndpoint(
 
 	inspectFlags.Usage = inspectUsage
 	inspectUnpackFlags.Usage = inspectUnpackUsage
-
-	infoFlags.Usage = infoUsage
-	infoVersionFlags.Usage = infoVersionUsage
-	infoLiveFlags.Usage = infoLiveUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -109,12 +109,12 @@ func ParseEndpoint(
 	{
 		svcn = flag.Arg(0)
 		switch svcn {
+		case "info":
+			svcf = infoFlags
 		case "account":
 			svcf = accountFlags
 		case "inspect":
 			svcf = inspectFlags
-		case "info":
-			svcf = infoFlags
 		default:
 			return nil, nil, fmt.Errorf("unknown service %q", svcn)
 		}
@@ -130,6 +130,16 @@ func ParseEndpoint(
 	{
 		epn = svcf.Arg(0)
 		switch svcn {
+		case "info":
+			switch epn {
+			case "version":
+				epf = infoVersionFlags
+
+			case "live":
+				epf = infoLiveFlags
+
+			}
+
 		case "account":
 			switch epn {
 			case "add":
@@ -153,16 +163,6 @@ func ParseEndpoint(
 
 			}
 
-		case "info":
-			switch epn {
-			case "version":
-				epf = infoVersionFlags
-
-			case "live":
-				epf = infoLiveFlags
-
-			}
-
 		}
 	}
 	if epf == nil {
@@ -183,6 +183,16 @@ func ParseEndpoint(
 	)
 	{
 		switch svcn {
+		case "info":
+			c := infoc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "version":
+				endpoint = c.Version()
+				data = nil
+			case "live":
+				endpoint = c.Live()
+				data = nil
+			}
 		case "account":
 			c := accountc.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
@@ -191,7 +201,7 @@ func ParseEndpoint(
 				data, err = accountc.BuildAddPayload(*accountAddBodyFlag)
 			case "delete":
 				endpoint = c.Delete()
-				data, err = accountc.BuildDeletePayload(*accountDeleteBodyFlag)
+				data, err = accountc.BuildDeletePayload(*accountDeleteAddressFlag)
 			case "get":
 				endpoint = c.Get()
 				data, err = accountc.BuildGetPayload(*accountGetAddressFlag)
@@ -206,16 +216,6 @@ func ParseEndpoint(
 				endpoint = c.Unpack()
 				data, err = inspectc.BuildUnpackPayload(*inspectUnpackBodyFlag)
 			}
-		case "info":
-			c := infoc.NewClient(scheme, host, doer, enc, dec, restore)
-			switch epn {
-			case "version":
-				endpoint = c.Version()
-				data = nil
-			case "live":
-				endpoint = c.Live()
-				data = nil
-			}
 		}
 	}
 	if err != nil {
@@ -223,6 +223,40 @@ func ParseEndpoint(
 	}
 
 	return endpoint, data, nil
+}
+
+// infoUsage displays the usage of the info command and its subcommands.
+func infoUsage() {
+	fmt.Fprintf(os.Stderr, `The info service provides information on version data, liveness, readiness checks, etc.
+Usage:
+    %s [globalflags] info COMMAND [flags]
+
+COMMAND:
+    version: Returns version information for the service
+    live: Simple health check
+
+Additional help:
+    %s info COMMAND --help
+`, os.Args[0], os.Args[0])
+}
+func infoVersionUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] info version
+
+Returns version information for the service
+
+Example:
+    `+os.Args[0]+` info version
+`, os.Args[0])
+}
+
+func infoLiveUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] info live
+
+Simple health check
+
+Example:
+    `+os.Args[0]+` info live
+`, os.Args[0])
 }
 
 // accountUsage displays the usage of the account command and its subcommands.
@@ -258,18 +292,13 @@ Example:
 }
 
 func accountDeleteUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] account delete -body JSON
+	fmt.Fprintf(os.Stderr, `%s [flags] account delete -address STRING
 
 Delete Algorand account(s) to track
-    -body JSON: 
+    -address STRING: 
 
 Example:
-    `+os.Args[0]+` account delete --body '{
-      "address": [
-         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
-      ]
-   }'
+    `+os.Args[0]+` account delete --address "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
 `, os.Args[0])
 }
 
@@ -318,39 +347,5 @@ Example:
     `+os.Args[0]+` inspect unpack --body '{
       "msgpack": "Assumenda est."
    }'
-`, os.Args[0])
-}
-
-// infoUsage displays the usage of the info command and its subcommands.
-func infoUsage() {
-	fmt.Fprintf(os.Stderr, `The info service provides information on version data, liveness, readiness checks, etc.
-Usage:
-    %s [globalflags] info COMMAND [flags]
-
-COMMAND:
-    version: Returns version information for the service
-    live: Simple health check
-
-Additional help:
-    %s info COMMAND --help
-`, os.Args[0], os.Args[0])
-}
-func infoVersionUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] info version
-
-Returns version information for the service
-
-Example:
-    `+os.Args[0]+` info version
-`, os.Args[0])
-}
-
-func infoLiveUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] info live
-
-Simple health check
-
-Example:
-    `+os.Args[0]+` info live
 `, os.Args[0])
 }

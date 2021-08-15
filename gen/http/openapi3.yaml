@@ -7,25 +7,6 @@ servers:
 - url: http://localhost:80
 paths:
   /account:
-    delete:
-      tags:
-      - account
-      summary: delete account
-      description: Delete Algorand account(s) to track
-      operationId: account#delete
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddRequestBody'
-            example:
-              address:
-              - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-              - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
-      responses:
-        "200":
-          description: OK response.
     get:
       tags:
       - account
@@ -40,11 +21,11 @@ paths:
         schema:
           type: string
           description: View to render
-          example: default
+          example: full
           enum:
           - default
           - full
-        example: full
+        example: default
       responses:
         "200":
           description: OK response.
@@ -96,6 +77,24 @@ paths:
         "200":
           description: OK response.
   /account/{address}:
+    delete:
+      tags:
+      - account
+      summary: delete account
+      description: Delete Algorand account(s) to track
+      operationId: account#delete
+      parameters:
+      - name: address
+        in: path
+        required: true
+        schema:
+          type: string
+          example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+          maxLength: 58
+        example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+      responses:
+        "200":
+          description: OK response.
     get:
       tags:
       - account
@@ -157,8 +156,9 @@ paths:
                 type: string
                 description: Returns output from goal clerk inspect of passed msgpack-encoded
                   payload
-                example: Odio dolor aut provident accusantium.
-              example: Et pariatur tenetur dolor facilis ut.
+                example: Dignissimos consectetur ratione itaque explicabo consequatur
+                  qui.
+              example: Eaque cum ipsum odio dolor aut provident.
   /live:
     get:
       tags:
@@ -172,9 +172,9 @@ paths:
   /openapi3.yaml:
     get:
       tags:
-      - account
+      - info
       summary: Download ./openapi3.yaml
-      operationId: account#/openapi3.yaml
+      operationId: info#/openapi3.yaml
       responses:
         "200":
           description: File downloaded
@@ -208,7 +208,7 @@ components:
           type: object
           description: Account Assets
           example:
-            Dolorem quia omnis ut.:
+            Est voluptate quam dolores et voluptatibus.:
               amount: 12373123001069819448
               asset: 202586210
               decimals: 5519094376750021556
@@ -216,7 +216,7 @@ components:
               name: Et velit labore laborum rerum dolores.
               unitName: Blanditiis ut ea est esse.
               url: Blanditiis quaerat nihil repellendus explicabo eos.
-            Voluptate quia iste quis.:
+            Possimus ut fugit.:
               amount: 12373123001069819448
               asset: 202586210
               decimals: 5519094376750021556
@@ -228,11 +228,11 @@ components:
         round:
           type: integer
           description: Round fetched
-          example: 10677309615617528828
+          example: 8996115405718972670
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Alias voluptatum voluptas.:
+          Quia iste quis minus.:
             amount: 12373123001069819448
             asset: 202586210
             decimals: 5519094376750021556
@@ -240,23 +240,7 @@ components:
             name: Et velit labore laborum rerum dolores.
             unitName: Blanditiis ut ea est esse.
             url: Blanditiis quaerat nihil repellendus explicabo eos.
-          Officia deserunt id in velit alias.:
-            amount: 12373123001069819448
-            asset: 202586210
-            decimals: 5519094376750021556
-            metadataHash: Saepe reiciendis molestiae labore.
-            name: Et velit labore laborum rerum dolores.
-            unitName: Blanditiis ut ea est esse.
-            url: Blanditiis quaerat nihil repellendus explicabo eos.
-          Quia accusantium explicabo.:
-            amount: 12373123001069819448
-            asset: 202586210
-            decimals: 5519094376750021556
-            metadataHash: Saepe reiciendis molestiae labore.
-            name: Et velit labore laborum rerum dolores.
-            unitName: Blanditiis ut ea est esse.
-            url: Blanditiis quaerat nihil repellendus explicabo eos.
-        round: 1409303570664486573
+        round: 15745257045504693798
       required:
       - address
       - round
@@ -268,7 +252,7 @@ components:
           type: array
           items:
             type: string
-            example: Temporibus est voluptate quam dolores et.
+            example: Esse distinctio.
           example:
           - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
           - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
@@ -290,7 +274,7 @@ components:
           type: object
           description: Account Assets
           example:
-            Aliquid tenetur aut occaecati optio.:
+            Officia deserunt id in velit alias.:
               amount: 799206650352541578
               asset: 202586210
               decimals: 6176359929065967441
@@ -298,7 +282,15 @@ components:
               name: Perspiciatis deserunt.
               unitName: Ut mollitia.
               url: Quas et dolorem ullam dignissimos id.
-            Nobis odio dolores.:
+            Ut vel excepturi ut.:
+              amount: 799206650352541578
+              asset: 202586210
+              decimals: 6176359929065967441
+              metadataHash: Maiores aut quo commodi enim.
+              name: Perspiciatis deserunt.
+              unitName: Ut mollitia.
+              url: Quas et dolorem ullam dignissimos id.
+            Voluptatum voluptas.:
               amount: 799206650352541578
               asset: 202586210
               decimals: 6176359929065967441
@@ -310,12 +302,12 @@ components:
         round:
           type: integer
           description: Round fetched
-          example: 589572706479882429
+          example: 8699948218631199972
       description: A TrackedAccount is an Account returned by the indexer
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Explicabo dolorum.:
+          Dolores minima aliquid tenetur aut occaecati.:
             amount: 799206650352541578
             asset: 202586210
             decimals: 6176359929065967441
@@ -323,7 +315,7 @@ components:
             name: Perspiciatis deserunt.
             unitName: Ut mollitia.
             url: Quas et dolorem ullam dignissimos id.
-          Non modi enim optio minus explicabo aut.:
+          Expedita nobis.:
             amount: 799206650352541578
             asset: 202586210
             decimals: 6176359929065967441
@@ -331,7 +323,15 @@ components:
             name: Perspiciatis deserunt.
             unitName: Ut mollitia.
             url: Quas et dolorem ullam dignissimos id.
-        round: 4709680674881830878
+          Explicabo occaecati.:
+            amount: 799206650352541578
+            asset: 202586210
+            decimals: 6176359929065967441
+            metadataHash: Maiores aut quo commodi enim.
+            name: Perspiciatis deserunt.
+            unitName: Ut mollitia.
+            url: Quas et dolorem ullam dignissimos id.
+        round: 10274472141884412792
       required:
       - address
       - round
@@ -397,7 +397,15 @@ components:
           type: object
           description: Account Assets
           example:
-            Dolore aspernatur consectetur nisi qui ipsa.:
+            Explicabo dolorum.:
+              amount: 799206650352541578
+              asset: 202586210
+              decimals: 6176359929065967441
+              metadataHash: Maiores aut quo commodi enim.
+              name: Perspiciatis deserunt.
+              unitName: Ut mollitia.
+              url: Quas et dolorem ullam dignissimos id.
+            Non modi enim optio minus explicabo aut.:
               amount: 799206650352541578
               asset: 202586210
               decimals: 6176359929065967441
@@ -409,12 +417,12 @@ components:
         round:
           type: integer
           description: Round fetched
-          example: 17327515201868186720
+          example: 4709680674881830878
       description: A TrackedAccount is an Account returned by the indexer (full view)
       example:
         address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
         holdings:
-          Dicta deserunt.:
+          Ut dolore aspernatur consectetur nisi qui.:
             amount: 799206650352541578
             asset: 202586210
             decimals: 6176359929065967441
@@ -422,15 +430,7 @@ components:
             name: Perspiciatis deserunt.
             unitName: Ut mollitia.
             url: Quas et dolorem ullam dignissimos id.
-          Quidem omnis expedita omnis eligendi.:
-            amount: 799206650352541578
-            asset: 202586210
-            decimals: 6176359929065967441
-            metadataHash: Maiores aut quo commodi enim.
-            name: Perspiciatis deserunt.
-            unitName: Ut mollitia.
-            url: Quas et dolorem ullam dignissimos id.
-        round: 10258909709856535565
+        round: 13413792328504470442
       required:
       - address
       - round
@@ -504,14 +504,14 @@ components:
       properties:
         msgpack:
           type: string
-          example: Consectetur ratione itaque explicabo.
+          example: In delectus dicta deserunt.
       example:
-        msgpack: Qui est maxime voluptatem eaque cum.
+        msgpack: Quidem omnis expedita omnis eligendi.
 tags:
+- name: info
+  description: The info service provides information on version data, liveness, readiness
+    checks, etc.
 - name: account
   description: The account service specifies which Algorand accounts to track
 - name: inspect
   description: The inspect service provides msgpack decoding services
-- name: info
-  description: The info service provides information on version data, liveness, readiness
-    checks, etc.

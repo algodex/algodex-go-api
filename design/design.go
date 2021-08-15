@@ -139,13 +139,9 @@ var _ = Service(
 				Payload(
 					func() {
 						Attribute(
-							"address", ArrayOf(String), func() {
-								Example(
-									[]string{
-										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-									},
-								)
+							"address", String, func() {
+								MaxLength(58)
+								Example("4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU")
 							},
 						)
 						Required("address")
@@ -154,7 +150,7 @@ var _ = Service(
 
 				HTTP(
 					func() {
-						DELETE("/account")
+						DELETE("/account/{address}")
 						Response(StatusOK)
 					},
 				)
@@ -207,7 +203,6 @@ var _ = Service(
 				)
 			},
 		)
-		Files("/openapi3.yaml", "./openapi3.yaml")
 	},
 )
 
@@ -275,5 +270,6 @@ var _ = Service(
 				)
 			},
 		)
+		Files("/openapi3.yaml", "./openapi3.yaml")
 	},
 )

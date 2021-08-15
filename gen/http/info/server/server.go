@@ -19,10 +19,11 @@ import (
 
 // Server lists the info service endpoint HTTP handlers.
 type Server struct {
-	Mounts  []*MountPoint
-	Version http.Handler
-	Live    http.Handler
-	CORS    http.Handler
+	Mounts       []*MountPoint
+	Version      http.Handler
+	Live         http.Handler
+	CORS         http.Handler
+	Openapi3Yaml http.Handler
 }
 
 // ErrorNamer is an interface implemented by generated error structs that
@@ -55,17 +56,24 @@ func New(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(err error) goahttp.Statuser,
+	fileSystemOpenapi3Yaml http.FileSystem,
 ) *Server {
+	if fileSystemOpenapi3Yaml == nil {
+		fileSystemOpenapi3Yaml = http.Dir(".")
+	}
 	return &Server{
 		Mounts: []*MountPoint{
 			{"Version", "GET", "/version"},
 			{"Live", "GET", "/live"},
 			{"CORS", "OPTIONS", "/version"},
 			{"CORS", "OPTIONS", "/live"},
+			{"CORS", "OPTIONS", "/openapi3.yaml"},
+			{"./openapi3.yaml", "GET", "/openapi3.yaml"},
 		},
-		Version: NewVersionHandler(e.Version, mux, decoder, encoder, errhandler, formatter),
-		Live:    NewLiveHandler(e.Live, mux, decoder, encoder, errhandler, formatter),
-		CORS:    NewCORSHandler(),
+		Version:      NewVersionHandler(e.Version, mux, decoder, encoder, errhandler, formatter),
+		Live:         NewLiveHandler(e.Live, mux, decoder, encoder, errhandler, formatter),
+		CORS:         NewCORSHandler(),
+		Openapi3Yaml: http.FileServer(fileSystemOpenapi3Yaml),
 	}
 }
 
@@ -84,6 +92,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountVersionHandler(mux, h.Version)
 	MountLiveHandler(mux, h.Live)
 	MountCORSHandler(mux, h.CORS)
+	MountOpenapi3Yaml(mux, goahttp.Replace("", "/./openapi3.yaml", h.Openapi3Yaml))
 }
 
 // MountVersionHandler configures the mux to serve the "info" service "version"
@@ -174,6 +183,12 @@ func NewLiveHandler(
 	})
 }
 
+// MountOpenapi3Yaml configures the mux to serve GET request made to
+// "/openapi3.yaml".
+func MountOpenapi3Yaml(mux goahttp.Muxer, h http.Handler) {
+	mux.Handle("GET", "/openapi3.yaml", HandleInfoOrigin(h).ServeHTTP)
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service info.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -186,6 +201,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	}
 	mux.Handle("OPTIONS", "/version", f)
 	mux.Handle("OPTIONS", "/live", f)
+	mux.Handle("OPTIONS", "/openapi3.yaml", f)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

@@ -44,7 +44,7 @@ type AddPayload struct {
 
 // DeletePayload is the payload type of the account service delete method.
 type DeletePayload struct {
-	Address []string
+	Address string
 }
 
 // GetPayload is the payload type of the account service get method.

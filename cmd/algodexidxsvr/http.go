@@ -60,9 +60,9 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 	)
 	{
 		eh := errorHandler(logger)
-		accountServer = accountsvr.New(accountEndpoints, mux, dec, enc, eh, nil, nil)
+		accountServer = accountsvr.New(accountEndpoints, mux, dec, enc, eh, nil)
 		inspectServer = inspectsvr.New(inspectEndpoints, mux, dec, enc, eh, nil)
-		infoServer = infosvr.New(infoEndpoints, mux, dec, enc, eh, nil)
+		infoServer = infosvr.New(infoEndpoints, mux, dec, enc, eh, nil, nil)
 		if debug {
 			servers := goahttp.Servers{
 				accountServer,

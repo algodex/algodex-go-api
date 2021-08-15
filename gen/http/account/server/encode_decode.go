@@ -67,21 +67,19 @@ func EncodeDeleteResponse(encoder func(context.Context, http.ResponseWriter) goa
 func DecodeDeleteRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			body DeleteRequestBody
-			err  error
+			address string
+			err     error
+
+			params = mux.Vars(r)
 		)
-		err = decoder(r).Decode(&body)
-		if err != nil {
-			if err == io.EOF {
-				return nil, goa.MissingPayloadError()
-			}
-			return nil, goa.DecodePayloadError(err.Error())
+		address = params["address"]
+		if utf8.RuneCountInString(address) > 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("address", address, utf8.RuneCountInString(address), 58, false))
 		}
-		err = ValidateDeleteRequestBody(&body)
 		if err != nil {
 			return nil, err
 		}
-		payload := NewDeletePayload(&body)
+		payload := NewDeletePayload(address)
 
 		return payload, nil
 	}

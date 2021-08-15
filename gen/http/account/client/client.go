@@ -93,15 +93,10 @@ func (c *Client) Add() goa.Endpoint {
 // delete server.
 func (c *Client) Delete() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeDeleteRequest(c.encoder)
 		decodeResponse = DecodeDeleteResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		req, err := c.BuildDeleteRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
 		if err != nil {
 			return nil, err
 		}

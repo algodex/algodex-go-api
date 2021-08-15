@@ -17,8 +17,8 @@ func AddAccountPath() string {
 }
 
 // DeleteAccountPath returns the URL path to the account service delete HTTP endpoint.
-func DeleteAccountPath() string {
-	return "/account"
+func DeleteAccountPath(address string) string {
+	return fmt.Sprintf("/account/%v", address)
 }
 
 // GetAccountPath returns the URL path to the account service get HTTP endpoint.
