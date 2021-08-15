@@ -20,6 +20,12 @@ type AddRequestBody struct {
 	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 }
 
+// IswatchedRequestBody is the type of the "account" service "iswatched"
+// endpoint HTTP request body.
+type IswatchedRequestBody struct {
+	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
+}
+
 // GetResponseBody is the type of the "account" service "get" endpoint HTTP
 // response body.
 type GetResponseBody struct {
@@ -130,7 +136,7 @@ func NewAddPayload(body *AddRequestBody) *account.AddPayload {
 }
 
 // NewDeletePayload builds a account service delete endpoint payload.
-func NewDeletePayload(address string) *account.DeletePayload {
+func NewDeletePayload(address []string) *account.DeletePayload {
 	v := &account.DeletePayload{}
 	v.Address = address
 
@@ -153,8 +159,28 @@ func NewListPayload(view *string) *account.ListPayload {
 	return v
 }
 
+// NewIswatchedPayload builds a account service iswatched endpoint payload.
+func NewIswatchedPayload(body *IswatchedRequestBody) *account.IswatchedPayload {
+	v := &account.IswatchedPayload{}
+	v.Address = make([]string, len(body.Address))
+	for i, val := range body.Address {
+		v.Address[i] = val
+	}
+
+	return v
+}
+
 // ValidateAddRequestBody runs the validations defined on AddRequestBody
 func ValidateAddRequestBody(body *AddRequestBody) (err error) {
+	if body.Address == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+	}
+	return
+}
+
+// ValidateIswatchedRequestBody runs the validations defined on
+// IswatchedRequestBody
+func ValidateIswatchedRequestBody(body *IswatchedRequestBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}

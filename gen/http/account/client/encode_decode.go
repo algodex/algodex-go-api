@@ -81,7 +81,7 @@ func DecodeAddResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody
 // set to call the "account" service "delete" endpoint
 func (c *Client) BuildDeleteRequest(ctx context.Context, v interface{}) (*http.Request, error) {
 	var (
-		address string
+		address []string
 	)
 	{
 		p, ok := v.(*account.DeletePayload)
@@ -264,6 +264,72 @@ func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("account", "list", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildIswatchedRequest instantiates a HTTP request object with method and
+// path set to call the "account" service "iswatched" endpoint
+func (c *Client) BuildIswatchedRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: IswatchedAccountPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("account", "iswatched", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeIswatchedRequest returns an encoder for requests sent to the account
+// iswatched server.
+func EncodeIswatchedRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*account.IswatchedPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("account", "iswatched", "*account.IswatchedPayload", v)
+		}
+		body := NewIswatchedRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("account", "iswatched", err)
+		}
+		return nil
+	}
+}
+
+// DecodeIswatchedResponse returns a decoder for responses returned by the
+// account iswatched endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+func DecodeIswatchedResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body []string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("account", "iswatched", err)
+			}
+			return body, nil
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("account", "iswatched", resp.StatusCode, string(body))
 		}
 	}
 }

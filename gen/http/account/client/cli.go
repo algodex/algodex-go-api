@@ -48,14 +48,11 @@ func BuildAddPayload(accountAddBody string) (*account.AddPayload, error) {
 // CLI flags.
 func BuildDeletePayload(accountDeleteAddress string) (*account.DeletePayload, error) {
 	var err error
-	var address string
+	var address []string
 	{
-		address = accountDeleteAddress
-		if utf8.RuneCountInString(address) > 58 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError("address", address, utf8.RuneCountInString(address), 58, false))
-		}
+		err = json.Unmarshal([]byte(accountDeleteAddress), &address)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("invalid JSON for address, \nerror: %s, \nexample of valid JSON:\n%s", err, "'[\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n      \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n   ]'")
 		}
 	}
 	v := &account.DeletePayload{}
@@ -104,6 +101,34 @@ func BuildListPayload(accountListView string) (*account.ListPayload, error) {
 	}
 	v := &account.ListPayload{}
 	v.View = view
+
+	return v, nil
+}
+
+// BuildIswatchedPayload builds the payload for the account iswatched endpoint
+// from CLI flags.
+func BuildIswatchedPayload(accountIswatchedBody string) (*account.IswatchedPayload, error) {
+	var err error
+	var body IswatchedRequestBody
+	{
+		err = json.Unmarshal([]byte(accountIswatchedBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n      ]\n   }'")
+		}
+		if body.Address == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+	v := &account.IswatchedPayload{}
+	if body.Address != nil {
+		v.Address = make([]string, len(body.Address))
+		for i, val := range body.Address {
+			v.Address[i] = val
+		}
+	}
 
 	return v, nil
 }

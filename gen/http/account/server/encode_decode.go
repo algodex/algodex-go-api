@@ -13,6 +13,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"strings"
 	"unicode/utf8"
 
 	goahttp "goa.design/goa/v3/http"
@@ -67,17 +68,17 @@ func EncodeDeleteResponse(encoder func(context.Context, http.ResponseWriter) goa
 func DecodeDeleteRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			address string
-			err     error
+			address []string
 
 			params = mux.Vars(r)
 		)
-		address = params["address"]
-		if utf8.RuneCountInString(address) > 58 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError("address", address, utf8.RuneCountInString(address), 58, false))
-		}
-		if err != nil {
-			return nil, err
+		{
+			addressRaw := params["address"]
+			addressRawSlice := strings.Split(addressRaw, ",")
+			address = make([]string, len(addressRawSlice))
+			for i, rv := range addressRawSlice {
+				address[i] = rv
+			}
 		}
 		payload := NewDeletePayload(address)
 
@@ -160,6 +161,43 @@ func DecodeListRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.De
 			return nil, err
 		}
 		payload := NewListPayload(view)
+
+		return payload, nil
+	}
+}
+
+// EncodeIswatchedResponse returns an encoder for responses returned by the
+// account iswatched endpoint.
+func EncodeIswatchedResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.([]string)
+		enc := encoder(ctx, w)
+		body := res
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeIswatchedRequest returns a decoder for requests sent to the account
+// iswatched endpoint.
+func DecodeIswatchedRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			body IswatchedRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateIswatchedRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+		payload := NewIswatchedPayload(&body)
 
 		return payload, nil
 	}

@@ -29,6 +29,10 @@ type Client struct {
 	// List Doer is the HTTP client used to make requests to the list endpoint.
 	ListDoer goahttp.Doer
 
+	// Iswatched Doer is the HTTP client used to make requests to the iswatched
+	// endpoint.
+	IswatchedDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -56,6 +60,7 @@ func NewClient(
 		DeleteDoer:          doer,
 		GetDoer:             doer,
 		ListDoer:            doer,
+		IswatchedDoer:       doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -146,6 +151,30 @@ func (c *Client) List() goa.Endpoint {
 		resp, err := c.ListDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("account", "list", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Iswatched returns an endpoint that makes HTTP requests to the account
+// service iswatched server.
+func (c *Client) Iswatched() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeIswatchedRequest(c.encoder)
+		decodeResponse = DecodeIswatchedResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildIswatchedRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.IswatchedDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("account", "iswatched", err)
 		}
 		return decodeResponse(resp)
 	}

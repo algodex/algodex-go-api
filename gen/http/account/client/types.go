@@ -21,6 +21,12 @@ type AddRequestBody struct {
 	Address []string `form:"address" json:"address" xml:"address"`
 }
 
+// IswatchedRequestBody is the type of the "account" service "iswatched"
+// endpoint HTTP request body.
+type IswatchedRequestBody struct {
+	Address []string `form:"address" json:"address" xml:"address"`
+}
+
 // GetResponseBody is the type of the "account" service "get" endpoint HTTP
 // response body.
 type GetResponseBody struct {
@@ -76,6 +82,19 @@ type HoldingResponse struct {
 // endpoint of the "account" service.
 func NewAddRequestBody(p *account.AddPayload) *AddRequestBody {
 	body := &AddRequestBody{}
+	if p.Address != nil {
+		body.Address = make([]string, len(p.Address))
+		for i, val := range p.Address {
+			body.Address[i] = val
+		}
+	}
+	return body
+}
+
+// NewIswatchedRequestBody builds the HTTP request body from the payload of the
+// "iswatched" endpoint of the "account" service.
+func NewIswatchedRequestBody(p *account.IswatchedPayload) *IswatchedRequestBody {
+	body := &IswatchedRequestBody{}
 	if p.Address != nil {
 		body.Address = make([]string, len(p.Address))
 		for i, val := range p.Address {
