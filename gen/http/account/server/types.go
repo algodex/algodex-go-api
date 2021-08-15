@@ -45,6 +45,114 @@ type TrackedAccountResponseCollection []*TrackedAccountResponse
 // "list" endpoint HTTP response body.
 type TrackedAccountResponseFullCollection []*TrackedAccountResponseFull
 
+// AddAccessDeniedResponseBody is the type of the "account" service "add"
+// endpoint HTTP response body for the "access_denied" error.
+type AddAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DeleteAccessDeniedResponseBody is the type of the "account" service "delete"
+// endpoint HTTP response body for the "access_denied" error.
+type DeleteAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DeleteallAccessDeniedResponseBody is the type of the "account" service
+// "deleteall" endpoint HTTP response body for the "access_denied" error.
+type DeleteallAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// GetAccessDeniedResponseBody is the type of the "account" service "get"
+// endpoint HTTP response body for the "access_denied" error.
+type GetAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ListAccessDeniedResponseBody is the type of the "account" service "list"
+// endpoint HTTP response body for the "access_denied" error.
+type ListAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// IswatchedAccessDeniedResponseBody is the type of the "account" service
+// "iswatched" endpoint HTTP response body for the "access_denied" error.
+type IswatchedAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // HoldingResponseBody is used to define fields on response body types.
 type HoldingResponseBody struct {
 	// ASA ID (1 for ALGO)
@@ -120,6 +228,90 @@ func NewTrackedAccountResponseFullCollection(res accountviews.TrackedAccountColl
 	body := make([]*TrackedAccountResponseFull, len(res))
 	for i, val := range res {
 		body[i] = marshalAccountviewsTrackedAccountViewToTrackedAccountResponseFull(val)
+	}
+	return body
+}
+
+// NewAddAccessDeniedResponseBody builds the HTTP response body from the result
+// of the "add" endpoint of the "account" service.
+func NewAddAccessDeniedResponseBody(res *goa.ServiceError) *AddAccessDeniedResponseBody {
+	body := &AddAccessDeniedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDeleteAccessDeniedResponseBody builds the HTTP response body from the
+// result of the "delete" endpoint of the "account" service.
+func NewDeleteAccessDeniedResponseBody(res *goa.ServiceError) *DeleteAccessDeniedResponseBody {
+	body := &DeleteAccessDeniedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDeleteallAccessDeniedResponseBody builds the HTTP response body from the
+// result of the "deleteall" endpoint of the "account" service.
+func NewDeleteallAccessDeniedResponseBody(res *goa.ServiceError) *DeleteallAccessDeniedResponseBody {
+	body := &DeleteallAccessDeniedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewGetAccessDeniedResponseBody builds the HTTP response body from the result
+// of the "get" endpoint of the "account" service.
+func NewGetAccessDeniedResponseBody(res *goa.ServiceError) *GetAccessDeniedResponseBody {
+	body := &GetAccessDeniedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewListAccessDeniedResponseBody builds the HTTP response body from the
+// result of the "list" endpoint of the "account" service.
+func NewListAccessDeniedResponseBody(res *goa.ServiceError) *ListAccessDeniedResponseBody {
+	body := &ListAccessDeniedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewIswatchedAccessDeniedResponseBody builds the HTTP response body from the
+// result of the "iswatched" endpoint of the "account" service.
+func NewIswatchedAccessDeniedResponseBody(res *goa.ServiceError) *IswatchedAccessDeniedResponseBody {
+	body := &IswatchedAccessDeniedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
 	}
 	return body
 }

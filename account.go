@@ -26,9 +26,13 @@ func NewAccount(logger *log.Logger, itf backend.Itf) account.Service {
 // Add Algorand account to track
 func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error) {
 	s.logger.Println("account.add", p.Address)
+	if err := backend.FailIfNotAuthorized(ctx); err != nil {
+		return err
+	}
 	if p == nil || len(p.Address) == 0 {
 		return errors.New("must provide address(es) to watch")
 	}
+
 	// pass on to persistence backend... (redis for eg)
 	err = s.backend.WatchAccounts(ctx, p.Address...)
 	if err != nil {
@@ -40,6 +44,9 @@ func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error
 // Delete Algorand account(s) to track
 func (s *accountsrvc) Delete(ctx context.Context, p *account.DeletePayload) (err error) {
 	s.logger.Println("account.delete", p.Address)
+	if err := backend.FailIfNotAuthorized(ctx); err != nil {
+		return err
+	}
 	if p == nil || len(p.Address) == 0 {
 		return errors.New("must provide address(es) to remove")
 	}
@@ -51,9 +58,21 @@ func (s *accountsrvc) Delete(ctx context.Context, p *account.DeletePayload) (err
 	return
 }
 
+// Delete all tracked algorand account(s).  Used for resetting everything
+func (s *accountsrvc) Deleteall(ctx context.Context) (err error) {
+	s.logger.Print("account.deleteall")
+	if err := backend.FailIfNotAuthorized(ctx); err != nil {
+		return err
+	}
+	return s.backend.Reset(ctx)
+}
+
 // Get specific account
 func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *account.Account, err error) {
 	s.logger.Println("account.get", p.Address)
+	if err := backend.FailIfNotAuthorized(ctx); err != nil {
+		return nil, err
+	}
 	backendAccount, err := s.backend.GetAccount(ctx, p.Address)
 	if backendAccount == nil {
 		return nil, fmt.Errorf("account:%s is not watched or other error", p.Address)
@@ -70,6 +89,9 @@ func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *acco
 func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (
 	res account.TrackedAccountCollection, view string, err error,
 ) {
+	if err = backend.FailIfNotAuthorized(ctx); err != nil {
+		return
+	}
 	view = "default"
 	if p.View != nil {
 		view = *p.View
@@ -90,6 +112,9 @@ func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (
 // Returns which of the passed accounts are currently being monitored
 func (s *accountsrvc) Iswatched(ctx context.Context, p *account.IswatchedPayload) (res []string, err error) {
 	s.logger.Print("account.iswatched", p.Address)
+	if err := backend.FailIfNotAuthorized(ctx); err != nil {
+		return nil, err
+	}
 	return s.backend.IsWatchedAccount(ctx, p.Address)
 }
 

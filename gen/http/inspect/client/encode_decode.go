@@ -52,6 +52,9 @@ func EncodeUnpackRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 // DecodeUnpackResponse returns a decoder for responses returned by the inspect
 // unpack endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
+// DecodeUnpackResponse may return the following errors:
+//	- "access_denied" (type *goa.ServiceError): http.StatusUnauthorized
+//	- error: internal error
 func DecodeUnpackResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -77,6 +80,20 @@ func DecodeUnpackResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 				return nil, goahttp.ErrDecodingError("inspect", "unpack", err)
 			}
 			return body, nil
+		case http.StatusUnauthorized:
+			var (
+				body UnpackAccessDeniedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("inspect", "unpack", err)
+			}
+			err = ValidateUnpackAccessDeniedResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("inspect", "unpack", err)
+			}
+			return nil, NewUnpackAccessDenied(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("inspect", "unpack", resp.StatusCode, string(body))

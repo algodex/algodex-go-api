@@ -9,12 +9,46 @@ package server
 
 import (
 	inspect "algodexidx/gen/inspect"
+
+	goa "goa.design/goa/v3/pkg"
 )
 
 // UnpackRequestBody is the type of the "inspect" service "unpack" endpoint
 // HTTP request body.
 type UnpackRequestBody struct {
 	Msgpack *string `form:"msgpack,omitempty" json:"msgpack,omitempty" xml:"msgpack,omitempty"`
+}
+
+// UnpackAccessDeniedResponseBody is the type of the "inspect" service "unpack"
+// endpoint HTTP response body for the "access_denied" error.
+type UnpackAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// NewUnpackAccessDeniedResponseBody builds the HTTP response body from the
+// result of the "unpack" endpoint of the "inspect" service.
+func NewUnpackAccessDeniedResponseBody(res *goa.ServiceError) *UnpackAccessDeniedResponseBody {
+	body := &UnpackAccessDeniedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
 }
 
 // NewUnpackPayload builds a inspect service unpack endpoint payload.

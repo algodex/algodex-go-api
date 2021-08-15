@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 
+	"algodexidx/backend"
 	inspect "algodexidx/gen/inspect"
 )
 
@@ -29,6 +30,9 @@ func NewInspect(logger *log.Logger) inspect.Service {
 // doing this cleanly and without bringing in substantial dependencies (including cgo) from the main Algorand node code.
 func (s *inspectsrvc) Unpack(ctx context.Context, p *inspect.UnpackPayload) (res string, err error) {
 	s.logger.Printf("inspect.unpack: body length:%d", len(*p.Msgpack))
+	if err := backend.FailIfNotAuthorized(ctx); err != nil {
+		return "", err
+	}
 	if p.Msgpack == nil {
 		return "", errors.New("must provide msgpack data to unpack")
 	}

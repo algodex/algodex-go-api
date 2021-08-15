@@ -1,6 +1,8 @@
 package design
 
 import (
+	"net/http"
+
 	. "goa.design/goa/v3/dsl"
 	cors "goa.design/plugins/v3/cors/dsl"
 )
@@ -105,6 +107,12 @@ var TrackedAccount = ResultType(
 var _ = Service(
 	"account", func() {
 		Description("The account service specifies which Algorand accounts to track")
+		Error("access_denied")
+		HTTP(
+			func() {
+				Response("access_denied", http.StatusUnauthorized)
+			},
+		)
 
 		Method(
 			"add", func() {
@@ -155,6 +163,18 @@ var _ = Service(
 				HTTP(
 					func() {
 						DELETE("/account/{address}")
+						Response(StatusOK)
+					},
+				)
+			},
+		)
+		Method(
+			"deleteall", func() {
+				Description("Delete all tracked algorand account(s).  Used for resetting everything")
+
+				HTTP(
+					func() {
+						DELETE("/account/all")
 						Response(StatusOK)
 					},
 				)
@@ -241,6 +261,12 @@ var _ = Service(
 var _ = Service(
 	"inspect", func() {
 		Description("The inspect service provides msgpack decoding services")
+		Error("access_denied")
+		HTTP(
+			func() {
+				Response("access_denied", http.StatusUnauthorized)
+			},
+		)
 
 		Method(
 			"unpack", func() {

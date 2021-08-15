@@ -28,6 +28,10 @@
             },
             "environment": [
                 {
+                    "name": "ALGODEX_SUBNET_WHITELIST",
+                    "value": "3.14.173.188/32,3.15.178.171/32"
+                },
+                {
                     "name": "ALGODEX_REDIS_ADDR",
                     "value": "algodex-redis-public-testnet-1.cvu9cm.0001.use2.cache.amazonaws.com:6379"
                 },
@@ -81,6 +85,6 @@
     "requiresCompatibilities": [
         "FARGATE"
     ],
-    "cpu": "256",
-    "memory": "512"
+    "cpu": "2048",
+    "memory": "4096"
 }

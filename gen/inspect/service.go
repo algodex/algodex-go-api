@@ -9,6 +9,8 @@ package inspect
 
 import (
 	"context"
+
+	goa "goa.design/goa/v3/pkg"
 )
 
 // The inspect service provides msgpack decoding services
@@ -30,4 +32,13 @@ var MethodNames = [1]string{"unpack"}
 // UnpackPayload is the payload type of the inspect service unpack method.
 type UnpackPayload struct {
 	Msgpack *string
+}
+
+// MakeAccessDenied builds a goa.ServiceError from an error.
+func MakeAccessDenied(err error) *goa.ServiceError {
+	return &goa.ServiceError{
+		Name:    "access_denied",
+		ID:      goa.NewErrorID(),
+		Message: err.Error(),
+	}
 }
