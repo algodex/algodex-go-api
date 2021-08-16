@@ -20,6 +20,12 @@ type AddRequestBody struct {
 	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 }
 
+// GetMultipleRequestBody is the type of the "account" service "getMultiple"
+// endpoint HTTP request body.
+type GetMultipleRequestBody struct {
+	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
+}
+
 // IswatchedRequestBody is the type of the "account" service "iswatched"
 // endpoint HTTP request body.
 type IswatchedRequestBody struct {
@@ -36,6 +42,10 @@ type GetResponseBody struct {
 	// Account Assets
 	Holdings map[string]*HoldingResponseBody `form:"holdings" json:"holdings" xml:"holdings"`
 }
+
+// GetMultipleResponseBody is the type of the "account" service "getMultiple"
+// endpoint HTTP response body.
+type GetMultipleResponseBody []*AccountResponse
 
 // TrackedAccountResponseCollection is the type of the "account" service "list"
 // endpoint HTTP response body.
@@ -117,6 +127,24 @@ type GetAccessDeniedResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// GetMultipleAccessDeniedResponseBody is the type of the "account" service
+// "getMultiple" endpoint HTTP response body for the "access_denied" error.
+type GetMultipleAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // ListAccessDeniedResponseBody is the type of the "account" service "list"
 // endpoint HTTP response body for the "access_denied" error.
 type ListAccessDeniedResponseBody struct {
@@ -166,14 +194,8 @@ type HoldingResponseBody struct {
 	URL          string `form:"url" json:"url" xml:"url"`
 }
 
-// TrackedAccountResponse is used to define fields on response body types.
-type TrackedAccountResponse struct {
-	// Public Account address
-	Address string `form:"address" json:"address" xml:"address"`
-}
-
-// TrackedAccountResponseFull is used to define fields on response body types.
-type TrackedAccountResponseFull struct {
+// AccountResponse is used to define fields on response body types.
+type AccountResponse struct {
 	// Public Account address
 	Address string `form:"address" json:"address" xml:"address"`
 	// Round fetched
@@ -195,6 +217,22 @@ type HoldingResponse struct {
 	URL          string `form:"url" json:"url" xml:"url"`
 }
 
+// TrackedAccountResponse is used to define fields on response body types.
+type TrackedAccountResponse struct {
+	// Public Account address
+	Address string `form:"address" json:"address" xml:"address"`
+}
+
+// TrackedAccountResponseFull is used to define fields on response body types.
+type TrackedAccountResponseFull struct {
+	// Public Account address
+	Address string `form:"address" json:"address" xml:"address"`
+	// Round fetched
+	Round uint64 `form:"round" json:"round" xml:"round"`
+	// Account Assets
+	Holdings map[string]*HoldingResponse `form:"holdings" json:"holdings" xml:"holdings"`
+}
+
 // NewGetResponseBody builds the HTTP response body from the result of the
 // "get" endpoint of the "account" service.
 func NewGetResponseBody(res *account.Account) *GetResponseBody {
@@ -208,6 +246,16 @@ func NewGetResponseBody(res *account.Account) *GetResponseBody {
 			tk := key
 			body.Holdings[tk] = marshalAccountHoldingToHoldingResponseBody(val)
 		}
+	}
+	return body
+}
+
+// NewGetMultipleResponseBody builds the HTTP response body from the result of
+// the "getMultiple" endpoint of the "account" service.
+func NewGetMultipleResponseBody(res []*account.Account) GetMultipleResponseBody {
+	body := make([]*AccountResponse, len(res))
+	for i, val := range res {
+		body[i] = marshalAccountAccountToAccountResponse(val)
 	}
 	return body
 }
@@ -288,6 +336,20 @@ func NewGetAccessDeniedResponseBody(res *goa.ServiceError) *GetAccessDeniedRespo
 	return body
 }
 
+// NewGetMultipleAccessDeniedResponseBody builds the HTTP response body from
+// the result of the "getMultiple" endpoint of the "account" service.
+func NewGetMultipleAccessDeniedResponseBody(res *goa.ServiceError) *GetMultipleAccessDeniedResponseBody {
+	body := &GetMultipleAccessDeniedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewListAccessDeniedResponseBody builds the HTTP response body from the
 // result of the "list" endpoint of the "account" service.
 func NewListAccessDeniedResponseBody(res *goa.ServiceError) *ListAccessDeniedResponseBody {
@@ -343,6 +405,17 @@ func NewGetPayload(address string) *account.GetPayload {
 	return v
 }
 
+// NewGetMultiplePayload builds a account service getMultiple endpoint payload.
+func NewGetMultiplePayload(body *GetMultipleRequestBody) *account.GetMultiplePayload {
+	v := &account.GetMultiplePayload{}
+	v.Address = make([]string, len(body.Address))
+	for i, val := range body.Address {
+		v.Address[i] = val
+	}
+
+	return v
+}
+
 // NewListPayload builds a account service list endpoint payload.
 func NewListPayload(view *string) *account.ListPayload {
 	v := &account.ListPayload{}
@@ -364,6 +437,15 @@ func NewIswatchedPayload(body *IswatchedRequestBody) *account.IswatchedPayload {
 
 // ValidateAddRequestBody runs the validations defined on AddRequestBody
 func ValidateAddRequestBody(body *AddRequestBody) (err error) {
+	if body.Address == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+	}
+	return
+}
+
+// ValidateGetMultipleRequestBody runs the validations defined on
+// GetMultipleRequestBody
+func ValidateGetMultipleRequestBody(body *GetMultipleRequestBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}

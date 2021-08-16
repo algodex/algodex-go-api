@@ -15,23 +15,25 @@ import (
 
 // Endpoints wraps the "account" service endpoints.
 type Endpoints struct {
-	Add       goa.Endpoint
-	Delete    goa.Endpoint
-	Deleteall goa.Endpoint
-	Get       goa.Endpoint
-	List      goa.Endpoint
-	Iswatched goa.Endpoint
+	Add         goa.Endpoint
+	Delete      goa.Endpoint
+	Deleteall   goa.Endpoint
+	Get         goa.Endpoint
+	GetMultiple goa.Endpoint
+	List        goa.Endpoint
+	Iswatched   goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "account" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		Add:       NewAddEndpoint(s),
-		Delete:    NewDeleteEndpoint(s),
-		Deleteall: NewDeleteallEndpoint(s),
-		Get:       NewGetEndpoint(s),
-		List:      NewListEndpoint(s),
-		Iswatched: NewIswatchedEndpoint(s),
+		Add:         NewAddEndpoint(s),
+		Delete:      NewDeleteEndpoint(s),
+		Deleteall:   NewDeleteallEndpoint(s),
+		Get:         NewGetEndpoint(s),
+		GetMultiple: NewGetMultipleEndpoint(s),
+		List:        NewListEndpoint(s),
+		Iswatched:   NewIswatchedEndpoint(s),
 	}
 }
 
@@ -41,6 +43,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Delete = m(e.Delete)
 	e.Deleteall = m(e.Deleteall)
 	e.Get = m(e.Get)
+	e.GetMultiple = m(e.GetMultiple)
 	e.List = m(e.List)
 	e.Iswatched = m(e.Iswatched)
 }
@@ -77,6 +80,15 @@ func NewGetEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*GetPayload)
 		return s.Get(ctx, p)
+	}
+}
+
+// NewGetMultipleEndpoint returns an endpoint function that calls the method
+// "getMultiple" of service "account".
+func NewGetMultipleEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*GetMultiplePayload)
+		return s.GetMultiple(ctx, p)
 	}
 }
 

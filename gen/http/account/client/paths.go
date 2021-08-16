@@ -37,6 +37,11 @@ func GetAccountPath(address string) string {
 	return fmt.Sprintf("/account/%v", address)
 }
 
+// GetMultipleAccountPath returns the URL path to the account service getMultiple HTTP endpoint.
+func GetMultipleAccountPath() string {
+	return "/account/get"
+}
+
 // ListAccountPath returns the URL path to the account service list HTTP endpoint.
 func ListAccountPath() string {
 	return "/account"

@@ -21,6 +21,12 @@ type AddRequestBody struct {
 	Address []string `form:"address" json:"address" xml:"address"`
 }
 
+// GetMultipleRequestBody is the type of the "account" service "getMultiple"
+// endpoint HTTP request body.
+type GetMultipleRequestBody struct {
+	Address []string `form:"address" json:"address" xml:"address"`
+}
+
 // IswatchedRequestBody is the type of the "account" service "iswatched"
 // endpoint HTTP request body.
 type IswatchedRequestBody struct {
@@ -37,6 +43,10 @@ type GetResponseBody struct {
 	// Account Assets
 	Holdings map[string]*HoldingResponseBody `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
 }
+
+// GetMultipleResponseBody is the type of the "account" service "getMultiple"
+// endpoint HTTP response body.
+type GetMultipleResponseBody []*AccountResponse
 
 // ListResponseBody is the type of the "account" service "list" endpoint HTTP
 // response body.
@@ -114,6 +124,24 @@ type GetAccessDeniedResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// GetMultipleAccessDeniedResponseBody is the type of the "account" service
+// "getMultiple" endpoint HTTP response body for the "access_denied" error.
+type GetMultipleAccessDeniedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // ListAccessDeniedResponseBody is the type of the "account" service "list"
 // endpoint HTTP response body for the "access_denied" error.
 type ListAccessDeniedResponseBody struct {
@@ -163,8 +191,8 @@ type HoldingResponseBody struct {
 	URL          *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
 }
 
-// TrackedAccountResponse is used to define fields on response body types.
-type TrackedAccountResponse struct {
+// AccountResponse is used to define fields on response body types.
+type AccountResponse struct {
 	// Public Account address
 	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 	// Round fetched
@@ -186,10 +214,33 @@ type HoldingResponse struct {
 	URL          *string `form:"url,omitempty" json:"url,omitempty" xml:"url,omitempty"`
 }
 
+// TrackedAccountResponse is used to define fields on response body types.
+type TrackedAccountResponse struct {
+	// Public Account address
+	Address *string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
+	// Round fetched
+	Round *uint64 `form:"round,omitempty" json:"round,omitempty" xml:"round,omitempty"`
+	// Account Assets
+	Holdings map[string]*HoldingResponse `form:"holdings,omitempty" json:"holdings,omitempty" xml:"holdings,omitempty"`
+}
+
 // NewAddRequestBody builds the HTTP request body from the payload of the "add"
 // endpoint of the "account" service.
 func NewAddRequestBody(p *account.AddPayload) *AddRequestBody {
 	body := &AddRequestBody{}
+	if p.Address != nil {
+		body.Address = make([]string, len(p.Address))
+		for i, val := range p.Address {
+			body.Address[i] = val
+		}
+	}
+	return body
+}
+
+// NewGetMultipleRequestBody builds the HTTP request body from the payload of
+// the "getMultiple" endpoint of the "account" service.
+func NewGetMultipleRequestBody(p *account.GetMultiplePayload) *GetMultipleRequestBody {
+	body := &GetMultipleRequestBody{}
 	if p.Address != nil {
 		body.Address = make([]string, len(p.Address))
 		for i, val := range p.Address {
@@ -286,6 +337,32 @@ func NewGetAccessDenied(body *GetAccessDeniedResponseBody) *goa.ServiceError {
 	return v
 }
 
+// NewGetMultipleAccountOK builds a "account" service "getMultiple" endpoint
+// result from a HTTP "OK" response.
+func NewGetMultipleAccountOK(body []*AccountResponse) []*account.Account {
+	v := make([]*account.Account, len(body))
+	for i, val := range body {
+		v[i] = unmarshalAccountResponseToAccountAccount(val)
+	}
+
+	return v
+}
+
+// NewGetMultipleAccessDenied builds a account service getMultiple endpoint
+// access_denied error.
+func NewGetMultipleAccessDenied(body *GetMultipleAccessDeniedResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewListTrackedAccountCollectionOK builds a "account" service "list" endpoint
 // result from a HTTP "OK" response.
 func NewListTrackedAccountCollectionOK(body ListResponseBody) accountviews.TrackedAccountCollectionView {
@@ -337,6 +414,14 @@ func ValidateGetResponseBody(body *GetResponseBody) (err error) {
 	}
 	if body.Holdings == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "body"))
+	}
+	if body.Address != nil {
+		err = goa.MergeErrors(err, goa.ValidatePattern("body.address", *body.Address, "^[A-Z2-7]{58}$"))
+	}
+	if body.Address != nil {
+		if utf8.RuneCountInString(*body.Address) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address", *body.Address, utf8.RuneCountInString(*body.Address), 58, true))
+		}
 	}
 	if body.Address != nil {
 		if utf8.RuneCountInString(*body.Address) > 58 {
@@ -449,6 +534,30 @@ func ValidateGetAccessDeniedResponseBody(body *GetAccessDeniedResponseBody) (err
 	return
 }
 
+// ValidateGetMultipleAccessDeniedResponseBody runs the validations defined on
+// getMultiple_access_denied_response_body
+func ValidateGetMultipleAccessDeniedResponseBody(body *GetMultipleAccessDeniedResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateListAccessDeniedResponseBody runs the validations defined on
 // list_access_denied_response_body
 func ValidateListAccessDeniedResponseBody(body *ListAccessDeniedResponseBody) (err error) {
@@ -524,9 +633,8 @@ func ValidateHoldingResponseBody(body *HoldingResponseBody) (err error) {
 	return
 }
 
-// ValidateTrackedAccountResponse runs the validations defined on
-// TrackedAccountResponse
-func ValidateTrackedAccountResponse(body *TrackedAccountResponse) (err error) {
+// ValidateAccountResponse runs the validations defined on AccountResponse
+func ValidateAccountResponse(body *AccountResponse) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}
@@ -535,6 +643,14 @@ func ValidateTrackedAccountResponse(body *TrackedAccountResponse) (err error) {
 	}
 	if body.Holdings == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "body"))
+	}
+	if body.Address != nil {
+		err = goa.MergeErrors(err, goa.ValidatePattern("body.address", *body.Address, "^[A-Z2-7]{58}$"))
+	}
+	if body.Address != nil {
+		if utf8.RuneCountInString(*body.Address) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address", *body.Address, utf8.RuneCountInString(*body.Address), 58, true))
+		}
 	}
 	if body.Address != nil {
 		if utf8.RuneCountInString(*body.Address) > 58 {
@@ -573,6 +689,41 @@ func ValidateHoldingResponse(body *HoldingResponse) (err error) {
 	}
 	if body.URL == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("url", "body"))
+	}
+	return
+}
+
+// ValidateTrackedAccountResponse runs the validations defined on
+// TrackedAccountResponse
+func ValidateTrackedAccountResponse(body *TrackedAccountResponse) (err error) {
+	if body.Address == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+	}
+	if body.Round == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("round", "body"))
+	}
+	if body.Holdings == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "body"))
+	}
+	if body.Address != nil {
+		err = goa.MergeErrors(err, goa.ValidatePattern("body.address", *body.Address, "^[A-Z2-7]{58}$"))
+	}
+	if body.Address != nil {
+		if utf8.RuneCountInString(*body.Address) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address", *body.Address, utf8.RuneCountInString(*body.Address), 58, true))
+		}
+	}
+	if body.Address != nil {
+		if utf8.RuneCountInString(*body.Address) > 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address", *body.Address, utf8.RuneCountInString(*body.Address), 58, false))
+		}
+	}
+	for _, v := range body.Holdings {
+		if v != nil {
+			if err2 := ValidateHoldingResponse(v); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
 	}
 	return
 }

@@ -24,6 +24,8 @@ type Service interface {
 	Deleteall(context.Context) (err error)
 	// Get specific account
 	Get(context.Context, *GetPayload) (res *Account, err error)
+	// Get account(s)
+	GetMultiple(context.Context, *GetMultiplePayload) (res []*Account, err error)
 	// List all tracked accounts
 	// The "view" return value must have one of the following views
 	//	- "default"
@@ -41,7 +43,7 @@ const ServiceName = "account"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [6]string{"add", "delete", "deleteall", "get", "list", "iswatched"}
+var MethodNames = [7]string{"add", "delete", "deleteall", "get", "getMultiple", "list", "iswatched"}
 
 // AddPayload is the payload type of the account service add method.
 type AddPayload struct {
@@ -67,6 +69,12 @@ type Account struct {
 	Round uint64
 	// Account Assets
 	Holdings map[string]*Holding
+}
+
+// GetMultiplePayload is the payload type of the account service getMultiple
+// method.
+type GetMultiplePayload struct {
+	Address []string
 }
 
 // ListPayload is the payload type of the account service list method.
