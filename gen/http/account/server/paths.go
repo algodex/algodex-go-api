@@ -27,8 +27,8 @@ func DeleteAccountPath(address []string) string {
 	return fmt.Sprintf("/account/%v", strings.Join(addressSlice, ","))
 }
 
-// DeleteallAccountPath returns the URL path to the account service deleteall HTTP endpoint.
-func DeleteallAccountPath() string {
+// DeleteAllAccountPath returns the URL path to the account service deleteAll HTTP endpoint.
+func DeleteAllAccountPath() string {
 	return "/account/all"
 }
 
@@ -47,7 +47,7 @@ func ListAccountPath() string {
 	return "/account"
 }
 
-// IswatchedAccountPath returns the URL path to the account service iswatched HTTP endpoint.
-func IswatchedAccountPath() string {
-	return "/account/iswatched"
+// IsWatchedAccountPath returns the URL path to the account service isWatched HTTP endpoint.
+func IsWatchedAccountPath() string {
+	return "/account/isWatched"
 }

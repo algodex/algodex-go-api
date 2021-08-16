@@ -171,7 +171,7 @@ var _ = Service(
 			},
 		)
 		Method(
-			"deleteall", func() {
+			"deleteAll", func() {
 				Description("Delete all tracked algorand account(s).  Used for resetting everything")
 
 				HTTP(
@@ -258,7 +258,7 @@ var _ = Service(
 		)
 
 		Method(
-			"iswatched", func() {
+			"isWatched", func() {
 				Description("Returns which of the passed accounts are currently being monitored")
 				Payload(
 					func() {
@@ -278,7 +278,7 @@ var _ = Service(
 				Result(ArrayOf(String))
 				HTTP(
 					func() {
-						POST("/account/iswatched")
+						POST("/account/isWatched")
 						Response(StatusOK)
 					},
 				)

@@ -17,11 +17,11 @@ import (
 type Endpoints struct {
 	Add         goa.Endpoint
 	Delete      goa.Endpoint
-	Deleteall   goa.Endpoint
+	DeleteAll   goa.Endpoint
 	Get         goa.Endpoint
 	GetMultiple goa.Endpoint
 	List        goa.Endpoint
-	Iswatched   goa.Endpoint
+	IsWatched   goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "account" service with endpoints.
@@ -29,11 +29,11 @@ func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
 		Add:         NewAddEndpoint(s),
 		Delete:      NewDeleteEndpoint(s),
-		Deleteall:   NewDeleteallEndpoint(s),
+		DeleteAll:   NewDeleteAllEndpoint(s),
 		Get:         NewGetEndpoint(s),
 		GetMultiple: NewGetMultipleEndpoint(s),
 		List:        NewListEndpoint(s),
-		Iswatched:   NewIswatchedEndpoint(s),
+		IsWatched:   NewIsWatchedEndpoint(s),
 	}
 }
 
@@ -41,11 +41,11 @@ func NewEndpoints(s Service) *Endpoints {
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Add = m(e.Add)
 	e.Delete = m(e.Delete)
-	e.Deleteall = m(e.Deleteall)
+	e.DeleteAll = m(e.DeleteAll)
 	e.Get = m(e.Get)
 	e.GetMultiple = m(e.GetMultiple)
 	e.List = m(e.List)
-	e.Iswatched = m(e.Iswatched)
+	e.IsWatched = m(e.IsWatched)
 }
 
 // NewAddEndpoint returns an endpoint function that calls the method "add" of
@@ -66,11 +66,11 @@ func NewDeleteEndpoint(s Service) goa.Endpoint {
 	}
 }
 
-// NewDeleteallEndpoint returns an endpoint function that calls the method
-// "deleteall" of service "account".
-func NewDeleteallEndpoint(s Service) goa.Endpoint {
+// NewDeleteAllEndpoint returns an endpoint function that calls the method
+// "deleteAll" of service "account".
+func NewDeleteAllEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		return nil, s.Deleteall(ctx)
+		return nil, s.DeleteAll(ctx)
 	}
 }
 
@@ -106,11 +106,11 @@ func NewListEndpoint(s Service) goa.Endpoint {
 	}
 }
 
-// NewIswatchedEndpoint returns an endpoint function that calls the method
-// "iswatched" of service "account".
-func NewIswatchedEndpoint(s Service) goa.Endpoint {
+// NewIsWatchedEndpoint returns an endpoint function that calls the method
+// "isWatched" of service "account".
+func NewIsWatchedEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		p := req.(*IswatchedPayload)
-		return s.Iswatched(ctx, p)
+		p := req.(*IsWatchedPayload)
+		return s.IsWatched(ctx, p)
 	}
 }

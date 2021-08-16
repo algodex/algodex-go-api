@@ -26,9 +26,9 @@ type GetMultipleRequestBody struct {
 	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 }
 
-// IswatchedRequestBody is the type of the "account" service "iswatched"
+// IsWatchedRequestBody is the type of the "account" service "isWatched"
 // endpoint HTTP request body.
-type IswatchedRequestBody struct {
+type IsWatchedRequestBody struct {
 	Address []string `form:"address,omitempty" json:"address,omitempty" xml:"address,omitempty"`
 }
 
@@ -91,9 +91,9 @@ type DeleteAccessDeniedResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// DeleteallAccessDeniedResponseBody is the type of the "account" service
-// "deleteall" endpoint HTTP response body for the "access_denied" error.
-type DeleteallAccessDeniedResponseBody struct {
+// DeleteAllAccessDeniedResponseBody is the type of the "account" service
+// "deleteAll" endpoint HTTP response body for the "access_denied" error.
+type DeleteAllAccessDeniedResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -163,9 +163,9 @@ type ListAccessDeniedResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// IswatchedAccessDeniedResponseBody is the type of the "account" service
-// "iswatched" endpoint HTTP response body for the "access_denied" error.
-type IswatchedAccessDeniedResponseBody struct {
+// IsWatchedAccessDeniedResponseBody is the type of the "account" service
+// "isWatched" endpoint HTTP response body for the "access_denied" error.
+type IsWatchedAccessDeniedResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -308,10 +308,10 @@ func NewDeleteAccessDeniedResponseBody(res *goa.ServiceError) *DeleteAccessDenie
 	return body
 }
 
-// NewDeleteallAccessDeniedResponseBody builds the HTTP response body from the
-// result of the "deleteall" endpoint of the "account" service.
-func NewDeleteallAccessDeniedResponseBody(res *goa.ServiceError) *DeleteallAccessDeniedResponseBody {
-	body := &DeleteallAccessDeniedResponseBody{
+// NewDeleteAllAccessDeniedResponseBody builds the HTTP response body from the
+// result of the "deleteAll" endpoint of the "account" service.
+func NewDeleteAllAccessDeniedResponseBody(res *goa.ServiceError) *DeleteAllAccessDeniedResponseBody {
+	body := &DeleteAllAccessDeniedResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -364,10 +364,10 @@ func NewListAccessDeniedResponseBody(res *goa.ServiceError) *ListAccessDeniedRes
 	return body
 }
 
-// NewIswatchedAccessDeniedResponseBody builds the HTTP response body from the
-// result of the "iswatched" endpoint of the "account" service.
-func NewIswatchedAccessDeniedResponseBody(res *goa.ServiceError) *IswatchedAccessDeniedResponseBody {
-	body := &IswatchedAccessDeniedResponseBody{
+// NewIsWatchedAccessDeniedResponseBody builds the HTTP response body from the
+// result of the "isWatched" endpoint of the "account" service.
+func NewIsWatchedAccessDeniedResponseBody(res *goa.ServiceError) *IsWatchedAccessDeniedResponseBody {
+	body := &IsWatchedAccessDeniedResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -424,9 +424,9 @@ func NewListPayload(view *string) *account.ListPayload {
 	return v
 }
 
-// NewIswatchedPayload builds a account service iswatched endpoint payload.
-func NewIswatchedPayload(body *IswatchedRequestBody) *account.IswatchedPayload {
-	v := &account.IswatchedPayload{}
+// NewIsWatchedPayload builds a account service isWatched endpoint payload.
+func NewIsWatchedPayload(body *IsWatchedRequestBody) *account.IsWatchedPayload {
+	v := &account.IsWatchedPayload{}
 	v.Address = make([]string, len(body.Address))
 	for i, val := range body.Address {
 		v.Address[i] = val
@@ -452,9 +452,9 @@ func ValidateGetMultipleRequestBody(body *GetMultipleRequestBody) (err error) {
 	return
 }
 
-// ValidateIswatchedRequestBody runs the validations defined on
-// IswatchedRequestBody
-func ValidateIswatchedRequestBody(body *IswatchedRequestBody) (err error) {
+// ValidateIsWatchedRequestBody runs the validations defined on
+// IsWatchedRequestBody
+func ValidateIsWatchedRequestBody(body *IsWatchedRequestBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}

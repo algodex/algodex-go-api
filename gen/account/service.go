@@ -21,7 +21,7 @@ type Service interface {
 	// Delete Algorand account(s) to track
 	Delete(context.Context, *DeletePayload) (err error)
 	// Delete all tracked algorand account(s).  Used for resetting everything
-	Deleteall(context.Context) (err error)
+	DeleteAll(context.Context) (err error)
 	// Get specific account
 	Get(context.Context, *GetPayload) (res *Account, err error)
 	// Get account(s)
@@ -32,7 +32,7 @@ type Service interface {
 	//	- "full"
 	List(context.Context, *ListPayload) (res TrackedAccountCollection, view string, err error)
 	// Returns which of the passed accounts are currently being monitored
-	Iswatched(context.Context, *IswatchedPayload) (res []string, err error)
+	IsWatched(context.Context, *IsWatchedPayload) (res []string, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -43,7 +43,7 @@ const ServiceName = "account"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [7]string{"add", "delete", "deleteall", "get", "getMultiple", "list", "iswatched"}
+var MethodNames = [7]string{"add", "delete", "deleteAll", "get", "getMultiple", "list", "isWatched"}
 
 // AddPayload is the payload type of the account service add method.
 type AddPayload struct {
@@ -87,8 +87,8 @@ type ListPayload struct {
 // method.
 type TrackedAccountCollection []*TrackedAccount
 
-// IswatchedPayload is the payload type of the account service iswatched method.
-type IswatchedPayload struct {
+// IsWatchedPayload is the payload type of the account service isWatched method.
+type IsWatchedPayload struct {
 	Address []string
 }
 

@@ -142,18 +142,18 @@ func EncodeDeleteError(encoder func(context.Context, http.ResponseWriter) goahtt
 	}
 }
 
-// EncodeDeleteallResponse returns an encoder for responses returned by the
-// account deleteall endpoint.
-func EncodeDeleteallResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+// EncodeDeleteAllResponse returns an encoder for responses returned by the
+// account deleteAll endpoint.
+func EncodeDeleteAllResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		w.WriteHeader(http.StatusOK)
 		return nil
 	}
 }
 
-// EncodeDeleteallError returns an encoder for errors returned by the deleteall
+// EncodeDeleteAllError returns an encoder for errors returned by the deleteAll
 // account endpoint.
-func EncodeDeleteallError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+func EncodeDeleteAllError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		en, ok := v.(ErrorNamer)
@@ -168,7 +168,7 @@ func EncodeDeleteallError(encoder func(context.Context, http.ResponseWriter) goa
 			if formatter != nil {
 				body = formatter(res)
 			} else {
-				body = NewDeleteallAccessDeniedResponseBody(res)
+				body = NewDeleteAllAccessDeniedResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusUnauthorized)
@@ -380,9 +380,9 @@ func EncodeListError(encoder func(context.Context, http.ResponseWriter) goahttp.
 	}
 }
 
-// EncodeIswatchedResponse returns an encoder for responses returned by the
-// account iswatched endpoint.
-func EncodeIswatchedResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+// EncodeIsWatchedResponse returns an encoder for responses returned by the
+// account isWatched endpoint.
+func EncodeIsWatchedResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
 		res, _ := v.([]string)
 		enc := encoder(ctx, w)
@@ -392,12 +392,12 @@ func EncodeIswatchedResponse(encoder func(context.Context, http.ResponseWriter) 
 	}
 }
 
-// DecodeIswatchedRequest returns a decoder for requests sent to the account
-// iswatched endpoint.
-func DecodeIswatchedRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+// DecodeIsWatchedRequest returns a decoder for requests sent to the account
+// isWatched endpoint.
+func DecodeIsWatchedRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			body IswatchedRequestBody
+			body IsWatchedRequestBody
 			err  error
 		)
 		err = decoder(r).Decode(&body)
@@ -407,19 +407,19 @@ func DecodeIswatchedRequest(mux goahttp.Muxer, decoder func(*http.Request) goaht
 			}
 			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = ValidateIswatchedRequestBody(&body)
+		err = ValidateIsWatchedRequestBody(&body)
 		if err != nil {
 			return nil, err
 		}
-		payload := NewIswatchedPayload(&body)
+		payload := NewIsWatchedPayload(&body)
 
 		return payload, nil
 	}
 }
 
-// EncodeIswatchedError returns an encoder for errors returned by the iswatched
+// EncodeIsWatchedError returns an encoder for errors returned by the isWatched
 // account endpoint.
-func EncodeIswatchedError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+func EncodeIsWatchedError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		en, ok := v.(ErrorNamer)
@@ -434,7 +434,7 @@ func EncodeIswatchedError(encoder func(context.Context, http.ResponseWriter) goa
 			if formatter != nil {
 				body = formatter(res)
 			} else {
-				body = NewIswatchedAccessDeniedResponseBody(res)
+				body = NewIsWatchedAccessDeniedResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.ErrorName())
 			w.WriteHeader(http.StatusUnauthorized)

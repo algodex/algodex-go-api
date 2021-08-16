@@ -25,7 +25,7 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `account (add|delete|deleteall|get|get-multiple|list|iswatched)
+	return `account (add|delete|delete-all|get|get-multiple|list|is-watched)
 inspect unpack
 info (version|live)
 `
@@ -64,7 +64,7 @@ func ParseEndpoint(
 		accountDeleteFlags       = flag.NewFlagSet("delete", flag.ExitOnError)
 		accountDeleteAddressFlag = accountDeleteFlags.String("address", "REQUIRED", "")
 
-		accountDeleteallFlags = flag.NewFlagSet("deleteall", flag.ExitOnError)
+		accountDeleteAllFlags = flag.NewFlagSet("delete-all", flag.ExitOnError)
 
 		accountGetFlags       = flag.NewFlagSet("get", flag.ExitOnError)
 		accountGetAddressFlag = accountGetFlags.String("address", "REQUIRED", "Public Account address")
@@ -75,8 +75,8 @@ func ParseEndpoint(
 		accountListFlags    = flag.NewFlagSet("list", flag.ExitOnError)
 		accountListViewFlag = accountListFlags.String("view", "", "")
 
-		accountIswatchedFlags    = flag.NewFlagSet("iswatched", flag.ExitOnError)
-		accountIswatchedBodyFlag = accountIswatchedFlags.String("body", "REQUIRED", "")
+		accountIsWatchedFlags    = flag.NewFlagSet("is-watched", flag.ExitOnError)
+		accountIsWatchedBodyFlag = accountIsWatchedFlags.String("body", "REQUIRED", "")
 
 		inspectFlags = flag.NewFlagSet("inspect", flag.ContinueOnError)
 
@@ -92,11 +92,11 @@ func ParseEndpoint(
 	accountFlags.Usage = accountUsage
 	accountAddFlags.Usage = accountAddUsage
 	accountDeleteFlags.Usage = accountDeleteUsage
-	accountDeleteallFlags.Usage = accountDeleteallUsage
+	accountDeleteAllFlags.Usage = accountDeleteAllUsage
 	accountGetFlags.Usage = accountGetUsage
 	accountGetMultipleFlags.Usage = accountGetMultipleUsage
 	accountListFlags.Usage = accountListUsage
-	accountIswatchedFlags.Usage = accountIswatchedUsage
+	accountIsWatchedFlags.Usage = accountIsWatchedUsage
 
 	inspectFlags.Usage = inspectUsage
 	inspectUnpackFlags.Usage = inspectUnpackUsage
@@ -149,8 +149,8 @@ func ParseEndpoint(
 			case "delete":
 				epf = accountDeleteFlags
 
-			case "deleteall":
-				epf = accountDeleteallFlags
+			case "delete-all":
+				epf = accountDeleteAllFlags
 
 			case "get":
 				epf = accountGetFlags
@@ -161,8 +161,8 @@ func ParseEndpoint(
 			case "list":
 				epf = accountListFlags
 
-			case "iswatched":
-				epf = accountIswatchedFlags
+			case "is-watched":
+				epf = accountIsWatchedFlags
 
 			}
 
@@ -212,8 +212,8 @@ func ParseEndpoint(
 			case "delete":
 				endpoint = c.Delete()
 				data, err = accountc.BuildDeletePayload(*accountDeleteAddressFlag)
-			case "deleteall":
-				endpoint = c.Deleteall()
+			case "delete-all":
+				endpoint = c.DeleteAll()
 				data = nil
 			case "get":
 				endpoint = c.Get()
@@ -224,9 +224,9 @@ func ParseEndpoint(
 			case "list":
 				endpoint = c.List()
 				data, err = accountc.BuildListPayload(*accountListViewFlag)
-			case "iswatched":
-				endpoint = c.Iswatched()
-				data, err = accountc.BuildIswatchedPayload(*accountIswatchedBodyFlag)
+			case "is-watched":
+				endpoint = c.IsWatched()
+				data, err = accountc.BuildIsWatchedPayload(*accountIsWatchedBodyFlag)
 			}
 		case "inspect":
 			c := inspectc.NewClient(scheme, host, doer, enc, dec, restore)
@@ -263,11 +263,11 @@ Usage:
 COMMAND:
     add: Add Algorand account(s) to track
     delete: Delete Algorand account(s) to track
-    deleteall: Delete all tracked algorand account(s).  Used for resetting everything
+    delete-all: Delete all tracked algorand account(s).  Used for resetting everything
     get: Get specific account
     get-multiple: Get account(s)
     list: List all tracked accounts
-    iswatched: Returns which of the passed accounts are currently being monitored
+    is-watched: Returns which of the passed accounts are currently being monitored
 
 Additional help:
     %s account COMMAND --help
@@ -303,13 +303,13 @@ Example:
 `, os.Args[0])
 }
 
-func accountDeleteallUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] account deleteall
+func accountDeleteAllUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] account delete-all
 
 Delete all tracked algorand account(s).  Used for resetting everything
 
 Example:
-    `+os.Args[0]+` account deleteall
+    `+os.Args[0]+` account delete-all
 `, os.Args[0])
 }
 
@@ -351,14 +351,14 @@ Example:
 `, os.Args[0])
 }
 
-func accountIswatchedUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] account iswatched -body JSON
+func accountIsWatchedUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] account is-watched -body JSON
 
 Returns which of the passed accounts are currently being monitored
     -body JSON: 
 
 Example:
-    `+os.Args[0]+` account iswatched --body '{
+    `+os.Args[0]+` account is-watched --body '{
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
          "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"

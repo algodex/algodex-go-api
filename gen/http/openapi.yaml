@@ -119,16 +119,16 @@ paths:
     delete:
       tags:
       - account
-      summary: deleteall account
+      summary: deleteAll account
       description: Delete all tracked algorand account(s).  Used for resetting everything
-      operationId: account#deleteall
+      operationId: account#deleteAll
       responses:
         "200":
           description: OK response.
         "401":
           description: Unauthorized response.
           schema:
-            $ref: '#/definitions/AccountDeleteallAccessDeniedResponseBody'
+            $ref: '#/definitions/AccountDeleteAllAccessDeniedResponseBody'
       schemes:
       - http
   /account/get:
@@ -159,19 +159,19 @@ paths:
             $ref: '#/definitions/AccountGetMultipleAccessDeniedResponseBody'
       schemes:
       - http
-  /account/iswatched:
+  /account/isWatched:
     post:
       tags:
       - account
-      summary: iswatched account
+      summary: isWatched account
       description: Returns which of the passed accounts are currently being monitored
-      operationId: account#iswatched
+      operationId: account#isWatched
       parameters:
-      - name: IswatchedRequestBody
+      - name: IsWatchedRequestBody
         in: body
         required: true
         schema:
-          $ref: '#/definitions/AccountIswatchedRequestBody'
+          $ref: '#/definitions/AccountIsWatchedRequestBody'
           required:
           - address
       responses:
@@ -185,7 +185,7 @@ paths:
         "401":
           description: Unauthorized response.
           schema:
-            $ref: '#/definitions/AccountIswatchedAccessDeniedResponseBody'
+            $ref: '#/definitions/AccountIsWatchedAccessDeniedResponseBody'
       schemes:
       - http
   /inspect/unpack:
@@ -363,7 +363,7 @@ definitions:
     - temporary
     - timeout
     - fault
-  AccountDeleteallAccessDeniedResponseBody:
+  AccountDeleteAllAccessDeniedResponseBody:
     title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
     properties:
@@ -393,7 +393,7 @@ definitions:
         type: boolean
         description: Is the error a timeout?
         example: false
-    description: deleteall_access_denied_response_body result type (default view)
+    description: deleteAll_access_denied_response_body result type (default view)
     example:
       fault: true
       id: 123abc
@@ -577,7 +577,7 @@ definitions:
     - address
     - round
     - holdings
-  AccountIswatchedAccessDeniedResponseBody:
+  AccountIsWatchedAccessDeniedResponseBody:
     title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
     properties:
@@ -607,7 +607,7 @@ definitions:
         type: boolean
         description: Is the error a timeout?
         example: false
-    description: iswatched_access_denied_response_body result type (default view)
+    description: isWatched_access_denied_response_body result type (default view)
     example:
       fault: true
       id: 123abc
@@ -622,8 +622,8 @@ definitions:
     - temporary
     - timeout
     - fault
-  AccountIswatchedRequestBody:
-    title: AccountIswatchedRequestBody
+  AccountIsWatchedRequestBody:
+    title: AccountIsWatchedRequestBody
     type: object
     properties:
       address:

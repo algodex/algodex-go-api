@@ -164,13 +164,13 @@ func DecodeDeleteResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 	}
 }
 
-// BuildDeleteallRequest instantiates a HTTP request object with method and
-// path set to call the "account" service "deleteall" endpoint
-func (c *Client) BuildDeleteallRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DeleteallAccountPath()}
+// BuildDeleteAllRequest instantiates a HTTP request object with method and
+// path set to call the "account" service "deleteAll" endpoint
+func (c *Client) BuildDeleteAllRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DeleteAllAccountPath()}
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("account", "deleteall", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("account", "deleteAll", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -179,13 +179,13 @@ func (c *Client) BuildDeleteallRequest(ctx context.Context, v interface{}) (*htt
 	return req, nil
 }
 
-// DecodeDeleteallResponse returns a decoder for responses returned by the
-// account deleteall endpoint. restoreBody controls whether the response body
+// DecodeDeleteAllResponse returns a decoder for responses returned by the
+// account deleteAll endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
-// DecodeDeleteallResponse may return the following errors:
+// DecodeDeleteAllResponse may return the following errors:
 //	- "access_denied" (type *goa.ServiceError): http.StatusUnauthorized
 //	- error: internal error
-func DecodeDeleteallResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+func DecodeDeleteAllResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
 			b, err := ioutil.ReadAll(resp.Body)
@@ -204,21 +204,21 @@ func DecodeDeleteallResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			return nil, nil
 		case http.StatusUnauthorized:
 			var (
-				body DeleteallAccessDeniedResponseBody
+				body DeleteAllAccessDeniedResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("account", "deleteall", err)
+				return nil, goahttp.ErrDecodingError("account", "deleteAll", err)
 			}
-			err = ValidateDeleteallAccessDeniedResponseBody(&body)
+			err = ValidateDeleteAllAccessDeniedResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("account", "deleteall", err)
+				return nil, goahttp.ErrValidationError("account", "deleteAll", err)
 			}
-			return nil, NewDeleteallAccessDenied(&body)
+			return nil, NewDeleteAllAccessDenied(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("account", "deleteall", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("account", "deleteAll", resp.StatusCode, string(body))
 		}
 	}
 }
@@ -490,13 +490,13 @@ func DecodeListResponse(decoder func(*http.Response) goahttp.Decoder, restoreBod
 	}
 }
 
-// BuildIswatchedRequest instantiates a HTTP request object with method and
-// path set to call the "account" service "iswatched" endpoint
-func (c *Client) BuildIswatchedRequest(ctx context.Context, v interface{}) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: IswatchedAccountPath()}
+// BuildIsWatchedRequest instantiates a HTTP request object with method and
+// path set to call the "account" service "isWatched" endpoint
+func (c *Client) BuildIsWatchedRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: IsWatchedAccountPath()}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("account", "iswatched", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("account", "isWatched", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -505,29 +505,29 @@ func (c *Client) BuildIswatchedRequest(ctx context.Context, v interface{}) (*htt
 	return req, nil
 }
 
-// EncodeIswatchedRequest returns an encoder for requests sent to the account
-// iswatched server.
-func EncodeIswatchedRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+// EncodeIsWatchedRequest returns an encoder for requests sent to the account
+// isWatched server.
+func EncodeIsWatchedRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
 	return func(req *http.Request, v interface{}) error {
-		p, ok := v.(*account.IswatchedPayload)
+		p, ok := v.(*account.IsWatchedPayload)
 		if !ok {
-			return goahttp.ErrInvalidType("account", "iswatched", "*account.IswatchedPayload", v)
+			return goahttp.ErrInvalidType("account", "isWatched", "*account.IsWatchedPayload", v)
 		}
-		body := NewIswatchedRequestBody(p)
+		body := NewIsWatchedRequestBody(p)
 		if err := encoder(req).Encode(&body); err != nil {
-			return goahttp.ErrEncodingError("account", "iswatched", err)
+			return goahttp.ErrEncodingError("account", "isWatched", err)
 		}
 		return nil
 	}
 }
 
-// DecodeIswatchedResponse returns a decoder for responses returned by the
-// account iswatched endpoint. restoreBody controls whether the response body
+// DecodeIsWatchedResponse returns a decoder for responses returned by the
+// account isWatched endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
-// DecodeIswatchedResponse may return the following errors:
+// DecodeIsWatchedResponse may return the following errors:
 //	- "access_denied" (type *goa.ServiceError): http.StatusUnauthorized
 //	- error: internal error
-func DecodeIswatchedResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+func DecodeIsWatchedResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
 			b, err := ioutil.ReadAll(resp.Body)
@@ -549,26 +549,26 @@ func DecodeIswatchedResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("account", "iswatched", err)
+				return nil, goahttp.ErrDecodingError("account", "isWatched", err)
 			}
 			return body, nil
 		case http.StatusUnauthorized:
 			var (
-				body IswatchedAccessDeniedResponseBody
+				body IsWatchedAccessDeniedResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("account", "iswatched", err)
+				return nil, goahttp.ErrDecodingError("account", "isWatched", err)
 			}
-			err = ValidateIswatchedAccessDeniedResponseBody(&body)
+			err = ValidateIsWatchedAccessDeniedResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("account", "iswatched", err)
+				return nil, goahttp.ErrValidationError("account", "isWatched", err)
 			}
-			return nil, NewIswatchedAccessDenied(&body)
+			return nil, NewIsWatchedAccessDenied(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("account", "iswatched", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("account", "isWatched", resp.StatusCode, string(body))
 		}
 	}
 }

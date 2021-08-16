@@ -27,9 +27,9 @@ type GetMultipleRequestBody struct {
 	Address []string `form:"address" json:"address" xml:"address"`
 }
 
-// IswatchedRequestBody is the type of the "account" service "iswatched"
+// IsWatchedRequestBody is the type of the "account" service "isWatched"
 // endpoint HTTP request body.
-type IswatchedRequestBody struct {
+type IsWatchedRequestBody struct {
 	Address []string `form:"address" json:"address" xml:"address"`
 }
 
@@ -88,9 +88,9 @@ type DeleteAccessDeniedResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// DeleteallAccessDeniedResponseBody is the type of the "account" service
-// "deleteall" endpoint HTTP response body for the "access_denied" error.
-type DeleteallAccessDeniedResponseBody struct {
+// DeleteAllAccessDeniedResponseBody is the type of the "account" service
+// "deleteAll" endpoint HTTP response body for the "access_denied" error.
+type DeleteAllAccessDeniedResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -160,9 +160,9 @@ type ListAccessDeniedResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// IswatchedAccessDeniedResponseBody is the type of the "account" service
-// "iswatched" endpoint HTTP response body for the "access_denied" error.
-type IswatchedAccessDeniedResponseBody struct {
+// IsWatchedAccessDeniedResponseBody is the type of the "account" service
+// "isWatched" endpoint HTTP response body for the "access_denied" error.
+type IsWatchedAccessDeniedResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -250,10 +250,10 @@ func NewGetMultipleRequestBody(p *account.GetMultiplePayload) *GetMultipleReques
 	return body
 }
 
-// NewIswatchedRequestBody builds the HTTP request body from the payload of the
-// "iswatched" endpoint of the "account" service.
-func NewIswatchedRequestBody(p *account.IswatchedPayload) *IswatchedRequestBody {
-	body := &IswatchedRequestBody{}
+// NewIsWatchedRequestBody builds the HTTP request body from the payload of the
+// "isWatched" endpoint of the "account" service.
+func NewIsWatchedRequestBody(p *account.IsWatchedPayload) *IsWatchedRequestBody {
+	body := &IsWatchedRequestBody{}
 	if p.Address != nil {
 		body.Address = make([]string, len(p.Address))
 		for i, val := range p.Address {
@@ -292,9 +292,9 @@ func NewDeleteAccessDenied(body *DeleteAccessDeniedResponseBody) *goa.ServiceErr
 	return v
 }
 
-// NewDeleteallAccessDenied builds a account service deleteall endpoint
+// NewDeleteAllAccessDenied builds a account service deleteAll endpoint
 // access_denied error.
-func NewDeleteallAccessDenied(body *DeleteallAccessDeniedResponseBody) *goa.ServiceError {
+func NewDeleteAllAccessDenied(body *DeleteAllAccessDeniedResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -389,9 +389,9 @@ func NewListAccessDenied(body *ListAccessDeniedResponseBody) *goa.ServiceError {
 	return v
 }
 
-// NewIswatchedAccessDenied builds a account service iswatched endpoint
+// NewIsWatchedAccessDenied builds a account service isWatched endpoint
 // access_denied error.
-func NewIswatchedAccessDenied(body *IswatchedAccessDeniedResponseBody) *goa.ServiceError {
+func NewIsWatchedAccessDenied(body *IsWatchedAccessDeniedResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -486,9 +486,9 @@ func ValidateDeleteAccessDeniedResponseBody(body *DeleteAccessDeniedResponseBody
 	return
 }
 
-// ValidateDeleteallAccessDeniedResponseBody runs the validations defined on
-// deleteall_access_denied_response_body
-func ValidateDeleteallAccessDeniedResponseBody(body *DeleteallAccessDeniedResponseBody) (err error) {
+// ValidateDeleteAllAccessDeniedResponseBody runs the validations defined on
+// deleteAll_access_denied_response_body
+func ValidateDeleteAllAccessDeniedResponseBody(body *DeleteAllAccessDeniedResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -582,9 +582,9 @@ func ValidateListAccessDeniedResponseBody(body *ListAccessDeniedResponseBody) (e
 	return
 }
 
-// ValidateIswatchedAccessDeniedResponseBody runs the validations defined on
-// iswatched_access_denied_response_body
-func ValidateIswatchedAccessDeniedResponseBody(body *IswatchedAccessDeniedResponseBody) (err error) {
+// ValidateIsWatchedAccessDeniedResponseBody runs the validations defined on
+// isWatched_access_denied_response_body
+func ValidateIsWatchedAccessDeniedResponseBody(body *IsWatchedAccessDeniedResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

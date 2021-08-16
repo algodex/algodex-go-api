@@ -22,11 +22,11 @@ type Server struct {
 	Mounts      []*MountPoint
 	Add         http.Handler
 	Delete      http.Handler
-	Deleteall   http.Handler
+	DeleteAll   http.Handler
 	Get         http.Handler
 	GetMultiple http.Handler
 	List        http.Handler
-	Iswatched   http.Handler
+	IsWatched   http.Handler
 	CORS        http.Handler
 }
 
@@ -65,24 +65,24 @@ func New(
 		Mounts: []*MountPoint{
 			{"Add", "POST", "/account"},
 			{"Delete", "DELETE", "/account/{address}"},
-			{"Deleteall", "DELETE", "/account/all"},
+			{"DeleteAll", "DELETE", "/account/all"},
 			{"Get", "GET", "/account/{address}"},
 			{"GetMultiple", "POST", "/account/get"},
 			{"List", "GET", "/account"},
-			{"Iswatched", "POST", "/account/iswatched"},
+			{"IsWatched", "POST", "/account/isWatched"},
 			{"CORS", "OPTIONS", "/account"},
 			{"CORS", "OPTIONS", "/account/{address}"},
 			{"CORS", "OPTIONS", "/account/all"},
 			{"CORS", "OPTIONS", "/account/get"},
-			{"CORS", "OPTIONS", "/account/iswatched"},
+			{"CORS", "OPTIONS", "/account/isWatched"},
 		},
 		Add:         NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
 		Delete:      NewDeleteHandler(e.Delete, mux, decoder, encoder, errhandler, formatter),
-		Deleteall:   NewDeleteallHandler(e.Deleteall, mux, decoder, encoder, errhandler, formatter),
+		DeleteAll:   NewDeleteAllHandler(e.DeleteAll, mux, decoder, encoder, errhandler, formatter),
 		Get:         NewGetHandler(e.Get, mux, decoder, encoder, errhandler, formatter),
 		GetMultiple: NewGetMultipleHandler(e.GetMultiple, mux, decoder, encoder, errhandler, formatter),
 		List:        NewListHandler(e.List, mux, decoder, encoder, errhandler, formatter),
-		Iswatched:   NewIswatchedHandler(e.Iswatched, mux, decoder, encoder, errhandler, formatter),
+		IsWatched:   NewIsWatchedHandler(e.IsWatched, mux, decoder, encoder, errhandler, formatter),
 		CORS:        NewCORSHandler(),
 	}
 }
@@ -94,11 +94,11 @@ func (s *Server) Service() string { return "account" }
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Add = m(s.Add)
 	s.Delete = m(s.Delete)
-	s.Deleteall = m(s.Deleteall)
+	s.DeleteAll = m(s.DeleteAll)
 	s.Get = m(s.Get)
 	s.GetMultiple = m(s.GetMultiple)
 	s.List = m(s.List)
-	s.Iswatched = m(s.Iswatched)
+	s.IsWatched = m(s.IsWatched)
 	s.CORS = m(s.CORS)
 }
 
@@ -106,11 +106,11 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountAddHandler(mux, h.Add)
 	MountDeleteHandler(mux, h.Delete)
-	MountDeleteallHandler(mux, h.Deleteall)
+	MountDeleteAllHandler(mux, h.DeleteAll)
 	MountGetHandler(mux, h.Get)
 	MountGetMultipleHandler(mux, h.GetMultiple)
 	MountListHandler(mux, h.List)
-	MountIswatchedHandler(mux, h.Iswatched)
+	MountIsWatchedHandler(mux, h.IsWatched)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -216,9 +216,9 @@ func NewDeleteHandler(
 	})
 }
 
-// MountDeleteallHandler configures the mux to serve the "account" service
-// "deleteall" endpoint.
-func MountDeleteallHandler(mux goahttp.Muxer, h http.Handler) {
+// MountDeleteAllHandler configures the mux to serve the "account" service
+// "deleteAll" endpoint.
+func MountDeleteAllHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleAccountOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
@@ -228,9 +228,9 @@ func MountDeleteallHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("DELETE", "/account/all", f)
 }
 
-// NewDeleteallHandler creates a HTTP handler which loads the HTTP request and
-// calls the "account" service "deleteall" endpoint.
-func NewDeleteallHandler(
+// NewDeleteAllHandler creates a HTTP handler which loads the HTTP request and
+// calls the "account" service "deleteAll" endpoint.
+func NewDeleteAllHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -239,12 +239,12 @@ func NewDeleteallHandler(
 	formatter func(err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		encodeResponse = EncodeDeleteallResponse(encoder)
-		encodeError    = EncodeDeleteallError(encoder, formatter)
+		encodeResponse = EncodeDeleteAllResponse(encoder)
+		encodeError    = EncodeDeleteAllError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "deleteall")
+		ctx = context.WithValue(ctx, goa.MethodKey, "deleteAll")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "account")
 		var err error
 		res, err := endpoint(ctx, nil)
@@ -413,21 +413,21 @@ func NewListHandler(
 	})
 }
 
-// MountIswatchedHandler configures the mux to serve the "account" service
-// "iswatched" endpoint.
-func MountIswatchedHandler(mux goahttp.Muxer, h http.Handler) {
+// MountIsWatchedHandler configures the mux to serve the "account" service
+// "isWatched" endpoint.
+func MountIsWatchedHandler(mux goahttp.Muxer, h http.Handler) {
 	f, ok := HandleAccountOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/account/iswatched", f)
+	mux.Handle("POST", "/account/isWatched", f)
 }
 
-// NewIswatchedHandler creates a HTTP handler which loads the HTTP request and
-// calls the "account" service "iswatched" endpoint.
-func NewIswatchedHandler(
+// NewIsWatchedHandler creates a HTTP handler which loads the HTTP request and
+// calls the "account" service "isWatched" endpoint.
+func NewIsWatchedHandler(
 	endpoint goa.Endpoint,
 	mux goahttp.Muxer,
 	decoder func(*http.Request) goahttp.Decoder,
@@ -436,13 +436,13 @@ func NewIswatchedHandler(
 	formatter func(err error) goahttp.Statuser,
 ) http.Handler {
 	var (
-		decodeRequest  = DecodeIswatchedRequest(mux, decoder)
-		encodeResponse = EncodeIswatchedResponse(encoder)
-		encodeError    = EncodeIswatchedError(encoder, formatter)
+		decodeRequest  = DecodeIsWatchedRequest(mux, decoder)
+		encodeResponse = EncodeIsWatchedResponse(encoder)
+		encodeError    = EncodeIsWatchedError(encoder, formatter)
 	)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "iswatched")
+		ctx = context.WithValue(ctx, goa.MethodKey, "isWatched")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "account")
 		payload, err := decodeRequest(r)
 		if err != nil {
@@ -478,7 +478,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/account/{address}", f)
 	mux.Handle("OPTIONS", "/account/all", f)
 	mux.Handle("OPTIONS", "/account/get", f)
-	mux.Handle("OPTIONS", "/account/iswatched", f)
+	mux.Handle("OPTIONS", "/account/isWatched", f)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 200 response.

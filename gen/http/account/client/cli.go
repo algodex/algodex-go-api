@@ -133,13 +133,13 @@ func BuildListPayload(accountListView string) (*account.ListPayload, error) {
 	return v, nil
 }
 
-// BuildIswatchedPayload builds the payload for the account iswatched endpoint
+// BuildIsWatchedPayload builds the payload for the account isWatched endpoint
 // from CLI flags.
-func BuildIswatchedPayload(accountIswatchedBody string) (*account.IswatchedPayload, error) {
+func BuildIsWatchedPayload(accountIsWatchedBody string) (*account.IsWatchedPayload, error) {
 	var err error
-	var body IswatchedRequestBody
+	var body IsWatchedRequestBody
 	{
-		err = json.Unmarshal([]byte(accountIswatchedBody), &body)
+		err = json.Unmarshal([]byte(accountIsWatchedBody), &body)
 		if err != nil {
 			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n      ]\n   }'")
 		}
@@ -150,7 +150,7 @@ func BuildIswatchedPayload(accountIswatchedBody string) (*account.IswatchedPaylo
 			return nil, err
 		}
 	}
-	v := &account.IswatchedPayload{}
+	v := &account.IsWatchedPayload{}
 	if body.Address != nil {
 		v.Address = make([]string, len(body.Address))
 		for i, val := range body.Address {

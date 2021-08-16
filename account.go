@@ -65,8 +65,8 @@ func (s *accountsrvc) Delete(ctx context.Context, p *account.DeletePayload) (err
 }
 
 // Delete all tracked algorand account(s).  Used for resetting everything
-func (s *accountsrvc) Deleteall(ctx context.Context) (err error) {
-	s.logger.Print("account.deleteall")
+func (s *accountsrvc) DeleteAll(ctx context.Context) (err error) {
+	s.logger.Print("account.deleteAll")
 	if err := backend.FailIfNotAuthorized(ctx); err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (
 }
 
 // Returns which of the passed accounts are currently being monitored
-func (s *accountsrvc) Iswatched(ctx context.Context, p *account.IswatchedPayload) (res []string, err error) {
+func (s *accountsrvc) IsWatched(ctx context.Context, p *account.IsWatchedPayload) (res []string, err error) {
 	s.logger.Print("account.iswatched", p.Address)
 	if err := backend.FailIfNotAuthorized(ctx); err != nil {
 		return nil, err

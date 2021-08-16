@@ -219,9 +219,9 @@ paths:
     delete:
       tags:
       - account
-      summary: deleteall account
+      summary: deleteAll account
       description: Delete all tracked algorand account(s).  Used for resetting everything
-      operationId: account#deleteall
+      operationId: account#deleteAll
       responses:
         "200":
           description: OK response.
@@ -387,13 +387,13 @@ paths:
                 id: 3F1FKVRR
                 message: Value of ID must be an integer
                 name: bad_request
-  /account/iswatched:
+  /account/isWatched:
     post:
       tags:
       - account
-      summary: iswatched account
+      summary: isWatched account
       description: Returns which of the passed accounts are currently being monitored
-      operationId: account#iswatched
+      operationId: account#isWatched
       requestBody:
         required: true
         content:

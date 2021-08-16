@@ -23,9 +23,9 @@ type Client struct {
 	// Delete Doer is the HTTP client used to make requests to the delete endpoint.
 	DeleteDoer goahttp.Doer
 
-	// Deleteall Doer is the HTTP client used to make requests to the deleteall
+	// DeleteAll Doer is the HTTP client used to make requests to the deleteAll
 	// endpoint.
-	DeleteallDoer goahttp.Doer
+	DeleteAllDoer goahttp.Doer
 
 	// Get Doer is the HTTP client used to make requests to the get endpoint.
 	GetDoer goahttp.Doer
@@ -37,9 +37,9 @@ type Client struct {
 	// List Doer is the HTTP client used to make requests to the list endpoint.
 	ListDoer goahttp.Doer
 
-	// Iswatched Doer is the HTTP client used to make requests to the iswatched
+	// IsWatched Doer is the HTTP client used to make requests to the isWatched
 	// endpoint.
-	IswatchedDoer goahttp.Doer
+	IsWatchedDoer goahttp.Doer
 
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
@@ -66,11 +66,11 @@ func NewClient(
 	return &Client{
 		AddDoer:             doer,
 		DeleteDoer:          doer,
-		DeleteallDoer:       doer,
+		DeleteAllDoer:       doer,
 		GetDoer:             doer,
 		GetMultipleDoer:     doer,
 		ListDoer:            doer,
-		IswatchedDoer:       doer,
+		IsWatchedDoer:       doer,
 		CORSDoer:            doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -123,20 +123,20 @@ func (c *Client) Delete() goa.Endpoint {
 	}
 }
 
-// Deleteall returns an endpoint that makes HTTP requests to the account
-// service deleteall server.
-func (c *Client) Deleteall() goa.Endpoint {
+// DeleteAll returns an endpoint that makes HTTP requests to the account
+// service deleteAll server.
+func (c *Client) DeleteAll() goa.Endpoint {
 	var (
-		decodeResponse = DecodeDeleteallResponse(c.decoder, c.RestoreResponseBody)
+		decodeResponse = DecodeDeleteAllResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildDeleteallRequest(ctx, v)
+		req, err := c.BuildDeleteAllRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.DeleteallDoer.Do(req)
+		resp, err := c.DeleteAllDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("account", "deleteall", err)
+			return nil, goahttp.ErrRequestError("account", "deleteAll", err)
 		}
 		return decodeResponse(resp)
 	}
@@ -209,15 +209,15 @@ func (c *Client) List() goa.Endpoint {
 	}
 }
 
-// Iswatched returns an endpoint that makes HTTP requests to the account
-// service iswatched server.
-func (c *Client) Iswatched() goa.Endpoint {
+// IsWatched returns an endpoint that makes HTTP requests to the account
+// service isWatched server.
+func (c *Client) IsWatched() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeIswatchedRequest(c.encoder)
-		decodeResponse = DecodeIswatchedResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeIsWatchedRequest(c.encoder)
+		decodeResponse = DecodeIsWatchedResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
-		req, err := c.BuildIswatchedRequest(ctx, v)
+		req, err := c.BuildIsWatchedRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -225,9 +225,9 @@ func (c *Client) Iswatched() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.IswatchedDoer.Do(req)
+		resp, err := c.IsWatchedDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("account", "iswatched", err)
+			return nil, goahttp.ErrRequestError("account", "isWatched", err)
 		}
 		return decodeResponse(resp)
 	}

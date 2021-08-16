@@ -17,23 +17,23 @@ import (
 type Client struct {
 	AddEndpoint         goa.Endpoint
 	DeleteEndpoint      goa.Endpoint
-	DeleteallEndpoint   goa.Endpoint
+	DeleteAllEndpoint   goa.Endpoint
 	GetEndpoint         goa.Endpoint
 	GetMultipleEndpoint goa.Endpoint
 	ListEndpoint        goa.Endpoint
-	IswatchedEndpoint   goa.Endpoint
+	IsWatchedEndpoint   goa.Endpoint
 }
 
 // NewClient initializes a "account" service client given the endpoints.
-func NewClient(add, delete_, deleteall, get, getMultiple, list, iswatched goa.Endpoint) *Client {
+func NewClient(add, delete_, deleteAll, get, getMultiple, list, isWatched goa.Endpoint) *Client {
 	return &Client{
 		AddEndpoint:         add,
 		DeleteEndpoint:      delete_,
-		DeleteallEndpoint:   deleteall,
+		DeleteAllEndpoint:   deleteAll,
 		GetEndpoint:         get,
 		GetMultipleEndpoint: getMultiple,
 		ListEndpoint:        list,
-		IswatchedEndpoint:   iswatched,
+		IsWatchedEndpoint:   isWatched,
 	}
 }
 
@@ -49,9 +49,9 @@ func (c *Client) Delete(ctx context.Context, p *DeletePayload) (err error) {
 	return
 }
 
-// Deleteall calls the "deleteall" endpoint of the "account" service.
-func (c *Client) Deleteall(ctx context.Context) (err error) {
-	_, err = c.DeleteallEndpoint(ctx, nil)
+// DeleteAll calls the "deleteAll" endpoint of the "account" service.
+func (c *Client) DeleteAll(ctx context.Context) (err error) {
+	_, err = c.DeleteAllEndpoint(ctx, nil)
 	return
 }
 
@@ -85,10 +85,10 @@ func (c *Client) List(ctx context.Context, p *ListPayload) (res TrackedAccountCo
 	return ires.(TrackedAccountCollection), nil
 }
 
-// Iswatched calls the "iswatched" endpoint of the "account" service.
-func (c *Client) Iswatched(ctx context.Context, p *IswatchedPayload) (res []string, err error) {
+// IsWatched calls the "isWatched" endpoint of the "account" service.
+func (c *Client) IsWatched(ctx context.Context, p *IsWatchedPayload) (res []string, err error) {
 	var ires interface{}
-	ires, err = c.IswatchedEndpoint(ctx, p)
+	ires, err = c.IsWatchedEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
