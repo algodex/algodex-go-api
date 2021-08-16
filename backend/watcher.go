@@ -237,26 +237,28 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 			time.Sleep(100 * time.Millisecond)
 			continue
 		} else {
-			results := make(chan *Account, len(matches))
-			w.logger.Printf("queuing account updates of %d accounts", len(matches))
-			for _, address := range matches {
-				w.accountUpdateChan <- addressAndResult{address: address, result: results}
-			}
-			// wait until we've received every result...
-			for i := 0; i < len(matches); i++ {
-				select {
-				case <-ctx.Done():
-					return
-				case <-results:
-					break
-				case <-time.After(20 * time.Second):
-					w.logger.Panicf(
-						"Something went wrong in fetching block data.  More than 20 seconds have elapsed waiting for result %d of %d, exiting for now",
-						i, len(matches),
-					)
+			if len(matches) > 0 {
+				results := make(chan *Account, len(matches))
+				w.logger.Printf("queuing account updates of %d accounts", len(matches))
+				for _, address := range matches {
+					w.accountUpdateChan <- addressAndResult{address: address, result: results}
 				}
+				// wait until we've received every result...
+				for i := 0; i < len(matches); i++ {
+					select {
+					case <-ctx.Done():
+						return
+					case <-results:
+						break
+					case <-time.After(20 * time.Second):
+						w.logger.Panicf(
+							"Something went wrong in fetching block data.  More than 20 seconds have elapsed waiting for result %d of %d, exiting for now",
+							i, len(matches),
+						)
+					}
+				}
+				w.logger.Println("account updates complete")
 			}
-			w.logger.Println("account updates complete")
 		}
 		w.persist.SetLastRound(ctx, round)
 		if round%100 == 0 {

@@ -48,18 +48,20 @@ func IsAddressInAllowedSubnets(ctx context.Context, remoteAddress string) (bool,
 	if allowList == "" {
 		return false, errors.New("allow-list not defined, rejecting all")
 	}
-	log.Printf("checking aganist ip:%s", remoteAddress)
 	// Allow multiple comma delimited subnets
 	for _, cidrSpec := range strings.Split(allowList, ",") {
+		log.Printf("checking spec:%s against ip:%s", cidrSpec, remoteAddress)
 		_, subnet, err := net.ParseCIDR(cidrSpec)
 		if err != nil {
 			return false, fmt.Errorf("error in IsAddressInAllowedSubnets: %w", err)
 		}
 		host, _, err := net.SplitHostPort(remoteAddress)
 		if subnet.Contains(net.ParseIP(host)) {
+			log.Printf("ip passes security check")
 			return true, nil
 		}
 	}
+	log.Printf("ip doesn't pass security check")
 	return false, nil
 }
 
