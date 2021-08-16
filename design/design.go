@@ -40,7 +40,9 @@ var Account = Type(
 		Description("Account describes an Algorand Account")
 		Attribute(
 			"address", String, "Public Account address", func() {
+				MinLength(58)
 				MaxLength(58)
+				Pattern("^[A-Z2-7]{58}$")
 				Example("4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU")
 			},
 		)
@@ -199,6 +201,33 @@ var _ = Service(
 				HTTP(
 					func() {
 						GET("/account/{address}")
+						Response(StatusOK)
+					},
+				)
+			},
+		)
+		Method(
+			"getMultiple", func() {
+				Description("Get account(s)")
+				Payload(
+					func() {
+						Attribute(
+							"address", ArrayOf(String), func() {
+								Example(
+									[]string{
+										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
+									},
+								)
+							},
+						)
+						Required("address")
+					},
+				)
+				Result(ArrayOf(Account))
+				HTTP(
+					func() {
+						POST("/account/get")
 						Response(StatusOK)
 					},
 				)

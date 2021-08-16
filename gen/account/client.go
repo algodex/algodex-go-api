@@ -15,23 +15,25 @@ import (
 
 // Client is the "account" service client.
 type Client struct {
-	AddEndpoint       goa.Endpoint
-	DeleteEndpoint    goa.Endpoint
-	DeleteallEndpoint goa.Endpoint
-	GetEndpoint       goa.Endpoint
-	ListEndpoint      goa.Endpoint
-	IswatchedEndpoint goa.Endpoint
+	AddEndpoint         goa.Endpoint
+	DeleteEndpoint      goa.Endpoint
+	DeleteallEndpoint   goa.Endpoint
+	GetEndpoint         goa.Endpoint
+	GetMultipleEndpoint goa.Endpoint
+	ListEndpoint        goa.Endpoint
+	IswatchedEndpoint   goa.Endpoint
 }
 
 // NewClient initializes a "account" service client given the endpoints.
-func NewClient(add, delete_, deleteall, get, list, iswatched goa.Endpoint) *Client {
+func NewClient(add, delete_, deleteall, get, getMultiple, list, iswatched goa.Endpoint) *Client {
 	return &Client{
-		AddEndpoint:       add,
-		DeleteEndpoint:    delete_,
-		DeleteallEndpoint: deleteall,
-		GetEndpoint:       get,
-		ListEndpoint:      list,
-		IswatchedEndpoint: iswatched,
+		AddEndpoint:         add,
+		DeleteEndpoint:      delete_,
+		DeleteallEndpoint:   deleteall,
+		GetEndpoint:         get,
+		GetMultipleEndpoint: getMultiple,
+		ListEndpoint:        list,
+		IswatchedEndpoint:   iswatched,
 	}
 }
 
@@ -61,6 +63,16 @@ func (c *Client) Get(ctx context.Context, p *GetPayload) (res *Account, err erro
 		return
 	}
 	return ires.(*Account), nil
+}
+
+// GetMultiple calls the "getMultiple" endpoint of the "account" service.
+func (c *Client) GetMultiple(ctx context.Context, p *GetMultiplePayload) (res []*Account, err error) {
+	var ires interface{}
+	ires, err = c.GetMultipleEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.([]*Account), nil
 }
 
 // List calls the "list" endpoint of the "account" service.

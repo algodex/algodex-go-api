@@ -242,6 +242,71 @@ func EncodeGetError(encoder func(context.Context, http.ResponseWriter) goahttp.E
 	}
 }
 
+// EncodeGetMultipleResponse returns an encoder for responses returned by the
+// account getMultiple endpoint.
+func EncodeGetMultipleResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.([]*account.Account)
+		enc := encoder(ctx, w)
+		body := NewGetMultipleResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeGetMultipleRequest returns a decoder for requests sent to the account
+// getMultiple endpoint.
+func DecodeGetMultipleRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			body GetMultipleRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateGetMultipleRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+		payload := NewGetMultiplePayload(&body)
+
+		return payload, nil
+	}
+}
+
+// EncodeGetMultipleError returns an encoder for errors returned by the
+// getMultiple account endpoint.
+func EncodeGetMultipleError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		en, ok := v.(ErrorNamer)
+		if !ok {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "access_denied":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewGetMultipleAccessDeniedResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeListResponse returns an encoder for responses returned by the account
 // list endpoint.
 func EncodeListResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
@@ -384,6 +449,40 @@ func EncodeIswatchedError(encoder func(context.Context, http.ResponseWriter) goa
 // *HoldingResponseBody from a value of type *account.Holding.
 func marshalAccountHoldingToHoldingResponseBody(v *account.Holding) *HoldingResponseBody {
 	res := &HoldingResponseBody{
+		Asset:        v.Asset,
+		Amount:       v.Amount,
+		Decimals:     v.Decimals,
+		MetadataHash: v.MetadataHash,
+		Name:         v.Name,
+		UnitName:     v.UnitName,
+		URL:          v.URL,
+	}
+
+	return res
+}
+
+// marshalAccountAccountToAccountResponse builds a value of type
+// *AccountResponse from a value of type *account.Account.
+func marshalAccountAccountToAccountResponse(v *account.Account) *AccountResponse {
+	res := &AccountResponse{
+		Address: v.Address,
+		Round:   v.Round,
+	}
+	if v.Holdings != nil {
+		res.Holdings = make(map[string]*HoldingResponse, len(v.Holdings))
+		for key, val := range v.Holdings {
+			tk := key
+			res.Holdings[tk] = marshalAccountHoldingToHoldingResponse(val)
+		}
+	}
+
+	return res
+}
+
+// marshalAccountHoldingToHoldingResponse builds a value of type
+// *HoldingResponse from a value of type *account.Holding.
+func marshalAccountHoldingToHoldingResponse(v *account.Holding) *HoldingResponse {
+	res := &HoldingResponse{
 		Asset:        v.Asset,
 		Amount:       v.Amount,
 		Decimals:     v.Decimals,

@@ -119,6 +119,14 @@ func ValidateTrackedAccountView(result *TrackedAccountView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "result"))
 	}
 	if result.Address != nil {
+		err = goa.MergeErrors(err, goa.ValidatePattern("result.address", *result.Address, "^[A-Z2-7]{58}$"))
+	}
+	if result.Address != nil {
+		if utf8.RuneCountInString(*result.Address) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("result.address", *result.Address, utf8.RuneCountInString(*result.Address), 58, true))
+		}
+	}
+	if result.Address != nil {
 		if utf8.RuneCountInString(*result.Address) > 58 {
 			err = goa.MergeErrors(err, goa.InvalidLengthError("result.address", *result.Address, utf8.RuneCountInString(*result.Address), 58, false))
 		}
@@ -137,6 +145,14 @@ func ValidateTrackedAccountViewFull(result *TrackedAccountView) (err error) {
 	}
 	if result.Holdings == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("holdings", "result"))
+	}
+	if result.Address != nil {
+		err = goa.MergeErrors(err, goa.ValidatePattern("result.address", *result.Address, "^[A-Z2-7]{58}$"))
+	}
+	if result.Address != nil {
+		if utf8.RuneCountInString(*result.Address) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("result.address", *result.Address, utf8.RuneCountInString(*result.Address), 58, true))
+		}
 	}
 	if result.Address != nil {
 		if utf8.RuneCountInString(*result.Address) > 58 {

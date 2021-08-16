@@ -17,6 +17,7 @@ import (
 	"net/url"
 
 	goahttp "goa.design/goa/v3/http"
+	goa "goa.design/goa/v3/pkg"
 )
 
 // BuildAddRequest instantiates a HTTP request object with method and path set
@@ -304,6 +305,100 @@ func DecodeGetResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody
 	}
 }
 
+// BuildGetMultipleRequest instantiates a HTTP request object with method and
+// path set to call the "account" service "getMultiple" endpoint
+func (c *Client) BuildGetMultipleRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: GetMultipleAccountPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("account", "getMultiple", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeGetMultipleRequest returns an encoder for requests sent to the account
+// getMultiple server.
+func EncodeGetMultipleRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, interface{}) error {
+	return func(req *http.Request, v interface{}) error {
+		p, ok := v.(*account.GetMultiplePayload)
+		if !ok {
+			return goahttp.ErrInvalidType("account", "getMultiple", "*account.GetMultiplePayload", v)
+		}
+		body := NewGetMultipleRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("account", "getMultiple", err)
+		}
+		return nil
+	}
+}
+
+// DecodeGetMultipleResponse returns a decoder for responses returned by the
+// account getMultiple endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeGetMultipleResponse may return the following errors:
+//	- "access_denied" (type *goa.ServiceError): http.StatusUnauthorized
+//	- error: internal error
+func DecodeGetMultipleResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body GetMultipleResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("account", "getMultiple", err)
+			}
+			for _, e := range body {
+				if e != nil {
+					if err2 := ValidateAccountResponse(e); err2 != nil {
+						err = goa.MergeErrors(err, err2)
+					}
+				}
+			}
+			if err != nil {
+				return nil, goahttp.ErrValidationError("account", "getMultiple", err)
+			}
+			res := NewGetMultipleAccountOK(body)
+			return res, nil
+		case http.StatusUnauthorized:
+			var (
+				body GetMultipleAccessDeniedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("account", "getMultiple", err)
+			}
+			err = ValidateGetMultipleAccessDeniedResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("account", "getMultiple", err)
+			}
+			return nil, NewGetMultipleAccessDenied(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("account", "getMultiple", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildListRequest instantiates a HTTP request object with method and path set
 // to call the "account" service "list" endpoint
 func (c *Client) BuildListRequest(ctx context.Context, v interface{}) (*http.Request, error) {
@@ -481,6 +576,38 @@ func DecodeIswatchedResponse(decoder func(*http.Response) goahttp.Decoder, resto
 // unmarshalHoldingResponseBodyToAccountHolding builds a value of type
 // *account.Holding from a value of type *HoldingResponseBody.
 func unmarshalHoldingResponseBodyToAccountHolding(v *HoldingResponseBody) *account.Holding {
+	res := &account.Holding{
+		Asset:        *v.Asset,
+		Amount:       *v.Amount,
+		Decimals:     *v.Decimals,
+		MetadataHash: *v.MetadataHash,
+		Name:         *v.Name,
+		UnitName:     *v.UnitName,
+		URL:          *v.URL,
+	}
+
+	return res
+}
+
+// unmarshalAccountResponseToAccountAccount builds a value of type
+// *account.Account from a value of type *AccountResponse.
+func unmarshalAccountResponseToAccountAccount(v *AccountResponse) *account.Account {
+	res := &account.Account{
+		Address: *v.Address,
+		Round:   *v.Round,
+	}
+	res.Holdings = make(map[string]*account.Holding, len(v.Holdings))
+	for key, val := range v.Holdings {
+		tk := key
+		res.Holdings[tk] = unmarshalHoldingResponseToAccountHolding(val)
+	}
+
+	return res
+}
+
+// unmarshalHoldingResponseToAccountHolding builds a value of type
+// *account.Holding from a value of type *HoldingResponse.
+func unmarshalHoldingResponseToAccountHolding(v *HoldingResponse) *account.Holding {
 	res := &account.Holding{
 		Asset:        *v.Asset,
 		Amount:       *v.Amount,

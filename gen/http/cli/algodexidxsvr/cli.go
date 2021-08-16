@@ -25,7 +25,7 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `account (add|delete|deleteall|get|list|iswatched)
+	return `account (add|delete|deleteall|get|get-multiple|list|iswatched)
 inspect unpack
 info (version|live)
 `
@@ -40,7 +40,7 @@ func UsageExamples() string {
       ]
    }'` + "\n" +
 		os.Args[0] + ` inspect unpack --body '{
-      "msgpack": "Temporibus est voluptate quam dolores et."
+      "msgpack": "Quia accusantium explicabo."
    }'` + "\n" +
 		os.Args[0] + ` info version` + "\n" +
 		""
@@ -69,6 +69,9 @@ func ParseEndpoint(
 		accountGetFlags       = flag.NewFlagSet("get", flag.ExitOnError)
 		accountGetAddressFlag = accountGetFlags.String("address", "REQUIRED", "Public Account address")
 
+		accountGetMultipleFlags    = flag.NewFlagSet("get-multiple", flag.ExitOnError)
+		accountGetMultipleBodyFlag = accountGetMultipleFlags.String("body", "REQUIRED", "")
+
 		accountListFlags    = flag.NewFlagSet("list", flag.ExitOnError)
 		accountListViewFlag = accountListFlags.String("view", "", "")
 
@@ -91,6 +94,7 @@ func ParseEndpoint(
 	accountDeleteFlags.Usage = accountDeleteUsage
 	accountDeleteallFlags.Usage = accountDeleteallUsage
 	accountGetFlags.Usage = accountGetUsage
+	accountGetMultipleFlags.Usage = accountGetMultipleUsage
 	accountListFlags.Usage = accountListUsage
 	accountIswatchedFlags.Usage = accountIswatchedUsage
 
@@ -150,6 +154,9 @@ func ParseEndpoint(
 
 			case "get":
 				epf = accountGetFlags
+
+			case "get-multiple":
+				epf = accountGetMultipleFlags
 
 			case "list":
 				epf = accountListFlags
@@ -211,6 +218,9 @@ func ParseEndpoint(
 			case "get":
 				endpoint = c.Get()
 				data, err = accountc.BuildGetPayload(*accountGetAddressFlag)
+			case "get-multiple":
+				endpoint = c.GetMultiple()
+				data, err = accountc.BuildGetMultiplePayload(*accountGetMultipleBodyFlag)
 			case "list":
 				endpoint = c.List()
 				data, err = accountc.BuildListPayload(*accountListViewFlag)
@@ -255,6 +265,7 @@ COMMAND:
     delete: Delete Algorand account(s) to track
     deleteall: Delete all tracked algorand account(s).  Used for resetting everything
     get: Get specific account
+    get-multiple: Get account(s)
     list: List all tracked accounts
     iswatched: Returns which of the passed accounts are currently being monitored
 
@@ -313,6 +324,22 @@ Example:
 `, os.Args[0])
 }
 
+func accountGetMultipleUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] account get-multiple -body JSON
+
+Get account(s)
+    -body JSON: 
+
+Example:
+    `+os.Args[0]+` account get-multiple --body '{
+      "address": [
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+      ]
+   }'
+`, os.Args[0])
+}
+
 func accountListUsage() {
 	fmt.Fprintf(os.Stderr, `%s [flags] account list -view STRING
 
@@ -320,7 +347,7 @@ List all tracked accounts
     -view STRING: 
 
 Example:
-    `+os.Args[0]+` account list --view "default"
+    `+os.Args[0]+` account list --view "full"
 `, os.Args[0])
 }
 
@@ -361,7 +388,7 @@ Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output
 
 Example:
     `+os.Args[0]+` inspect unpack --body '{
-      "msgpack": "Temporibus est voluptate quam dolores et."
+      "msgpack": "Quia accusantium explicabo."
    }'
 `, os.Args[0])
 }

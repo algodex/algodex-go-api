@@ -9,6 +9,7 @@ import (
 
 	"algodexidx/backend"
 	"algodexidx/gen/account"
+	"github.com/algorand/go-algorand-sdk/types"
 )
 
 // account service example implementation.
@@ -32,7 +33,12 @@ func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error
 	if p == nil || len(p.Address) == 0 {
 		return errors.New("must provide address(es) to watch")
 	}
-
+	for _, address := range p.Address {
+		_, err = types.DecodeAddress(address)
+		if err != nil {
+			return fmt.Errorf("address:%v not valid: %w", address, err)
+		}
+	}
 	// pass on to persistence backend... (redis for eg)
 	err = s.backend.WatchAccounts(ctx, p.Address...)
 	if err != nil {
@@ -74,13 +80,33 @@ func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *acco
 		return nil, err
 	}
 	backendAccount, err := s.backend.GetAccount(ctx, p.Address)
-	if backendAccount == nil {
-		return nil, fmt.Errorf("account:%s is not watched or other error", p.Address)
+	if backendAccount == nil || err != nil {
+		return nil, fmt.Errorf("account:%s couldn't be retrieved or other error: %w", p.Address, err)
 	}
 	res = &account.Account{
 		Address:  backendAccount.Address,
 		Round:    backendAccount.Round,
 		Holdings: backendHoldingToDSLHolding(backendAccount.Holdings),
+	}
+	return
+}
+
+// Get account(s)
+func (s *accountsrvc) GetMultiple(ctx context.Context, p *account.GetMultiplePayload) (res []*account.Account, err error) {
+	s.logger.Println("account.getMultiple", p.Address)
+	if err := backend.FailIfNotAuthorized(ctx); err != nil {
+		return nil, err
+	}
+	for _, address := range p.Address {
+		backendAccount, err := s.backend.GetAccount(ctx, address)
+		if backendAccount == nil || err != nil {
+			return nil, fmt.Errorf("account:%s couldn't be retrieved or other error: %w", address, err)
+		}
+		res = append(res, &account.Account{
+			Address:  backendAccount.Address,
+			Round:    backendAccount.Round,
+			Holdings: backendHoldingToDSLHolding(backendAccount.Holdings),
+		})
 	}
 	return
 }

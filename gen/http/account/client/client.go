@@ -30,6 +30,10 @@ type Client struct {
 	// Get Doer is the HTTP client used to make requests to the get endpoint.
 	GetDoer goahttp.Doer
 
+	// GetMultiple Doer is the HTTP client used to make requests to the getMultiple
+	// endpoint.
+	GetMultipleDoer goahttp.Doer
+
 	// List Doer is the HTTP client used to make requests to the list endpoint.
 	ListDoer goahttp.Doer
 
@@ -64,6 +68,7 @@ func NewClient(
 		DeleteDoer:          doer,
 		DeleteallDoer:       doer,
 		GetDoer:             doer,
+		GetMultipleDoer:     doer,
 		ListDoer:            doer,
 		IswatchedDoer:       doer,
 		CORSDoer:            doer,
@@ -151,6 +156,30 @@ func (c *Client) Get() goa.Endpoint {
 		resp, err := c.GetDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("account", "get", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// GetMultiple returns an endpoint that makes HTTP requests to the account
+// service getMultiple server.
+func (c *Client) GetMultiple() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeGetMultipleRequest(c.encoder)
+		decodeResponse = DecodeGetMultipleResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildGetMultipleRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.GetMultipleDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("account", "getMultiple", err)
 		}
 		return decodeResponse(resp)
 	}
