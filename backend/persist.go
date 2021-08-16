@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -72,9 +72,19 @@ func initSQL() *sqlx.DB {
 			// if the host just isn't available we'll keep retrying
 			log.Printf("Host conection refused... retrying")
 		} else {
-			log.Panicf("Unexpected error in opening sql connection: %#v", err)
+			var sqlErr *mysql.MySQLError
+			if errors.As(err, &sqlErr) {
+				if sqlErr.Number == 0x419 {
+					// unknown database.. keep trying..
+					log.Printf("Unknown database - orderbook hasn't created yet... retrying")
+				} else {
+					log.Panicf("Unexpected error in opening sql connection: %v", sqlErr)
+				}
+			} else {
+				log.Panicf("Unexpected error in opening sql connection: %#v", err)
+			}
 		}
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(2 * time.Second)
 	}
 	sqlConn.SetConnMaxLifetime(time.Minute * 3)
 	sqlConn.SetMaxOpenConns(10)
