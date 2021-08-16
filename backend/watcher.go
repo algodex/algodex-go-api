@@ -239,6 +239,7 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 		} else {
 			if len(matches) > 0 {
 				results := make(chan *Account, len(matches))
+				start := time.Now()
 				w.logger.Printf("block:%d - queuing account updates of %d accounts", round, len(matches))
 				for _, address := range matches {
 					w.accountUpdateChan <- addressAndResult{address: address, result: results}
@@ -257,7 +258,7 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 						)
 					}
 				}
-				w.logger.Printf("block:%d - account updates complete", round)
+				w.logger.Printf("block:%d - account updates complete - elapsed:%v", round, time.Now().Sub(start))
 			}
 		}
 		w.persist.SetLastRound(ctx, round)
