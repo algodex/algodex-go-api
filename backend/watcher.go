@@ -238,6 +238,7 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 			continue
 		} else {
 			results := make(chan *Account, len(matches))
+			w.logger.Printf("queuing account updates of %d accounts", len(matches))
 			for _, address := range matches {
 				w.accountUpdateChan <- addressAndResult{address: address, result: results}
 			}
@@ -247,6 +248,7 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 				case <-ctx.Done():
 					return
 				case <-results:
+					break
 				case <-time.After(20 * time.Second):
 					w.logger.Panicf(
 						"Something went wrong in fetching block data.  More than 20 seconds have elapsed waiting for result %d of %d, exiting for now",
@@ -254,6 +256,7 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 					)
 				}
 			}
+			w.logger.Println("account updates complete")
 		}
 		w.persist.SetLastRound(ctx, round)
 		if round%100 == 0 {

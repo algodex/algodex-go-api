@@ -10,23 +10,25 @@ import (
 	"os"
 	"strings"
 
+	"algodexidx/gen/account"
 	"goa.design/goa/v3/middleware"
 )
 
 // private type used to define context keys
 type ctxKey int
 
-const (
-	// RemoteIPKey is the request context key used to store the remote IP address set by the SetRemoteIP middleware.
-	RemoteIPKey ctxKey = iota + 1
-)
+// RemoteIPKey is the request context key used to store the remote IP address set by the SetRemoteIP middleware.
+const RemoteIPKey ctxKey = 1
 
 func SetRemoteIP(options ...middleware.RequestIDOption) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				//if r.Header["X-Forwarded-For"]
-				ctx := context.WithValue(r.Context(), RemoteIPKey, r.RemoteAddr)
+				var remoteAddr = r.RemoteAddr
+				if f := r.Header.Get("X-Forwarded-For"); f != "" {
+					remoteAddr = f
+				}
+				ctx := context.WithValue(r.Context(), RemoteIPKey, remoteAddr)
 				h.ServeHTTP(w, r.WithContext(ctx))
 			},
 		)
@@ -53,11 +55,8 @@ func IsAddressInAllowedSubnets(ctx context.Context, remoteAddress string) (bool,
 		if err != nil {
 			return false, fmt.Errorf("error in IsAddressInAllowedSubnets: %w", err)
 		}
-		// Strip off trailing port number if present (1.2.3.4:3203)
-		if colonIdx := strings.LastIndexByte(remoteAddress, ':'); colonIdx != -1 {
-			remoteAddress = remoteAddress[:colonIdx]
-		}
-		if subnet.Contains(net.ParseIP(remoteAddress)) {
+		host, _, err := net.SplitHostPort(remoteAddress)
+		if subnet.Contains(net.ParseIP(host)) {
 			return true, nil
 		}
 	}
@@ -65,14 +64,13 @@ func IsAddressInAllowedSubnets(ctx context.Context, remoteAddress string) (bool,
 }
 
 func FailIfNotAuthorized(ctx context.Context) error {
+	remoteIP := GetRemoteIP(ctx)
+	allowed, err := IsAddressInAllowedSubnets(ctx, remoteIP)
+	if err != nil {
+		return account.MakeAccessDenied(err)
+	}
+	if !allowed {
+		return account.MakeAccessDenied(fmt.Errorf("%v was blocked", remoteIP))
+	}
 	return nil
-	//remoteIP := GetRemoteIP(ctx)
-	//allowed, err := IsAddressInAllowedSubnets(ctx, remoteIP)
-	//if err != nil {
-	//	return account.MakeAccessDenied(err)
-	//}
-	//if !allowed {
-	//	return account.MakeAccessDenied(fmt.Errorf("%v was blocked", remoteIP))
-	//}
-	//return nil
 }
