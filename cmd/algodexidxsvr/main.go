@@ -72,8 +72,17 @@ func main() {
 			AttachStacktrace: true,
 			// Enable printing of SDK debug messages.
 			// Useful when getting started or trying to figure something out.
-			Debug:            true,
-			TracesSampleRate: traceSampleRate,
+			Debug: true,
+			TracesSampler: sentry.TracesSamplerFunc(
+				func(ctx sentry.SamplingContext) sentry.Sampled {
+					hub := sentry.GetHubFromContext(ctx.Span.Context())
+					name := hub.Scope().Transaction()
+					if name == "GET /live" || name == "GET /version" {
+						return sentry.SampledFalse
+					}
+					return sentry.UniformTracesSampler(traceSampleRate).Sample(ctx)
+				},
+			),
 		},
 	)
 	if err != nil {
