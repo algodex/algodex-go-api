@@ -97,6 +97,7 @@ func DecodeDeleteRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			address []string
+			err     error
 
 			params = mux.Vars(r)
 		)
@@ -107,6 +108,18 @@ func DecodeDeleteRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 			for i, rv := range addressRawSlice {
 				address[i] = rv
 			}
+		}
+		for _, e := range address {
+			err = goa.MergeErrors(err, goa.ValidatePattern("address[*]", e, "^[A-Z2-7]{58}$"))
+			if utf8.RuneCountInString(e) < 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("address[*]", e, utf8.RuneCountInString(e), 58, true))
+			}
+			if utf8.RuneCountInString(e) > 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("address[*]", e, utf8.RuneCountInString(e), 58, false))
+			}
+		}
+		if err != nil {
+			return nil, err
 		}
 		payload := NewDeletePayload(address)
 
@@ -202,6 +215,10 @@ func DecodeGetRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Dec
 			params = mux.Vars(r)
 		)
 		address = params["address"]
+		err = goa.MergeErrors(err, goa.ValidatePattern("address", address, "^[A-Z2-7]{58}$"))
+		if utf8.RuneCountInString(address) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("address", address, utf8.RuneCountInString(address), 58, true))
+		}
 		if utf8.RuneCountInString(address) > 58 {
 			err = goa.MergeErrors(err, goa.InvalidLengthError("address", address, utf8.RuneCountInString(address), 58, false))
 		}

@@ -72,9 +72,9 @@ var Holding = Type(
 		)
 		Attribute("decimals", UInt64)
 		Attribute("metadataHash", String)
-		Attribute("name", String)
-		Attribute("unitName", String)
-		Attribute("url", String)
+		Attribute("name", String, func() { Example("UNIT") })
+		Attribute("unitName", String, func() { Example("My Unit") })
+		Attribute("url", String, func() { Example("https://someurl.com") })
 		Required("asset", "amount", "decimals", "metadataHash", "name", "unitName", "url")
 	},
 )
@@ -106,6 +106,15 @@ var TrackedAccount = ResultType(
 	},
 )
 
+var addressList = ArrayOf(
+	String, func() {
+		MinLength(58)
+		MaxLength(58)
+		Pattern("^[A-Z2-7]{58}$")
+		Example("4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU")
+	},
+)
+
 var _ = Service(
 	"account", func() {
 		Description("The account service specifies which Algorand accounts to track")
@@ -121,16 +130,7 @@ var _ = Service(
 				Description("Add Algorand account(s) to track")
 				Payload(
 					func() {
-						Attribute(
-							"address", ArrayOf(String), func() {
-								Example(
-									[]string{
-										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-									},
-								)
-							},
-						)
+						Attribute("address", addressList)
 						Required("address")
 					},
 				)
@@ -148,16 +148,7 @@ var _ = Service(
 				Description("Delete Algorand account(s) to track")
 				Payload(
 					func() {
-						Attribute(
-							"address", ArrayOf(String), func() {
-								Example(
-									[]string{
-										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-									},
-								)
-							},
-						)
+						Attribute("address", addressList)
 						Required("address")
 					},
 				)
@@ -190,7 +181,9 @@ var _ = Service(
 					func() {
 						Attribute(
 							"address", String, "Public Account address", func() {
+								MinLength(58)
 								MaxLength(58)
+								Pattern("^[A-Z2-7]{58}$")
 								Example("4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU")
 							},
 						)
@@ -211,16 +204,7 @@ var _ = Service(
 				Description("Get account(s)")
 				Payload(
 					func() {
-						Attribute(
-							"address", ArrayOf(String), func() {
-								Example(
-									[]string{
-										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-									},
-								)
-							},
-						)
+						Attribute("address", addressList)
 						Required("address")
 					},
 				)
@@ -262,16 +246,7 @@ var _ = Service(
 				Description("Returns which of the passed accounts are currently being monitored")
 				Payload(
 					func() {
-						Attribute(
-							"address", ArrayOf(String), func() {
-								Example(
-									[]string{
-										"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-										"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY",
-									},
-								)
-							},
-						)
+						Attribute("address", addressList)
 						Required("address")
 					},
 				)

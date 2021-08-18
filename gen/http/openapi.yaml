@@ -77,6 +77,8 @@ paths:
         required: true
         type: string
         maxLength: 58
+        minLength: 58
+        pattern: ^[A-Z2-7]{58}$
       responses:
         "200":
           description: OK response.
@@ -105,6 +107,9 @@ paths:
         type: array
         items:
           type: string
+          maxLength: 58
+          minLength: 58
+          pattern: ^[A-Z2-7]{58}$
         collectionFormat: multi
       responses:
         "200":
@@ -181,7 +186,7 @@ paths:
             type: array
             items:
               type: string
-              example: Mollitia nihil rerum a veritatis ipsam suscipit.
+              example: In delectus dicta deserunt.
         "401":
           description: Unauthorized response.
           schema:
@@ -262,7 +267,7 @@ definitions:
       fault:
         type: boolean
         description: Is the error a server-side fault?
-        example: false
+        example: true
       id:
         type: string
         description: ID is a unique identifier for this particular occurrence of the
@@ -308,14 +313,17 @@ definitions:
         type: array
         items:
           type: string
-          example: Explicabo dolorum.
+          example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+          pattern: ^[A-Z2-7]{58}$
+          minLength: 58
+          maxLength: 58
         example:
         - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+        - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     example:
       address:
       - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-      - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+      - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     required:
     - address
   AccountDeleteAccessDeniedResponseBody:
@@ -343,18 +351,18 @@ definitions:
       temporary:
         type: boolean
         description: Is the error temporary?
-        example: false
+        example: true
       timeout:
         type: boolean
         description: Is the error a timeout?
-        example: true
+        example: false
     description: delete_access_denied_response_body result type (default view)
     example:
-      fault: false
+      fault: true
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
-      temporary: true
+      temporary: false
       timeout: false
     required:
     - name
@@ -388,19 +396,19 @@ definitions:
       temporary:
         type: boolean
         description: Is the error temporary?
-        example: false
+        example: true
       timeout:
         type: boolean
         description: Is the error a timeout?
-        example: false
+        example: true
     description: deleteAll_access_denied_response_body result type (default view)
     example:
-      fault: true
+      fault: false
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
-      temporary: true
-      timeout: true
+      temporary: false
+      timeout: false
     required:
     - name
     - id
@@ -433,11 +441,11 @@ definitions:
       temporary:
         type: boolean
         description: Is the error temporary?
-        example: true
+        example: false
       timeout:
         type: boolean
         description: Is the error a timeout?
-        example: true
+        example: false
     description: get_access_denied_response_body result type (default view)
     example:
       fault: false
@@ -445,7 +453,7 @@ definitions:
       message: parameter 'p' must be an integer
       name: bad_request
       temporary: true
-      timeout: false
+      timeout: true
     required:
     - name
     - id
@@ -460,7 +468,7 @@ definitions:
       fault:
         type: boolean
         description: Is the error a server-side fault?
-        example: true
+        example: false
       id:
         type: string
         description: ID is a unique identifier for this particular occurrence of the
@@ -478,19 +486,19 @@ definitions:
       temporary:
         type: boolean
         description: Is the error temporary?
-        example: false
+        example: true
       timeout:
         type: boolean
         description: Is the error a timeout?
         example: false
     description: getMultiple_access_denied_response_body result type (default view)
     example:
-      fault: false
+      fault: true
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
       temporary: false
-      timeout: true
+      timeout: false
     required:
     - name
     - id
@@ -506,14 +514,17 @@ definitions:
         type: array
         items:
           type: string
-          example: Cum quod nihil quidem vel magnam.
+          example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+          pattern: ^[A-Z2-7]{58}$
+          minLength: 58
+          maxLength: 58
         example:
         - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+        - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     example:
       address:
       - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-      - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+      - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     required:
     - address
   AccountGetResponseBody:
@@ -531,48 +542,40 @@ definitions:
         type: object
         description: Account Assets
         example:
-          Delectus dicta deserunt accusantium.:
-            amount: 171973850282044594
+          Quia omnis ut vel excepturi ut alias.:
+            amount: 5617649523730408688
             asset: 202586210
-            decimals: 16932959300934428842
-            metadataHash: Nihil repellendus explicabo.
-            name: Eaque accusamus maxime accusamus veritatis ipsum.
-            unitName: Ex laborum laboriosam natus.
-            url: Et earum.
-          Nisi qui ipsa dolor.:
-            amount: 171973850282044594
-            asset: 202586210
-            decimals: 16932959300934428842
-            metadataHash: Nihil repellendus explicabo.
-            name: Eaque accusamus maxime accusamus veritatis ipsum.
-            unitName: Ex laborum laboriosam natus.
-            url: Et earum.
+            decimals: 2357193787236355316
+            metadataHash: Velit labore laborum rerum dolores in.
+            name: UNIT
+            unitName: My Unit
+            url: https://someurl.com
         additionalProperties: true
       round:
         type: integer
         description: Round fetched
-        example: 15091227420651452
+        example: 10088823280034960330
         format: int64
     example:
       address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
       holdings:
-        Consectetur ratione itaque explicabo.:
-          amount: 171973850282044594
+        Officia deserunt id in velit alias.:
+          amount: 5617649523730408688
           asset: 202586210
-          decimals: 16932959300934428842
-          metadataHash: Nihil repellendus explicabo.
-          name: Eaque accusamus maxime accusamus veritatis ipsum.
-          unitName: Ex laborum laboriosam natus.
-          url: Et earum.
-        Omnis eligendi totam.:
-          amount: 171973850282044594
+          decimals: 2357193787236355316
+          metadataHash: Velit labore laborum rerum dolores in.
+          name: UNIT
+          unitName: My Unit
+          url: https://someurl.com
+        Quia accusantium explicabo.:
+          amount: 5617649523730408688
           asset: 202586210
-          decimals: 16932959300934428842
-          metadataHash: Nihil repellendus explicabo.
-          name: Eaque accusamus maxime accusamus veritatis ipsum.
-          unitName: Ex laborum laboriosam natus.
-          url: Et earum.
-      round: 4924318997903054619
+          decimals: 2357193787236355316
+          metadataHash: Velit labore laborum rerum dolores in.
+          name: UNIT
+          unitName: My Unit
+          url: https://someurl.com
+      round: 12405444292924142209
     required:
     - address
     - round
@@ -584,7 +587,7 @@ definitions:
       fault:
         type: boolean
         description: Is the error a server-side fault?
-        example: true
+        example: false
       id:
         type: string
         description: ID is a unique identifier for this particular occurrence of the
@@ -602,7 +605,7 @@ definitions:
       temporary:
         type: boolean
         description: Is the error temporary?
-        example: false
+        example: true
       timeout:
         type: boolean
         description: Is the error a timeout?
@@ -630,14 +633,18 @@ definitions:
         type: array
         items:
           type: string
-          example: Rem enim est.
+          example: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+          pattern: ^[A-Z2-7]{58}$
+          minLength: 58
+          maxLength: 58
         example:
         - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-        - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+        - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
+        - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     example:
       address:
       - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
-      - 6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY
+      - 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     required:
     - address
   AccountListAccessDeniedResponseBody:
@@ -672,12 +679,12 @@ definitions:
         example: false
     description: list_access_denied_response_body result type (default view)
     example:
-      fault: false
+      fault: true
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
       temporary: true
-      timeout: true
+      timeout: false
     required:
     - name
     - id
@@ -700,41 +707,33 @@ definitions:
         type: object
         description: Account Assets
         example:
-          Dolor aut provident.:
-            amount: 9015065114807207216
+          Aut occaecati optio voluptatem saepe.:
+            amount: 1088974194755991833
             asset: 202586210
-            decimals: 16060864642250952313
-            metadataHash: Incidunt iusto id assumenda.
-            name: Magnam dignissimos explicabo in aut culpa est.
-            unitName: Quia magnam.
-            url: Dolores laborum qui quam deleniti veritatis.
-          Itaque doloribus.:
-            amount: 9015065114807207216
-            asset: 202586210
-            decimals: 16060864642250952313
-            metadataHash: Incidunt iusto id assumenda.
-            name: Magnam dignissimos explicabo in aut culpa est.
-            unitName: Quia magnam.
-            url: Dolores laborum qui quam deleniti veritatis.
+            decimals: 12914538299926422014
+            metadataHash: Laboriosam natus non et.
+            name: UNIT
+            unitName: My Unit
+            url: https://someurl.com
         additionalProperties: true
       round:
         type: integer
         description: Round fetched
-        example: 16061532530937117821
+        example: 4492303793599045373
         format: int64
     description: Account describes an Algorand Account
     example:
       address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
       holdings:
-        Tenetur dolor facilis ut in optio.:
-          amount: 9015065114807207216
+        Enim non modi.:
+          amount: 1088974194755991833
           asset: 202586210
-          decimals: 16060864642250952313
-          metadataHash: Incidunt iusto id assumenda.
-          name: Magnam dignissimos explicabo in aut culpa est.
-          unitName: Quia magnam.
-          url: Dolores laborum qui quam deleniti veritatis.
-      round: 5102997558844952912
+          decimals: 12914538299926422014
+          metadataHash: Laboriosam natus non et.
+          name: UNIT
+          unitName: My Unit
+          url: https://someurl.com
+      round: 11941467113117303181
     required:
     - address
     - round
@@ -748,6 +747,7 @@ definitions:
     description: ListResponseBody is the result type for an array of TrackedAccountResponse
       (default view)
     example:
+    - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
     - address: 4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU
   InspectUnpackAccessDeniedResponseBody:
@@ -775,19 +775,19 @@ definitions:
       temporary:
         type: boolean
         description: Is the error temporary?
-        example: true
+        example: false
       timeout:
         type: boolean
         description: Is the error a timeout?
-        example: false
+        example: true
     description: unpack_access_denied_response_body result type (default view)
     example:
-      fault: false
+      fault: true
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
-      temporary: true
-      timeout: false
+      temporary: false
+      timeout: true
     required:
     - name
     - id
@@ -801,9 +801,9 @@ definitions:
     properties:
       msgpack:
         type: string
-        example: Itaque ex.
+        example: Maxime voluptatem.
     example:
-      msgpack: Dolor reiciendis suscipit consequatur qui.
+      msgpack: Cum ipsum.
   TrackedAccountResponse:
     title: 'Mediatype identifier: application/vnd.algodex.account; view=default'
     type: object
