@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"algodexidx/gen/account"
-	"goa.design/goa/v3/middleware"
 )
 
 // private type used to define context keys
@@ -19,7 +18,9 @@ type ctxKey int
 // RemoteIPKey is the request context key used to store the remote IP address set by the SetRemoteIP middleware.
 const RemoteIPKey ctxKey = 1
 
-func SetRemoteIP(options ...middleware.RequestIDOption) func(http.Handler) http.Handler {
+// SetRemoteIP is middleware we inject to set the calling ip into the context so we can fetch later in the implementations
+// and use for things like network ACLs
+func SetRemoteIP() func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {

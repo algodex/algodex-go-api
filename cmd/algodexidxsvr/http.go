@@ -16,7 +16,8 @@ import (
 	inspectsvr "algodexidx/gen/http/inspect/server"
 	info "algodexidx/gen/info"
 	inspect "algodexidx/gen/inspect"
-
+	"github.com/getsentry/sentry-go"
+	sentryhttp "github.com/getsentry/sentry-go/http"
 	goahttp "goa.design/goa/v3/http"
 	httpmdlwr "goa.design/goa/v3/http/middleware"
 	"goa.design/goa/v3/middleware"
@@ -85,6 +86,7 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 		handler = httpmdlwr.Log(adapter)(handler)
 		handler = httpmdlwr.RequestID()(handler)
 		handler = backend.SetRemoteIP()(handler)
+		handler = sentryhttp.New(sentryhttp.Options{}).Handle(handler)
 	}
 
 	// Start HTTP server using default configuration, change the code to
@@ -102,13 +104,20 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 
 	(*wg).Add(1)
 	go func() {
+		defer sentry.Recover()
 		defer (*wg).Done()
 
 		// Start HTTP server in a separate goroutine.
-		go func() {
+		go func(localHub *sentry.Hub) {
+			defer sentry.Recover()
+			localHub.ConfigureScope(
+				func(scope *sentry.Scope) {
+					scope.SetTag("goroutine", "http server")
+				},
+			)
 			logger.Printf("HTTP server listening on %q", u.Host)
 			errc <- srv.ListenAndServe()
-		}()
+		}(sentry.CurrentHub().Clone())
 
 		<-ctx.Done()
 		logger.Printf("shutting down HTTP server at %q", u.Host)

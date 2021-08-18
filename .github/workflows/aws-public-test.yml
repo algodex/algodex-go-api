@@ -52,7 +52,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    environment: dev
+    environment: public-test
 
     steps:
     - name: Checkout
