@@ -10,6 +10,7 @@ package server
 import (
 	account "algodexidx/gen/account"
 	accountviews "algodexidx/gen/account/views"
+	"unicode/utf8"
 
 	goa "goa.design/goa/v3/pkg"
 )
@@ -440,6 +441,15 @@ func ValidateAddRequestBody(body *AddRequestBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}
+	for _, e := range body.Address {
+		err = goa.MergeErrors(err, goa.ValidatePattern("body.address[*]", e, "^[A-Z2-7]{58}$"))
+		if utf8.RuneCountInString(e) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, true))
+		}
+		if utf8.RuneCountInString(e) > 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, false))
+		}
+	}
 	return
 }
 
@@ -449,6 +459,15 @@ func ValidateGetMultipleRequestBody(body *GetMultipleRequestBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
 	}
+	for _, e := range body.Address {
+		err = goa.MergeErrors(err, goa.ValidatePattern("body.address[*]", e, "^[A-Z2-7]{58}$"))
+		if utf8.RuneCountInString(e) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, true))
+		}
+		if utf8.RuneCountInString(e) > 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, false))
+		}
+	}
 	return
 }
 
@@ -457,6 +476,15 @@ func ValidateGetMultipleRequestBody(body *GetMultipleRequestBody) (err error) {
 func ValidateIsWatchedRequestBody(body *IsWatchedRequestBody) (err error) {
 	if body.Address == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+	}
+	for _, e := range body.Address {
+		err = goa.MergeErrors(err, goa.ValidatePattern("body.address[*]", e, "^[A-Z2-7]{58}$"))
+		if utf8.RuneCountInString(e) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, true))
+		}
+		if utf8.RuneCountInString(e) > 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, false))
+		}
 	}
 	return
 }

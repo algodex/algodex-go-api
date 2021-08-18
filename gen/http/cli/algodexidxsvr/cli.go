@@ -36,11 +36,11 @@ func UsageExamples() string {
 	return os.Args[0] + ` account add --body '{
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
       ]
    }'` + "\n" +
 		os.Args[0] + ` inspect unpack --body '{
-      "msgpack": "Quia accusantium explicabo."
+      "msgpack": "Officiis aspernatur ut officia atque qui."
    }'` + "\n" +
 		os.Args[0] + ` info version` + "\n" +
 		""
@@ -283,7 +283,7 @@ Example:
     `+os.Args[0]+` account add --body '{
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
       ]
    }'
 `, os.Args[0])
@@ -298,7 +298,8 @@ Delete Algorand account(s) to track
 Example:
     `+os.Args[0]+` account delete --address '[
       "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-      "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
    ]'
 `, os.Args[0])
 }
@@ -334,7 +335,9 @@ Example:
     `+os.Args[0]+` account get-multiple --body '{
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
       ]
    }'
 `, os.Args[0])
@@ -361,7 +364,9 @@ Example:
     `+os.Args[0]+` account is-watched --body '{
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-         "6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY"
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
       ]
    }'
 `, os.Args[0])
@@ -388,7 +393,7 @@ Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output
 
 Example:
     `+os.Args[0]+` inspect unpack --body '{
-      "msgpack": "Quia accusantium explicabo."
+      "msgpack": "Officiis aspernatur ut officia atque qui."
    }'
 `, os.Args[0])
 }

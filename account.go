@@ -98,6 +98,12 @@ func (s *accountsrvc) GetMultiple(ctx context.Context, p *account.GetMultiplePay
 		return nil, err
 	}
 	for _, address := range p.Address {
+		_, err = types.DecodeAddress(address)
+		if err != nil {
+			return nil, fmt.Errorf("address:%v not valid: %w", address, err)
+		}
+	}
+	for _, address := range p.Address {
 		backendAccount, err := s.backend.GetAccount(ctx, address)
 		if backendAccount == nil || err != nil {
 			return nil, fmt.Errorf("account:%s couldn't be retrieved or other error: %w", address, err)

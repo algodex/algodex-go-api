@@ -24,10 +24,19 @@ func BuildAddPayload(accountAddBody string) (*account.AddPayload, error) {
 	{
 		err = json.Unmarshal([]byte(accountAddBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n      ]\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n      ]\n   }'")
 		}
 		if body.Address == nil {
 			err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+		}
+		for _, e := range body.Address {
+			err = goa.MergeErrors(err, goa.ValidatePattern("body.address[*]", e, "^[A-Z2-7]{58}$"))
+			if utf8.RuneCountInString(e) < 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, true))
+			}
+			if utf8.RuneCountInString(e) > 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, false))
+			}
 		}
 		if err != nil {
 			return nil, err
@@ -52,7 +61,19 @@ func BuildDeletePayload(accountDeleteAddress string) (*account.DeletePayload, er
 	{
 		err = json.Unmarshal([]byte(accountDeleteAddress), &address)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for address, \nerror: %s, \nexample of valid JSON:\n%s", err, "'[\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n      \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n   ]'")
+			return nil, fmt.Errorf("invalid JSON for address, \nerror: %s, \nexample of valid JSON:\n%s", err, "'[\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n   ]'")
+		}
+		for _, e := range address {
+			err = goa.MergeErrors(err, goa.ValidatePattern("address[*]", e, "^[A-Z2-7]{58}$"))
+			if utf8.RuneCountInString(e) < 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("address[*]", e, utf8.RuneCountInString(e), 58, true))
+			}
+			if utf8.RuneCountInString(e) > 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("address[*]", e, utf8.RuneCountInString(e), 58, false))
+			}
+		}
+		if err != nil {
+			return nil, err
 		}
 	}
 	v := &account.DeletePayload{}
@@ -68,6 +89,10 @@ func BuildGetPayload(accountGetAddress string) (*account.GetPayload, error) {
 	var address string
 	{
 		address = accountGetAddress
+		err = goa.MergeErrors(err, goa.ValidatePattern("address", address, "^[A-Z2-7]{58}$"))
+		if utf8.RuneCountInString(address) < 58 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError("address", address, utf8.RuneCountInString(address), 58, true))
+		}
 		if utf8.RuneCountInString(address) > 58 {
 			err = goa.MergeErrors(err, goa.InvalidLengthError("address", address, utf8.RuneCountInString(address), 58, false))
 		}
@@ -89,10 +114,19 @@ func BuildGetMultiplePayload(accountGetMultipleBody string) (*account.GetMultipl
 	{
 		err = json.Unmarshal([]byte(accountGetMultipleBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n      ]\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n      ]\n   }'")
 		}
 		if body.Address == nil {
 			err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+		}
+		for _, e := range body.Address {
+			err = goa.MergeErrors(err, goa.ValidatePattern("body.address[*]", e, "^[A-Z2-7]{58}$"))
+			if utf8.RuneCountInString(e) < 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, true))
+			}
+			if utf8.RuneCountInString(e) > 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, false))
+			}
 		}
 		if err != nil {
 			return nil, err
@@ -141,10 +175,19 @@ func BuildIsWatchedPayload(accountIsWatchedBody string) (*account.IsWatchedPaylo
 	{
 		err = json.Unmarshal([]byte(accountIsWatchedBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"6APKHESCBZIAAZBMMZYW3MEHWYBIT3V7XDA2MF45J5TUZG5LXFXFVBJSFY\"\n      ]\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n      ]\n   }'")
 		}
 		if body.Address == nil {
 			err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
+		}
+		for _, e := range body.Address {
+			err = goa.MergeErrors(err, goa.ValidatePattern("body.address[*]", e, "^[A-Z2-7]{58}$"))
+			if utf8.RuneCountInString(e) < 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, true))
+			}
+			if utf8.RuneCountInString(e) > 58 {
+				err = goa.MergeErrors(err, goa.InvalidLengthError("body.address[*]", e, utf8.RuneCountInString(e), 58, false))
+			}
 		}
 		if err != nil {
 			return nil, err

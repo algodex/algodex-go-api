@@ -21,7 +21,7 @@ func BuildUnpackPayload(inspectUnpackBody string) (*inspect.UnpackPayload, error
 	{
 		err = json.Unmarshal([]byte(inspectUnpackBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"msgpack\": \"Quia accusantium explicabo.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"msgpack\": \"Officiis aspernatur ut officia atque qui.\"\n   }'")
 		}
 	}
 	v := &inspect.UnpackPayload{
