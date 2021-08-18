@@ -9,14 +9,17 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"sync"
 	"syscall"
+	"time"
 
 	"algodexidx"
 	"algodexidx/backend"
 	"algodexidx/gen/account"
 	"algodexidx/gen/info"
 	"algodexidx/gen/inspect"
+	"github.com/getsentry/sentry-go"
 )
 
 // Variables set at build time using govv flags (https://github.com/ahmetb/govvv)
@@ -29,6 +32,8 @@ var (
 func main() {
 	// Define command line flags, add any other flag required to configure the
 	// service.
+	defer sentry.Recover()
+
 	var (
 		hostF     = flag.String("host", "localhost", "Server host (valid values: localhost)")
 		domainF   = flag.String("domain", "", "Host domain name (overrides host domain specified in service design)")
@@ -43,18 +48,39 @@ func main() {
 	flag.Parse()
 
 	// Set up sentry
-	//hostname, _ := os.Hostname()
-	//err := sentry.Init(sentry.ClientOptions{
-	//	// Either set your DSN here or set the SENTRY_DSN environment variable.
-	//	Dsn: "https://16ac7f11f4884d308d515d2666b3e455@o861560.ingest.sentry.io/5821465",
-	//	// Either set environment and release here or set the SENTRY_ENVIRONMENT
-	//	// and SENTRY_RELEASE environment variables.
-	//	Environment: hostname,
-	//	Release:     fmt.Sprintf("%s@%s", os.Args[0], GitSummary),
-	//	// Enable printing of SDK debug messages.
-	//	// Useful when getting started or trying to figure something out.
-	//	Debug: true,
-	//})
+	hostname, _ := os.Hostname()
+	environment := os.Getenv("ALGODEX_ENVIRONMENT")
+	// Hardcode DSN for now but we can pass through environment as well (SENTRY_DSN will be used automatically)
+	dsn := "https://11bdb8e95f9e4fa59ec06de5b31664ee@o861560.ingest.sentry.io/5909952"
+	traceSampleRate := 1.0
+	if environment == "local" {
+		// disable sentry when local
+		dsn = ""
+	}
+	if rate := os.Getenv("SENTRY_TRACESAMPLERATE"); rate != "" {
+		if newRate, err := strconv.ParseFloat(rate, 64); err != nil {
+			traceSampleRate = newRate
+		}
+	}
+	err := sentry.Init(
+		sentry.ClientOptions{
+			// Either set your DSN here or set the SENTRY_DSN environment variable.
+			Dsn:              dsn,
+			ServerName:       hostname,
+			Environment:      environment,
+			Release:          VersionSummary,
+			AttachStacktrace: true,
+			// Enable printing of SDK debug messages.
+			// Useful when getting started or trying to figure something out.
+			Debug:            true,
+			TracesSampleRate: traceSampleRate,
+		},
+	)
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+	// Flush buffered events before the program terminates.
+	defer sentry.Flush(2 * time.Second)
 
 	if *network == "" {
 		*network = os.Getenv("ALGODEX_NETWORK")
@@ -147,7 +173,7 @@ func main() {
 	default:
 		fmt.Fprintf(os.Stderr, "invalid host argument: %q (valid hosts: localhost)\n", *hostF)
 	}
-	logger.Printf("Version:%s", GitSummary)
+	logger.Printf("Version:%s", VersionSummary)
 	logger.Printf("Network:%s", *network)
 
 	// Wait for signal.

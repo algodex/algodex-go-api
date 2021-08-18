@@ -10,6 +10,7 @@ import (
 
 	"github.com/algorand/go-algorand-sdk/client/v2/algod"
 	"github.com/algorand/go-algorand-sdk/types"
+	"github.com/getsentry/sentry-go"
 )
 
 // addressAndResult is what is sent to the background account updater goroutines channel and
@@ -17,6 +18,7 @@ import (
 type addressAndResult struct {
 	address string
 	result  chan<- *Account
+	ctx     context.Context
 }
 
 func (a addressAndResult) String() string {
@@ -91,7 +93,14 @@ func (w *watcher) GetAccounts(ctx context.Context) []*Account {
 }
 
 func (w *watcher) start(ctx context.Context) {
-	go w.accountWatcher(ctx)
+	go func(localHub *sentry.Hub) {
+		localHub.ConfigureScope(
+			func(scope *sentry.Scope) {
+				scope.SetTag("goroutine", "accountWatcher")
+			},
+		)
+		w.accountWatcher(ctx)
+	}(sentry.CurrentHub().Clone())
 }
 
 func (w *watcher) accountWatcher(ctx context.Context) {
@@ -103,7 +112,14 @@ func (w *watcher) accountWatcher(ctx context.Context) {
 	// Create parallel update workers - 4x core count
 	for i := 0; i < runtime.NumCPU()*4; i++ {
 		wg.Add(1)
-		go w.accountUpdater(ctx, &wg)
+		go func(localHub *sentry.Hub) {
+			localHub.ConfigureScope(
+				func(scope *sentry.Scope) {
+					scope.SetTag("goroutine", fmt.Sprintf("accountUpdater:%d/%d", i+1, runtime.NumCPU()*4))
+				},
+			)
+			w.accountUpdater(ctx, &wg)
+		}(sentry.CurrentHub().Clone())
 	}
 
 	// Get last round we saw...
@@ -139,7 +155,14 @@ func (w *watcher) accountWatcher(ctx context.Context) {
 	}
 
 	// Then we just watch for updates in each new block
-	go w.blockWatcher(ctx, startRound)
+	go func(localHub *sentry.Hub) {
+		localHub.ConfigureScope(
+			func(scope *sentry.Scope) {
+				scope.SetTag("goroutine", "blockWatcher")
+			},
+		)
+		w.blockWatcher(ctx, startRound)
+	}(sentry.CurrentHub().Clone())
 
 	// Wait until we're told to exit...
 	<-ctx.Done()
@@ -153,17 +176,28 @@ func (w *watcher) accountUpdater(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 	// Endlessly loop on accounts to update the assets until our channel is closed
 	for accountUpdate := range w.accountUpdateChan {
+		newctx := ctx
+		if accountUpdate.ctx != nil {
+			newctx = accountUpdate.ctx
+		}
+		span := sentry.StartSpan(
+			newctx, "account-update",
+			sentry.TransactionName(fmt.Sprintf("update: %s", accountUpdate)),
+		)
+
 		w.logger.Printf("Account holdings update, account:%s", accountUpdate)
 		// fetching the account also updates the persistence layer for later cached fetch
-		updatedAccount, err := w.updateAccountInfo(ctx, accountUpdate.address)
+		updatedAccount, err := w.updateAccountInfo(span.Context(), accountUpdate.address)
 		if err != nil {
 			w.logger.Printf("error fetching holdings for account:%v - will retry, error:%v", accountUpdate, err.Error())
 			w.accountUpdateChan <- accountUpdate
+			span.Finish()
 			continue
 		}
 		if accountUpdate.result != nil {
 			accountUpdate.result <- updatedAccount
 		}
+		span.Finish()
 	}
 }
 
@@ -238,11 +272,16 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 			continue
 		} else {
 			if len(matches) > 0 {
+				span := sentry.StartSpan(
+					ctx, "dirty-account-dispatch",
+					sentry.TransactionName("update dirty accounts"),
+				)
+
 				results := make(chan *Account, len(matches))
 				start := time.Now()
 				w.logger.Printf("block:%d - queuing account updates of %d accounts", round, len(matches))
 				for _, address := range matches {
-					w.accountUpdateChan <- addressAndResult{address: address, result: results}
+					w.accountUpdateChan <- addressAndResult{address: address, result: results, ctx: span.Context()}
 				}
 				// wait until we've received every result...
 				for i := 0; i < len(matches); i++ {
@@ -259,6 +298,7 @@ func (w *watcher) blockWatcher(ctx context.Context, startRound uint64) {
 					}
 				}
 				w.logger.Printf("block:%d - account updates complete - elapsed:%v", round, time.Now().Sub(start))
+				span.Finish()
 			}
 		}
 		w.persist.SetLastRound(ctx, round)
@@ -314,7 +354,7 @@ func (w *watcher) updateAccountInfo(ctx context.Context, address string) (*Accou
 				continue
 			}
 			if err = w.persist.SetAssetInfo(ctx, asset.AssetId, assetInfo); err != nil {
-				// couldn't set into persistance layer but can still set into our return value so don't skip this one...
+				// couldn't set into persistence layer but can still set into our return value so don't skip this one...
 				w.logger.Printf("error setting fetching asset info, error:%s", err.Error())
 			}
 		}

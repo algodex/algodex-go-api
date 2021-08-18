@@ -28,6 +28,10 @@
             },
             "environment": [
                 {
+                    "name": "ALGODEX_ENVIRONMENT",
+                    "value": "test"
+                },
+                {
                     "name": "ALGODEX_SUBNET_WHITELIST",
                     "value": "52.14.91.232/32,18.221.167.66/32,199.27.251.7/32"
                 },
