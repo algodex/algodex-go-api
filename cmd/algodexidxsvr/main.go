@@ -76,6 +76,9 @@ func main() {
 			TracesSampler: sentry.TracesSamplerFunc(
 				func(ctx sentry.SamplingContext) sentry.Sampled {
 					hub := sentry.GetHubFromContext(ctx.Span.Context())
+					if hub == nil {
+						return sentry.UniformTracesSampler(traceSampleRate).Sample(ctx)
+					}
 					name := hub.Scope().Transaction()
 					if name == "GET /live" || name == "GET /version" {
 						return sentry.SampledFalse
