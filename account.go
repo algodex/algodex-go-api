@@ -27,9 +27,6 @@ func NewAccount(logger *log.Logger, itf backend.Itf) account.Service {
 // Add Algorand account to track
 func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error) {
 	s.logger.Println("account.add", p.Address)
-	if err := backend.FailIfNotAuthorized(ctx); err != nil {
-		return err
-	}
 	if p == nil || len(p.Address) == 0 {
 		return errors.New("must provide address(es) to watch")
 	}
@@ -50,9 +47,6 @@ func (s *accountsrvc) Add(ctx context.Context, p *account.AddPayload) (err error
 // Delete Algorand account(s) to track
 func (s *accountsrvc) Delete(ctx context.Context, p *account.DeletePayload) (err error) {
 	s.logger.Println("account.delete", p.Address)
-	if err := backend.FailIfNotAuthorized(ctx); err != nil {
-		return err
-	}
 	if p == nil || len(p.Address) == 0 {
 		return errors.New("must provide address(es) to remove")
 	}
@@ -67,18 +61,12 @@ func (s *accountsrvc) Delete(ctx context.Context, p *account.DeletePayload) (err
 // Delete all tracked algorand account(s).  Used for resetting everything
 func (s *accountsrvc) DeleteAll(ctx context.Context) (err error) {
 	s.logger.Print("account.deleteAll")
-	if err := backend.FailIfNotAuthorized(ctx); err != nil {
-		return err
-	}
 	return s.backend.Reset(ctx)
 }
 
 // Get specific account
 func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *account.Account, err error) {
 	s.logger.Println("account.get", p.Address)
-	if err := backend.FailIfNotAuthorized(ctx); err != nil {
-		return nil, err
-	}
 	backendAccount, err := s.backend.GetAccount(ctx, p.Address)
 	if backendAccount == nil || err != nil {
 		return nil, fmt.Errorf("account:%s couldn't be retrieved or other error: %w", p.Address, err)
@@ -94,9 +82,6 @@ func (s *accountsrvc) Get(ctx context.Context, p *account.GetPayload) (res *acco
 // Get account(s)
 func (s *accountsrvc) GetMultiple(ctx context.Context, p *account.GetMultiplePayload) (res []*account.Account, err error) {
 	s.logger.Println("account.getMultiple", p.Address)
-	if err := backend.FailIfNotAuthorized(ctx); err != nil {
-		return nil, err
-	}
 	for _, address := range p.Address {
 		_, err = types.DecodeAddress(address)
 		if err != nil {
@@ -121,9 +106,6 @@ func (s *accountsrvc) GetMultiple(ctx context.Context, p *account.GetMultiplePay
 func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (
 	res account.TrackedAccountCollection, view string, err error,
 ) {
-	if err = backend.FailIfNotAuthorized(ctx); err != nil {
-		return
-	}
 	view = "default"
 	if p.View != nil {
 		view = *p.View
@@ -144,9 +126,6 @@ func (s *accountsrvc) List(ctx context.Context, p *account.ListPayload) (
 // Returns which of the passed accounts are currently being monitored
 func (s *accountsrvc) IsWatched(ctx context.Context, p *account.IsWatchedPayload) (res []string, err error) {
 	s.logger.Print("account.iswatched", p.Address)
-	if err := backend.FailIfNotAuthorized(ctx); err != nil {
-		return nil, err
-	}
 	return s.backend.IsWatchedAccount(ctx, p.Address)
 }
 

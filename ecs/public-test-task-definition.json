@@ -28,6 +28,10 @@
             },
             "environment": [
                 {
+                    "name": "SENTRY_TRACESAMPLERATE ",
+                    "value": "1"
+                },
+                {
                     "name": "ALGODEX_ENVIRONMENT",
                     "value": "public_test"
                 },

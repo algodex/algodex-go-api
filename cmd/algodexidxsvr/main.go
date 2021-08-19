@@ -20,6 +20,7 @@ import (
 	"algodexidx/gen/info"
 	"algodexidx/gen/inspect"
 	"github.com/getsentry/sentry-go"
+	goa "goa.design/goa/v3/pkg"
 )
 
 // Variables set at build time using govv flags (https://github.com/ahmetb/govvv)
@@ -152,6 +153,10 @@ func main() {
 		inspectEndpoints = inspect.NewEndpoints(inspectSvc)
 		infoEndpoints = info.NewEndpoints(infoSvc)
 	}
+	// Only allow IPs in our allow-list to the account and inspect services
+	// the 'info' service is allowed
+	accountEndpoints.Use(forceIPAllowList)
+	inspectEndpoints.Use(forceIPAllowList)
 
 	// Start the servers and send errors (if any) to the error channel.
 	switch *hostF {
@@ -196,4 +201,13 @@ func main() {
 
 	wg.Wait()
 	logger.Println("exited")
+}
+
+func forceIPAllowList(endpoint goa.Endpoint) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		if err := backend.FailIfNotAuthorized(ctx); err != nil {
+			return nil, err
+		}
+		return endpoint(ctx, req)
+	}
 }
