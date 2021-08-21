@@ -2,7 +2,7 @@
     "containerDefinitions": [
         {
             "name": "algodex-go-public-test",
-            "image": "563462845177.dkr.ecr.us-east-2.amazonaws.com/algodex-ecr/algodex-go:latest",
+            "image": "563462845177.dkr.ecr.us-east-2.amazonaws.com/algodex-ecr/algodex-go-public:latest",
             "cpu": 0,
             "links": [],
             "portMappings": [
@@ -57,7 +57,7 @@
                 },
                 {
                     "name": "ALGODEX_DB_NAME",
-                    "value": "algodex_public_test"
+                    "value": "algodex_ecs_public_test"
                 },
                 {
                     "name": "ALGODEX_ALGOD",

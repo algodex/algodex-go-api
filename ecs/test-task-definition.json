@@ -57,7 +57,7 @@
                 },
                 {
                     "name": "ALGODEX_DB_NAME",
-                    "value": "algodex"
+                    "value": "algodex_ecs"
                 },
                 {
                     "name": "ALGODEX_ALGOD",
