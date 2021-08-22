@@ -11,6 +11,7 @@ import (
 	account "algodexidx/gen/account"
 	"context"
 	"net/http"
+	"regexp"
 
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
@@ -491,6 +492,7 @@ func NewCORSHandler() http.Handler {
 // HandleAccountOrigin applies the CORS response headers corresponding to the
 // origin for the service account.
 func HandleAccountOrigin(h http.Handler) http.Handler {
+	spec0 := regexp.MustCompile("http[s]?://(.+[.])?algodex.com$")
 	origHndlr := h.(http.HandlerFunc)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
@@ -499,14 +501,32 @@ func HandleAccountOrigin(h http.Handler) http.Handler {
 			origHndlr(w, r)
 			return
 		}
-		if cors.MatchOrigin(origin, "*") {
+		if cors.MatchOriginRegexp(origin, spec0) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Vary", "Origin")
 			w.Header().Set("Access-Control-Max-Age", "600")
 			if acrm := r.Header.Get("Access-Control-Request-Method"); acrm != "" {
 				// We are handling a preflight request
-				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Methods", "GET, DELETE, POST, OPTIONS")
 				w.Header().Set("Access-Control-Allow-Headers", "*")
+			}
+			origHndlr(w, r)
+			return
+		}
+		if cors.MatchOrigin(origin, "http://algodex-go-api") {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+			if acrm := r.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+			}
+			origHndlr(w, r)
+			return
+		}
+		if cors.MatchOrigin(origin, "http://localhost") {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+			if acrm := r.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
 			}
 			origHndlr(w, r)
 			return

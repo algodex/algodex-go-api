@@ -19,6 +19,7 @@ import (
 	"algodexidx/gen/account"
 	"algodexidx/gen/info"
 	"algodexidx/gen/inspect"
+	"algodexidx/gen/orders"
 	"github.com/getsentry/sentry-go"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -95,14 +96,6 @@ func main() {
 	// Flush buffered events before the program terminates.
 	defer sentry.Flush(2 * time.Second)
 
-	if *network == "" {
-		*network = os.Getenv("ALGODEX_NETWORK")
-	}
-	if *network != "testnet" && *network != "mainnet" {
-		fmt.Fprintf(os.Stderr, "invalid network %s\n", *network)
-		os.Exit(1)
-	}
-
 	// Create channel used by both the signal handler and server goroutines
 	// to notify the main goroutine when to stop the server.
 	errc := make(chan error)
@@ -126,17 +119,24 @@ func main() {
 		logger = log.New(os.Stderr, "[algodexidx] ", log.Ltime)
 	}
 
+	var itf backend.Itf
 	// Initialize all of our independent backend/background services
-	itf := backend.InitBackend(ctx, logger, *network)
+	itf, err = backend.InitBackend(ctx, logger, *network)
+	if err != nil {
+		log.Printf("FAILURE in backend initalization, error:%v", err)
+		os.Exit(1)
+	}
 
 	// Initialize the services.
 	var (
 		accountSvc account.Service
+		ordersSvc  orders.Service
 		inspectSvc inspect.Service
 		infoSvc    info.Service
 	)
 	{
 		accountSvc = algodexidx.NewAccount(logger, itf)
+		ordersSvc = algodexidx.NewOrders(logger, itf)
 		inspectSvc = algodexidx.NewInspect(logger)
 		infoSvc = algodexidx.NewInfo(logger, VersionSummary)
 	}
@@ -145,18 +145,21 @@ func main() {
 	// potentially running in different processes.
 	var (
 		accountEndpoints *account.Endpoints
+		ordersEndpoints  *orders.Endpoints
 		inspectEndpoints *inspect.Endpoints
 		infoEndpoints    *info.Endpoints
 	)
 	{
 		accountEndpoints = account.NewEndpoints(accountSvc)
+		ordersEndpoints = orders.NewEndpoints(ordersSvc)
 		inspectEndpoints = inspect.NewEndpoints(inspectSvc)
 		infoEndpoints = info.NewEndpoints(infoSvc)
 	}
-	// Only allow IPs in our allow-list to the account and inspect services
-	// the 'info' service is allowed
-	accountEndpoints.Use(forceIPAllowList)
-	inspectEndpoints.Use(forceIPAllowList)
+	// Only allow IPs in our allow-list to the account, orders, and inspect services.
+	// The 'info' service is always allowed!
+	accountEndpoints.Use(forceIPAllowList(logger))
+	ordersEndpoints.Use(forceIPAllowList(logger))
+	inspectEndpoints.Use(forceIPAllowList(logger))
 
 	// Start the servers and send errors (if any) to the error channel.
 	switch *hostF {
@@ -184,7 +187,9 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host = net.JoinHostPort(u.Host, ":80")
 			}
-			handleHTTPServer(ctx, u, accountEndpoints, inspectEndpoints, infoEndpoints, &wg, errc, logger, *dbgF)
+			handleHTTPServer(
+				ctx, u, accountEndpoints, ordersEndpoints, inspectEndpoints, infoEndpoints, &wg, errc, logger, *dbgF,
+			)
 		}
 
 	default:
@@ -203,11 +208,14 @@ func main() {
 	logger.Println("exited")
 }
 
-func forceIPAllowList(endpoint goa.Endpoint) goa.Endpoint {
-	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		if err := backend.FailIfNotAuthorized(ctx); err != nil {
-			return nil, err
+func forceIPAllowList(log *log.Logger) func(endpoint goa.Endpoint) goa.Endpoint {
+	return func(endpoint goa.Endpoint) goa.Endpoint {
+		return func(ctx context.Context, req interface{}) (interface{}, error) {
+			if err := backend.FailIfNotAuthorized(ctx); err != nil {
+				log.Printf("unauthorized: %v", err)
+				return nil, err
+			}
+			return endpoint(ctx, req)
 		}
-		return endpoint(ctx, req)
 	}
 }

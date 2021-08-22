@@ -14,8 +14,10 @@ import (
 	accountsvr "algodexidx/gen/http/account/server"
 	infosvr "algodexidx/gen/http/info/server"
 	inspectsvr "algodexidx/gen/http/inspect/server"
+	orderssvr "algodexidx/gen/http/orders/server"
 	info "algodexidx/gen/info"
 	inspect "algodexidx/gen/inspect"
+	"algodexidx/gen/orders"
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	goahttp "goa.design/goa/v3/http"
@@ -25,7 +27,7 @@ import (
 
 // handleHTTPServer starts configures and starts a HTTP server on the given
 // URL. It shuts down the server if any error is received in the error channel.
-func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account.Endpoints, inspectEndpoints *inspect.Endpoints, infoEndpoints *info.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
+func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account.Endpoints, ordersEndpoints *orders.Endpoints, inspectEndpoints *inspect.Endpoints, infoEndpoints *info.Endpoints, wg *sync.WaitGroup, errc chan error, logger *log.Logger, debug bool) {
 
 	// Setup goa log adapter.
 	var (
@@ -57,17 +59,20 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 	// responses.
 	var (
 		accountServer *accountsvr.Server
+		ordersServer  *orderssvr.Server
 		inspectServer *inspectsvr.Server
 		infoServer    *infosvr.Server
 	)
 	{
 		eh := errorHandler(logger)
 		accountServer = accountsvr.New(accountEndpoints, mux, dec, enc, eh, nil)
+		ordersServer = orderssvr.New(ordersEndpoints, mux, dec, enc, eh, nil)
 		inspectServer = inspectsvr.New(inspectEndpoints, mux, dec, enc, eh, nil)
 		infoServer = infosvr.New(infoEndpoints, mux, dec, enc, eh, nil, nil)
 		if debug {
 			servers := goahttp.Servers{
 				accountServer,
+				ordersServer,
 				inspectServer,
 				infoServer,
 			}
@@ -76,6 +81,7 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 	}
 	// Configure the mux.
 	accountsvr.Mount(mux, accountServer)
+	orderssvr.Mount(mux, ordersServer)
 	inspectsvr.Mount(mux, inspectServer)
 	infosvr.Mount(mux, infoServer)
 
@@ -93,6 +99,9 @@ func handleHTTPServer(ctx context.Context, u *url.URL, accountEndpoints *account
 	// configure the server as required by your service.
 	srv := &http.Server{Addr: u.Host, Handler: handler}
 	for _, m := range accountServer.Mounts {
+		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
+	}
+	for _, m := range ordersServer.Mounts {
 		logger.Printf("HTTP %q mounted on %s %s", m.Method, m.Verb, m.Pattern)
 	}
 	for _, m := range inspectServer.Mounts {

@@ -61,7 +61,7 @@ func BuildDeletePayload(accountDeleteAddress string) (*account.DeletePayload, er
 	{
 		err = json.Unmarshal([]byte(accountDeleteAddress), &address)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for address, \nerror: %s, \nexample of valid JSON:\n%s", err, "'[\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n   ]'")
+			return nil, fmt.Errorf("invalid JSON for address, \nerror: %s, \nexample of valid JSON:\n%s", err, "'[\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n      \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n   ]'")
 		}
 		for _, e := range address {
 			err = goa.MergeErrors(err, goa.ValidatePattern("address[*]", e, "^[A-Z2-7]{58}$"))
@@ -114,7 +114,7 @@ func BuildGetMultiplePayload(accountGetMultipleBody string) (*account.GetMultipl
 	{
 		err = json.Unmarshal([]byte(accountGetMultipleBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n      ]\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n      ]\n   }'")
 		}
 		if body.Address == nil {
 			err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))
@@ -175,7 +175,7 @@ func BuildIsWatchedPayload(accountIsWatchedBody string) (*account.IsWatchedPaylo
 	{
 		err = json.Unmarshal([]byte(accountIsWatchedBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n      ]\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"address\": [\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\",\n         \"4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU\"\n      ]\n   }'")
 		}
 		if body.Address == nil {
 			err = goa.MergeErrors(err, goa.MissingFieldError("address", "body"))

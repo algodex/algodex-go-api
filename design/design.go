@@ -11,13 +11,15 @@ var _ = API(
 	"algodexidx", func() {
 		Title("AlgoDex Indexer Service")
 		Description("Service for tracking Algorand accounts and currently opted-in Holdings")
+		cors.Origin("http://localhost")
+		cors.Origin("http://algodex-go-api")
 		cors.Origin(
-			"*", func() {
+			"/http[s]?://(.+[.])?algodex.com$/", func() {
 				cors.Headers("*") //"X-Authorization", "X-Time", "X-Api-Version",
 				//"Content-Type", "Origin",
 				//"Authorization",
 
-				cors.Methods("GET", "POST", "OPTIONS")
+				cors.Methods("GET", "DELETE", "POST", "OPTIONS")
 				//cors.Expose("Content-Type", "Origin")
 				cors.MaxAge(600)
 				//cors.Credentials()
@@ -223,8 +225,8 @@ var _ = Service(
 				Description("List all tracked accounts")
 				Payload(
 					func() {
-						Field(
-							1, "view", String, "View to render", func() {
+						Attribute(
+							"view", String, "View to render", func() {
 								Enum("default", "full")
 							},
 						)
@@ -262,6 +264,188 @@ var _ = Service(
 	},
 )
 
+var Order = Type(
+	"Order", func() {
+		Description("Order is an individual buy or sell order")
+		Attribute(
+			"assetLimitPriceInAlgos", String,
+			func() {
+				Example(".08")
+				Meta("struct:tag:db", "assetLimitPriceInAlgos")
+				Meta("struct:tag:json", "assetLimitPriceInAlgos")
+			},
+		)
+		Attribute(
+			"asaPrice", String, func() {
+				Example(".08")
+				Meta("struct:tag:db", "asaPrice")
+				Meta("struct:tag:json", "asaPrice")
+			},
+		)
+		Attribute(
+			"assetLimitPriceD", UInt64, func() {
+				Example(197)
+				Meta("struct:tag:db", "assetLimitPriceD")
+				Meta("struct:tag:json", "assetLimitPriceD")
+			},
+		)
+		Attribute(
+			"assetLimitPriceN", UInt64, func() {
+				Example(100)
+				Meta("struct:tag:db", "assetLimitPriceN")
+				Meta("struct:tag:json", "assetLimitPriceN")
+			},
+		)
+		Attribute(
+			"algoAmount", UInt64, func() {
+				Example(498000)
+				Meta("struct:tag:db", "algoAmount")
+				Meta("struct:tag:json", "algoAmount")
+			},
+		)
+		Attribute(
+			"asaAmount", UInt64, func() {
+				Example(1000000)
+				Meta("struct:tag:db", "asaAmount")
+				Meta("struct:tag:json", "asaAmount")
+			},
+		)
+		Attribute(
+			"assetId", UInt64, func() {
+				Example(15322902)
+				Meta("struct:tag:db", "assetId")
+				Meta("struct:tag:json", "assetId")
+			},
+		)
+		Attribute(
+			"appId", UInt64, func() {
+				Example(16021157)
+				Meta("struct:tag:db", "appId")
+				Meta("struct:tag:json", "appId")
+			},
+		)
+		Attribute(
+			"escrowAddress", String, func() {
+				Example("2IYBUR4WXPWGBKRETN4GVSCPG7VOJRMVZFYTDYMQSRMXQJY24EHGFLFIMU")
+				Meta("struct:tag:db", "escrowAddress")
+				Meta("struct:tag:json", "escrowAddress")
+			},
+		)
+		Attribute(
+			"ownerAddress", String, func() {
+				Example("XHGANA4SOVZKH4GGSSLAMOZDVWWVIXT5DZBIEGI3GX2EESVFNFGFTHJATA")
+				Meta("struct:tag:db", "ownerAddress")
+				Meta("struct:tag:json", "ownerAddress")
+			},
+		)
+		Attribute(
+			"minimumExecutionSizeInAlgo", UInt64, func() {
+				Example(0)
+				Meta("struct:tag:db", "minimumExecutionSizeInAlgo")
+				Meta("struct:tag:json", "minimumExecutionSizeInAlgo")
+			},
+		)
+		Attribute(
+			"round", UInt64, func() {
+				Example(16043694)
+				Meta("struct:tag:db", "round")
+				Meta("struct:tag:json", "round")
+			},
+		)
+		Attribute(
+			"unix_time", UInt64, func() {
+				Example(1629064223)
+				Meta("struct:tag:db", "unix_time")
+				Meta("struct:tag:json", "unix_time")
+			},
+		)
+		Attribute(
+			"formattedPrice", String, func() {
+				Example("1.970000")
+				Meta("struct:tag:db", "formattedPrice")
+				Meta("struct:tag:json", "formattedPrice")
+			},
+		)
+		Attribute(
+			"formattedASAAmount", String, func() {
+				Example("1.000000")
+				Meta("struct:tag:db", "formattedASAAmount")
+				Meta("struct:tag:json", "formattedASAAmount")
+			},
+		)
+		Attribute(
+			"decimals", UInt64, func() {
+				Example(6)
+				Meta("struct:tag:db", "decimals")
+				Meta("struct:tag:json", "decimals")
+			},
+		)
+		Required(
+			"assetLimitPriceInAlgos",
+			"asaPrice",
+			"assetLimitPriceD",
+			"assetLimitPriceN",
+			"algoAmount",
+			"asaAmount",
+			"assetId",
+			"appId",
+			"escrowAddress",
+			"ownerAddress",
+			"minimumExecutionSizeInAlgo",
+			"round",
+			"unix_time",
+			"formattedPrice",
+			"formattedASAAmount",
+			"decimals",
+		)
+	},
+)
+
+var Orders = Type(
+	"Orders", func() {
+		Description("Orders contains a list of buy/sell orders matching the criteria.")
+		Attribute("sellASAOrdersInEscrow", ArrayOf(Order), func() { Description("Sell orders") })
+		Attribute("buyASAOrdersInEscrow", ArrayOf(Order), func() { Description("Buy orders") })
+	},
+)
+
+var _ = Service(
+	"orders", func() {
+		Description("The orders service provides information on open orders")
+		Error("access_denied")
+		Error("missing_parameters")
+		HTTP(
+			func() {
+				Response("access_denied", http.StatusUnauthorized)
+			},
+		)
+
+		Method(
+			"get", func() {
+				Description("Get all open orders for a specific asset")
+				Payload(
+					func() {
+						Attribute(
+							"assetId", UInt64, "ASA ID", func() {
+								Example(15322902)
+							},
+						)
+						Attribute("ownerAddr", addressList, "Owner address(es)")
+					},
+				)
+				Result(Orders)
+				HTTP(
+					func() {
+						GET("/orders")
+						Param("assetId")
+						Param("ownerAddr")
+						Response(StatusOK)
+					},
+				)
+			},
+		)
+	},
+)
 var _ = Service(
 	"inspect", func() {
 		Description("The inspect service provides msgpack decoding services")

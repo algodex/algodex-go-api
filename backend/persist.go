@@ -29,6 +29,7 @@ type Persistor interface {
 	GetAssetInfo(ctx context.Context, assetID uint64) (*AssetInformation, error)
 	SetAssetInfo(ctx context.Context, assetID uint64, asset *AssetInformation) error
 	Reset(ctx context.Context) error
+	GetRawSQLHandle(ctx context.Context) (*sqlx.DB, error)
 }
 
 func initPersistance(_ context.Context, log *log.Logger) *persistor {
@@ -241,4 +242,12 @@ func (p *persistor) SetAssetInfo(ctx context.Context, assetID uint64, asset *Ass
 func (p *persistor) Reset(ctx context.Context) error {
 	// Remove the only things that don't naturally TTL out which is our 'set' of watched accounts
 	return p.redis.Del(ctx, redisKey("accounts", "watched")).Err()
+}
+
+func (p *persistor) GetRawSQLHandle(ctx context.Context) (*sqlx.DB, error) {
+	// Make sure our database connection is live - reconnect if necessary...
+	if err := p.sql.PingContext(ctx); err != nil {
+		return nil, err
+	}
+	return p.sql, nil
 }

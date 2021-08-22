@@ -11,6 +11,7 @@ import (
 	accountc "algodexidx/gen/http/account/client"
 	infoc "algodexidx/gen/http/info/client"
 	inspectc "algodexidx/gen/http/inspect/client"
+	ordersc "algodexidx/gen/http/orders/client"
 	"flag"
 	"fmt"
 	"net/http"
@@ -26,6 +27,7 @@ import (
 //
 func UsageCommands() string {
 	return `account (add|delete|delete-all|get|get-multiple|list|is-watched)
+orders get
 inspect unpack
 info (version|live)
 `
@@ -39,8 +41,13 @@ func UsageExamples() string {
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
       ]
    }'` + "\n" +
+		os.Args[0] + ` orders get --asset-id 15322902 --owner-addr '[
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
+   ]'` + "\n" +
 		os.Args[0] + ` inspect unpack --body '{
-      "msgpack": "Officiis aspernatur ut officia atque qui."
+      "msgpack": "Placeat quidem blanditiis dolorem officiis aspernatur."
    }'` + "\n" +
 		os.Args[0] + ` info version` + "\n" +
 		""
@@ -78,6 +85,12 @@ func ParseEndpoint(
 		accountIsWatchedFlags    = flag.NewFlagSet("is-watched", flag.ExitOnError)
 		accountIsWatchedBodyFlag = accountIsWatchedFlags.String("body", "REQUIRED", "")
 
+		ordersFlags = flag.NewFlagSet("orders", flag.ContinueOnError)
+
+		ordersGetFlags         = flag.NewFlagSet("get", flag.ExitOnError)
+		ordersGetAssetIDFlag   = ordersGetFlags.String("asset-id", "", "")
+		ordersGetOwnerAddrFlag = ordersGetFlags.String("owner-addr", "", "")
+
 		inspectFlags = flag.NewFlagSet("inspect", flag.ContinueOnError)
 
 		inspectUnpackFlags    = flag.NewFlagSet("unpack", flag.ExitOnError)
@@ -97,6 +110,9 @@ func ParseEndpoint(
 	accountGetMultipleFlags.Usage = accountGetMultipleUsage
 	accountListFlags.Usage = accountListUsage
 	accountIsWatchedFlags.Usage = accountIsWatchedUsage
+
+	ordersFlags.Usage = ordersUsage
+	ordersGetFlags.Usage = ordersGetUsage
 
 	inspectFlags.Usage = inspectUsage
 	inspectUnpackFlags.Usage = inspectUnpackUsage
@@ -122,6 +138,8 @@ func ParseEndpoint(
 		switch svcn {
 		case "account":
 			svcf = accountFlags
+		case "orders":
+			svcf = ordersFlags
 		case "inspect":
 			svcf = inspectFlags
 		case "info":
@@ -163,6 +181,13 @@ func ParseEndpoint(
 
 			case "is-watched":
 				epf = accountIsWatchedFlags
+
+			}
+
+		case "orders":
+			switch epn {
+			case "get":
+				epf = ordersGetFlags
 
 			}
 
@@ -227,6 +252,13 @@ func ParseEndpoint(
 			case "is-watched":
 				endpoint = c.IsWatched()
 				data, err = accountc.BuildIsWatchedPayload(*accountIsWatchedBodyFlag)
+			}
+		case "orders":
+			c := ordersc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "get":
+				endpoint = c.Get()
+				data, err = ordersc.BuildGetPayload(*ordersGetAssetIDFlag, *ordersGetOwnerAddrFlag)
 			}
 		case "inspect":
 			c := inspectc.NewClient(scheme, host, doer, enc, dec, restore)
@@ -298,7 +330,6 @@ Delete Algorand account(s) to track
 Example:
     `+os.Args[0]+` account delete --address '[
       "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
       "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
    ]'
 `, os.Args[0])
@@ -335,8 +366,6 @@ Example:
     `+os.Args[0]+` account get-multiple --body '{
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
       ]
    }'
@@ -365,10 +394,38 @@ Example:
       "address": [
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
-         "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
          "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
       ]
    }'
+`, os.Args[0])
+}
+
+// ordersUsage displays the usage of the orders command and its subcommands.
+func ordersUsage() {
+	fmt.Fprintf(os.Stderr, `The orders service provides information on open orders
+Usage:
+    %s [globalflags] orders COMMAND [flags]
+
+COMMAND:
+    get: Get all open orders for a specific asset
+
+Additional help:
+    %s orders COMMAND --help
+`, os.Args[0], os.Args[0])
+}
+func ordersGetUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] orders get -asset-id UINT64 -owner-addr JSON
+
+Get all open orders for a specific asset
+    -asset-id UINT64: 
+    -owner-addr JSON: 
+
+Example:
+    `+os.Args[0]+` orders get --asset-id 15322902 --owner-addr '[
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU",
+      "4F5OA5OQC5TBHMCUDJWGKMUZAQE7BGWCKSJJSJEMJO5PURIFT5RW3VHNZU"
+   ]'
 `, os.Args[0])
 }
 
@@ -393,7 +450,7 @@ Unpack a msgpack body (base64 encoded) returning 'goal clerk inspect' output
 
 Example:
     `+os.Args[0]+` inspect unpack --body '{
-      "msgpack": "Officiis aspernatur ut officia atque qui."
+      "msgpack": "Placeat quidem blanditiis dolorem officiis aspernatur."
    }'
 `, os.Args[0])
 }

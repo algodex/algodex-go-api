@@ -92,6 +92,39 @@ func (w *watcher) GetAccounts(ctx context.Context) []*Account {
 	return retAccounts
 }
 
+func (w *watcher) GetAssetInfo(ctx context.Context, assetID uint64) (*AssetInformation, error) {
+	var (
+		assetInfo *AssetInformation
+		err       error
+	)
+	// Try redis first!
+	assetInfo, err = w.persist.GetAssetInfo(ctx, assetID)
+	if err != nil {
+		return nil, fmt.Errorf("error in getAssetInfo: %w", err)
+	}
+	if assetInfo == nil {
+		// not cached yet - fetch it
+
+		assetData, err := w.algoClient.GetAssetByID(assetID).Do(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching un-cached asset - asset id:%d, error:%w", assetID, err)
+		}
+		assetInfo = &AssetInformation{
+			Deleted:      assetData.Deleted,
+			Decimals:     assetData.Params.Decimals,
+			MetadataHash: assetData.Params.MetadataHash,
+			Name:         assetData.Params.Name,
+			UnitName:     assetData.Params.UnitName,
+			Url:          assetData.Params.Url,
+		}
+		if err = w.persist.SetAssetInfo(ctx, assetID, assetInfo); err != nil {
+			// couldn't set into persistence layer but can still set into our return value so don't skip this one...
+			w.logger.Printf("error setting fetching asset info, error:%s", err.Error())
+		}
+	}
+	return assetInfo, nil
+}
+
 func (w *watcher) start(ctx context.Context) {
 	go func(localHub *sentry.Hub) {
 		localHub.ConfigureScope(
@@ -337,26 +370,10 @@ func (w *watcher) updateAccountInfo(ctx context.Context, address string) (*Accou
 	}
 	// Walk the assets from the nodes' current account info - asset id / amount held
 	for _, asset := range accountInfo.Assets {
-		var (
-			assetInfo *AssetInformation
-			err       error
-		)
-		assetInfo, err = w.persist.GetAssetInfo(ctx, asset.AssetId)
+		assetInfo, err := w.GetAssetInfo(ctx, asset.AssetId)
 		if err != nil {
-			w.logger.Printf("error in getAssetInfo:%s", err.Error())
+			w.logger.Printf("error fetching asset, error:%s", err.Error())
 			continue
-		}
-		if assetInfo == nil {
-			// not cached yet - fetch it
-			assetInfo, err = w.getCurrentAssetInfo(ctx, asset.AssetId)
-			if err != nil {
-				w.logger.Printf("error fetching un-cached asset, error:%s", err.Error())
-				continue
-			}
-			if err = w.persist.SetAssetInfo(ctx, asset.AssetId, assetInfo); err != nil {
-				// couldn't set into persistence layer but can still set into our return value so don't skip this one...
-				w.logger.Printf("error setting fetching asset info, error:%s", err.Error())
-			}
 		}
 		retAccount.Holdings[asset.AssetId] = &Holding{
 			AssetID: asset.AssetId,
@@ -369,19 +386,4 @@ func (w *watcher) updateAccountInfo(ctx context.Context, address string) (*Accou
 	}
 
 	return retAccount, nil
-}
-
-func (w *watcher) getCurrentAssetInfo(ctx context.Context, assetID uint64) (*AssetInformation, error) {
-	assetData, err := w.algoClient.GetAssetByID(assetID).Do(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("getCurrentAssetInfo error in fetch of asset id:%d, error:%w", assetID, err)
-	}
-	return &AssetInformation{
-		Deleted:      assetData.Deleted,
-		Decimals:     assetData.Params.Decimals,
-		MetadataHash: assetData.Params.MetadataHash,
-		Name:         assetData.Params.Name,
-		UnitName:     assetData.Params.UnitName,
-		Url:          assetData.Params.Url,
-	}, nil
 }
