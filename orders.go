@@ -51,9 +51,9 @@ func (s *orderssrvc) Get(ctx context.Context, p *orders.GetPayload) (res *orders
 	if err != nil {
 		return nil, fmt.Errorf("error in query execution: %w", err)
 	}
+
 	// Walk all the assets in each record so we can reformat some of the prices
 	var assetDecimals = map[uint64]uint64{}
-
 	updateAssetData := func(orders []*orders.Order) error {
 		for _, order := range orders {
 			decimals, found := assetDecimals[order.AssetID]
@@ -71,7 +71,7 @@ func (s *orderssrvc) Get(ctx context.Context, p *orders.GetPayload) (res *orders
 				asaAmount = float64(order.AlgoAmount) / floatAsaPrice
 			}
 			order.FormattedPrice = getFormattedPrice(floatAsaPrice, decimals)
-			order.FormattedASAAmount = getFormattedASA_Amount(asaAmount, decimals)
+			order.FormattedASAAmount = getFormattedASAAmount(asaAmount, decimals)
 			order.Decimals = decimals
 		}
 		return nil
@@ -91,7 +91,7 @@ func getFormattedPrice(price float64, decimals uint64) string {
 	return fmt.Sprintf("%.06f", price*math.Pow10(int(decimals)-6))
 }
 
-func getFormattedASA_Amount(amount float64, decimals uint64) string {
+func getFormattedASAAmount(amount float64, decimals uint64) string {
 	return fmt.Sprintf(fmt.Sprintf("%%.0%df", decimals), amount/math.Pow10(int(decimals)))
 }
 
@@ -109,27 +109,27 @@ func execOrderbookQuery(ctx context.Context, itf backend.Itf, applicatonID uint6
 	}
 	if p.AssetID != nil {
 		stmt, err = db.Preparex(
-			`SELECT cast((denominator/numerator) as decimal(30,12)) AS 'assetLimitPriceInAlgos',
-				 cast((denominator/numerator) as decimal(30,12)) AS 'asaPrice',
-				 denominator AS 'assetLimitPriceD', numerator AS 'assetLimitPriceN',
-				 algoAmount, asaAmount, assetid as 'assetId', appid as 'appId',
-				 address as 'escrowAddress', ownerAddress,
-				 minimum AS 'minimumExecutionSizeInAlgo',
-				 round, unix_time
-				 FROM orderbook WHERE appid = ? AND assetid = ?
-				 ORDER BY round DESC;`,
+			`SELECT cast((denominator/numerator) as decimal(30,12)) AS 'assetlimitpriceinalgos',
+			 cast((denominator/numerator) as decimal(30,12)) AS 'asaprice',
+			 denominator AS 'assetlimitpriced', numerator AS 'assetlimitpricen',
+			 algoAmount as algoamount, asaAmount as asaamount, assetid as 'assetid', appid as 'appid',
+			 address as 'escrowaddress', ownerAddress as owneraddress,
+			 minimum AS 'minimumexecutionsizeinalgo',
+			 round, unix_time as unixtime
+			 FROM orderbook WHERE appid = ? AND assetid = ?
+			 ORDER BY round DESC;`,
 		)
 	} else {
 		query, args, newErr := sqlx.In(
-			`SELECT cast((denominator/numerator) as decimal(30,12)) AS 'assetLimitPriceInAlgos',
-				 cast((denominator/numerator) as decimal(30,12)) AS 'asaPrice',
-				 denominator AS 'assetLimitPriceD', numerator AS 'assetLimitPriceN',
-				 algoAmount, asaAmount, assetid as 'assetId', appid as 'appId',
-				 address as 'escrowAddress', ownerAddress,
-				 minimum AS 'minimumExecutionSizeInAlgo',
-				 round, unix_time
-				 FROM orderbook WHERE appid = ? AND ownerAddress in ( ? )
-				 ORDER BY round DESC;`, applicatonID, p.OwnerAddr,
+			`SELECT cast((denominator/numerator) as decimal(30,12)) AS 'assetlimitpriceinalgos',
+			 cast((denominator/numerator) as decimal(30,12)) AS 'asaprice',
+			 denominator AS 'assetlimitpriced', numerator AS 'assetlimitpricen',
+			 algoAmount as algoamount, asaAmount as asaamount, assetid as 'assetid', appid as 'appid',
+			 address as 'escrowaddress', ownerAddress as owneraddress,
+			 minimum AS 'minimumexecutionsizeinalgo',
+			 round, unix_time as unixtime
+			 FROM orderbook WHERE appid = ? AND owneraddress in ( ? )
+			 ORDER BY round DESC;`, applicatonID, p.OwnerAddr,
 		)
 		if newErr != nil {
 			return nil, fmt.Errorf("error in in preparation syntax: %w", newErr)

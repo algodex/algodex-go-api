@@ -42,22 +42,22 @@ type GetAccessDeniedResponseBody struct {
 
 // OrderResponseBody is used to define fields on response body types.
 type OrderResponseBody struct {
-	AssetLimitPriceInAlgos     *string `db:"assetLimitPriceInAlgos" json:"assetLimitPriceInAlgos"`
-	AsaPrice                   *string `db:"asaPrice" json:"asaPrice"`
-	AssetLimitPriceD           *uint64 `db:"assetLimitPriceD" json:"assetLimitPriceD"`
-	AssetLimitPriceN           *uint64 `db:"assetLimitPriceN" json:"assetLimitPriceN"`
-	AlgoAmount                 *uint64 `db:"algoAmount" json:"algoAmount"`
-	AsaAmount                  *uint64 `db:"asaAmount" json:"asaAmount"`
-	AssetID                    *uint64 `db:"assetId" json:"assetId"`
-	AppID                      *uint64 `db:"appId" json:"appId"`
-	EscrowAddress              *string `db:"escrowAddress" json:"escrowAddress"`
-	OwnerAddress               *string `db:"ownerAddress" json:"ownerAddress"`
-	MinimumExecutionSizeInAlgo *uint64 `db:"minimumExecutionSizeInAlgo" json:"minimumExecutionSizeInAlgo"`
-	Round                      *uint64 `db:"round" json:"round"`
-	UnixTime                   *uint64 `db:"unix_time" json:"unix_time"`
-	FormattedPrice             *string `db:"formattedPrice" json:"formattedPrice"`
-	FormattedASAAmount         *string `db:"formattedASAAmount" json:"formattedASAAmount"`
-	Decimals                   *uint64 `db:"decimals" json:"decimals"`
+	AssetLimitPriceInAlgos     *string `form:"assetLimitPriceInAlgos,omitempty" json:"assetLimitPriceInAlgos,omitempty" xml:"assetLimitPriceInAlgos,omitempty"`
+	AsaPrice                   *string `form:"asaPrice,omitempty" json:"asaPrice,omitempty" xml:"asaPrice,omitempty"`
+	AssetLimitPriceD           *uint64 `form:"assetLimitPriceD,omitempty" json:"assetLimitPriceD,omitempty" xml:"assetLimitPriceD,omitempty"`
+	AssetLimitPriceN           *uint64 `form:"assetLimitPriceN,omitempty" json:"assetLimitPriceN,omitempty" xml:"assetLimitPriceN,omitempty"`
+	AlgoAmount                 *uint64 `form:"algoAmount,omitempty" json:"algoAmount,omitempty" xml:"algoAmount,omitempty"`
+	AsaAmount                  *uint64 `form:"asaAmount,omitempty" json:"asaAmount,omitempty" xml:"asaAmount,omitempty"`
+	AssetID                    *uint64 `form:"assetId,omitempty" json:"assetId,omitempty" xml:"assetId,omitempty"`
+	AppID                      *uint64 `form:"appId,omitempty" json:"appId,omitempty" xml:"appId,omitempty"`
+	EscrowAddress              *string `form:"escrowAddress,omitempty" json:"escrowAddress,omitempty" xml:"escrowAddress,omitempty"`
+	OwnerAddress               *string `form:"ownerAddress,omitempty" json:"ownerAddress,omitempty" xml:"ownerAddress,omitempty"`
+	MinimumExecutionSizeInAlgo *uint64 `form:"minimumExecutionSizeInAlgo,omitempty" json:"minimumExecutionSizeInAlgo,omitempty" xml:"minimumExecutionSizeInAlgo,omitempty"`
+	Round                      *uint64 `form:"round,omitempty" json:"round,omitempty" xml:"round,omitempty"`
+	UnixTime                   *uint64 `form:"unix_time,omitempty" json:"unix_time,omitempty" xml:"unix_time,omitempty"`
+	FormattedPrice             *string `form:"formattedPrice,omitempty" json:"formattedPrice,omitempty" xml:"formattedPrice,omitempty"`
+	FormattedASAAmount         *string `form:"formattedASAAmount,omitempty" json:"formattedASAAmount,omitempty" xml:"formattedASAAmount,omitempty"`
+	Decimals                   *uint64 `form:"decimals,omitempty" json:"decimals,omitempty" xml:"decimals,omitempty"`
 }
 
 // NewGetOrdersOK builds a "orders" service "get" endpoint result from a HTTP

@@ -268,118 +268,27 @@ var Order = Type(
 	"Order", func() {
 		Description("Order is an individual buy or sell order")
 		Attribute(
-			"assetLimitPriceInAlgos", String,
-			func() {
-				Example(".08")
-				Meta("struct:tag:db", "assetLimitPriceInAlgos")
-				Meta("struct:tag:json", "assetLimitPriceInAlgos")
-			},
+			"assetLimitPriceInAlgos", String, func() { Example(".08") },
+		)
+		Attribute("asaPrice", String, func() { Example(".08") })
+		Attribute("assetLimitPriceD", UInt64, func() { Example(197) })
+		Attribute("assetLimitPriceN", UInt64, func() { Example(100) })
+		Attribute("algoAmount", UInt64, func() { Example(498000) })
+		Attribute("asaAmount", UInt64, func() { Example(1000000) })
+		Attribute("assetId", UInt64, func() { Example(15322902) })
+		Attribute("appId", UInt64, func() { Example(16021157) })
+		Attribute(
+			"escrowAddress", String, func() { Example("2IYBUR4WXPWGBKRETN4GVSCPG7VOJRMVZFYTDYMQSRMXQJY24EHGFLFIMU") },
 		)
 		Attribute(
-			"asaPrice", String, func() {
-				Example(".08")
-				Meta("struct:tag:db", "asaPrice")
-				Meta("struct:tag:json", "asaPrice")
-			},
+			"ownerAddress", String, func() { Example("XHGANA4SOVZKH4GGSSLAMOZDVWWVIXT5DZBIEGI3GX2EESVFNFGFTHJATA") },
 		)
-		Attribute(
-			"assetLimitPriceD", UInt64, func() {
-				Example(197)
-				Meta("struct:tag:db", "assetLimitPriceD")
-				Meta("struct:tag:json", "assetLimitPriceD")
-			},
-		)
-		Attribute(
-			"assetLimitPriceN", UInt64, func() {
-				Example(100)
-				Meta("struct:tag:db", "assetLimitPriceN")
-				Meta("struct:tag:json", "assetLimitPriceN")
-			},
-		)
-		Attribute(
-			"algoAmount", UInt64, func() {
-				Example(498000)
-				Meta("struct:tag:db", "algoAmount")
-				Meta("struct:tag:json", "algoAmount")
-			},
-		)
-		Attribute(
-			"asaAmount", UInt64, func() {
-				Example(1000000)
-				Meta("struct:tag:db", "asaAmount")
-				Meta("struct:tag:json", "asaAmount")
-			},
-		)
-		Attribute(
-			"assetId", UInt64, func() {
-				Example(15322902)
-				Meta("struct:tag:db", "assetId")
-				Meta("struct:tag:json", "assetId")
-			},
-		)
-		Attribute(
-			"appId", UInt64, func() {
-				Example(16021157)
-				Meta("struct:tag:db", "appId")
-				Meta("struct:tag:json", "appId")
-			},
-		)
-		Attribute(
-			"escrowAddress", String, func() {
-				Example("2IYBUR4WXPWGBKRETN4GVSCPG7VOJRMVZFYTDYMQSRMXQJY24EHGFLFIMU")
-				Meta("struct:tag:db", "escrowAddress")
-				Meta("struct:tag:json", "escrowAddress")
-			},
-		)
-		Attribute(
-			"ownerAddress", String, func() {
-				Example("XHGANA4SOVZKH4GGSSLAMOZDVWWVIXT5DZBIEGI3GX2EESVFNFGFTHJATA")
-				Meta("struct:tag:db", "ownerAddress")
-				Meta("struct:tag:json", "ownerAddress")
-			},
-		)
-		Attribute(
-			"minimumExecutionSizeInAlgo", UInt64, func() {
-				Example(0)
-				Meta("struct:tag:db", "minimumExecutionSizeInAlgo")
-				Meta("struct:tag:json", "minimumExecutionSizeInAlgo")
-			},
-		)
-		Attribute(
-			"round", UInt64, func() {
-				Example(16043694)
-				Meta("struct:tag:db", "round")
-				Meta("struct:tag:json", "round")
-			},
-		)
-		Attribute(
-			"unix_time", UInt64, func() {
-				Example(1629064223)
-				Meta("struct:tag:db", "unix_time")
-				Meta("struct:tag:json", "unix_time")
-			},
-		)
-		Attribute(
-			"formattedPrice", String, func() {
-				Example("1.970000")
-				Meta("struct:tag:db", "formattedPrice")
-				Meta("struct:tag:json", "formattedPrice")
-			},
-		)
-		Attribute(
-			"formattedASAAmount", String, func() {
-				Example("1.000000")
-				Meta("struct:tag:db", "formattedASAAmount")
-				Meta("struct:tag:json", "formattedASAAmount")
-			},
-		)
-		Attribute(
-			"decimals", UInt64, func() {
-				Example(6)
-				Meta("struct:tag:db", "decimals")
-				Meta("struct:tag:json", "decimals")
-			},
-		)
+		Attribute("minimumExecutionSizeInAlgo", UInt64, func() { Example(0) })
+		Attribute("round", UInt64, func() { Example(16043694) })
+		Attribute("unix_time", UInt64, func() { Example(1629064223) })
+		Attribute("formattedPrice", String, func() { Example("1.970000") })
+		Attribute("formattedASAAmount", String, func() { Example("1.000000") })
+		Attribute("decimals", UInt64, func() { Example(6) })
 		Required(
 			"assetLimitPriceInAlgos",
 			"asaPrice",

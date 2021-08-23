@@ -42,22 +42,22 @@ type GetAccessDeniedResponseBody struct {
 
 // OrderResponseBody is used to define fields on response body types.
 type OrderResponseBody struct {
-	AssetLimitPriceInAlgos     string `db:"assetLimitPriceInAlgos" json:"assetLimitPriceInAlgos"`
-	AsaPrice                   string `db:"asaPrice" json:"asaPrice"`
-	AssetLimitPriceD           uint64 `db:"assetLimitPriceD" json:"assetLimitPriceD"`
-	AssetLimitPriceN           uint64 `db:"assetLimitPriceN" json:"assetLimitPriceN"`
-	AlgoAmount                 uint64 `db:"algoAmount" json:"algoAmount"`
-	AsaAmount                  uint64 `db:"asaAmount" json:"asaAmount"`
-	AssetID                    uint64 `db:"assetId" json:"assetId"`
-	AppID                      uint64 `db:"appId" json:"appId"`
-	EscrowAddress              string `db:"escrowAddress" json:"escrowAddress"`
-	OwnerAddress               string `db:"ownerAddress" json:"ownerAddress"`
-	MinimumExecutionSizeInAlgo uint64 `db:"minimumExecutionSizeInAlgo" json:"minimumExecutionSizeInAlgo"`
-	Round                      uint64 `db:"round" json:"round"`
-	UnixTime                   uint64 `db:"unix_time" json:"unix_time"`
-	FormattedPrice             string `db:"formattedPrice" json:"formattedPrice"`
-	FormattedASAAmount         string `db:"formattedASAAmount" json:"formattedASAAmount"`
-	Decimals                   uint64 `db:"decimals" json:"decimals"`
+	AssetLimitPriceInAlgos     string `form:"assetLimitPriceInAlgos" json:"assetLimitPriceInAlgos" xml:"assetLimitPriceInAlgos"`
+	AsaPrice                   string `form:"asaPrice" json:"asaPrice" xml:"asaPrice"`
+	AssetLimitPriceD           uint64 `form:"assetLimitPriceD" json:"assetLimitPriceD" xml:"assetLimitPriceD"`
+	AssetLimitPriceN           uint64 `form:"assetLimitPriceN" json:"assetLimitPriceN" xml:"assetLimitPriceN"`
+	AlgoAmount                 uint64 `form:"algoAmount" json:"algoAmount" xml:"algoAmount"`
+	AsaAmount                  uint64 `form:"asaAmount" json:"asaAmount" xml:"asaAmount"`
+	AssetID                    uint64 `form:"assetId" json:"assetId" xml:"assetId"`
+	AppID                      uint64 `form:"appId" json:"appId" xml:"appId"`
+	EscrowAddress              string `form:"escrowAddress" json:"escrowAddress" xml:"escrowAddress"`
+	OwnerAddress               string `form:"ownerAddress" json:"ownerAddress" xml:"ownerAddress"`
+	MinimumExecutionSizeInAlgo uint64 `form:"minimumExecutionSizeInAlgo" json:"minimumExecutionSizeInAlgo" xml:"minimumExecutionSizeInAlgo"`
+	Round                      uint64 `form:"round" json:"round" xml:"round"`
+	UnixTime                   uint64 `form:"unix_time" json:"unix_time" xml:"unix_time"`
+	FormattedPrice             string `form:"formattedPrice" json:"formattedPrice" xml:"formattedPrice"`
+	FormattedASAAmount         string `form:"formattedASAAmount" json:"formattedASAAmount" xml:"formattedASAAmount"`
+	Decimals                   uint64 `form:"decimals" json:"decimals" xml:"decimals"`
 }
 
 // NewGetResponseBody builds the HTTP response body from the result of the

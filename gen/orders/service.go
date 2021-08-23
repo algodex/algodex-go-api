@@ -47,22 +47,22 @@ type Orders struct {
 
 // Order is an individual buy or sell order
 type Order struct {
-	AssetLimitPriceInAlgos     string `db:"assetLimitPriceInAlgos" json:"assetLimitPriceInAlgos"`
-	AsaPrice                   string `db:"asaPrice" json:"asaPrice"`
-	AssetLimitPriceD           uint64 `db:"assetLimitPriceD" json:"assetLimitPriceD"`
-	AssetLimitPriceN           uint64 `db:"assetLimitPriceN" json:"assetLimitPriceN"`
-	AlgoAmount                 uint64 `db:"algoAmount" json:"algoAmount"`
-	AsaAmount                  uint64 `db:"asaAmount" json:"asaAmount"`
-	AssetID                    uint64 `db:"assetId" json:"assetId"`
-	AppID                      uint64 `db:"appId" json:"appId"`
-	EscrowAddress              string `db:"escrowAddress" json:"escrowAddress"`
-	OwnerAddress               string `db:"ownerAddress" json:"ownerAddress"`
-	MinimumExecutionSizeInAlgo uint64 `db:"minimumExecutionSizeInAlgo" json:"minimumExecutionSizeInAlgo"`
-	Round                      uint64 `db:"round" json:"round"`
-	UnixTime                   uint64 `db:"unix_time" json:"unix_time"`
-	FormattedPrice             string `db:"formattedPrice" json:"formattedPrice"`
-	FormattedASAAmount         string `db:"formattedASAAmount" json:"formattedASAAmount"`
-	Decimals                   uint64 `db:"decimals" json:"decimals"`
+	AssetLimitPriceInAlgos     string
+	AsaPrice                   string
+	AssetLimitPriceD           uint64
+	AssetLimitPriceN           uint64
+	AlgoAmount                 uint64
+	AsaAmount                  uint64
+	AssetID                    uint64
+	AppID                      uint64
+	EscrowAddress              string
+	OwnerAddress               string
+	MinimumExecutionSizeInAlgo uint64
+	Round                      uint64
+	UnixTime                   uint64
+	FormattedPrice             string
+	FormattedASAAmount         string
+	Decimals                   uint64
 }
 
 // MakeAccessDenied builds a goa.ServiceError from an error.
