@@ -6,8 +6,9 @@ name: algodex/algodex-go
 # documentation.
 
 on:
-  schedule:
-    - cron: '35 4 * * *'
+## Disable nightly
+#  schedule:
+#    - cron: '35 4 * * *'
   push:
     branches: [ main, development ]
     # Publish semver tags as releases.
